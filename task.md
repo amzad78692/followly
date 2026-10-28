@@ -35,7 +35,7 @@ Legend: `[x]` done · `[ ]` to do
 - [x] Add Influencer (`/influencers/add`): lookup, account picker, start tracking
 - [x] Influencer Profile (`/influencers/{slug}`): stats, Posts/About/Related tabs
 - [x] Shared components: `platform-icon`, `post-card`, `influencer-card`, `brand`, `verified`
-- [ ] Rename "FLWLEE" to "Followly" everywhere: `x-brand`, page titles in `partials/head`, "tracking on …" text, footer, `APP_NAME`
+- [x] Rename "FLWLEE" to "Followly" everywhere: `x-brand`, page titles in `partials/head`, "tracking on …" text, footer, `APP_NAME`
 
 ---
 
@@ -213,12 +213,11 @@ The site is English only for now. Leave the existing `en`/`ar` config and `SetLo
 
 ## Suggested order
 
-1. Rename to Followly (Phase 1 leftover)
-2. Phase 2 (database) and Phase 3 (auth)
-3. Phase 4 (real data), using seeded data
-4. Phase 5 + Phase 6, starting with **YouTube only** (free API)
-5. Instagram, TikTok and X through Apify
-6. Phases 7 → 8 → 9 → 10
-7. Phases 12–14 (Phase 11 is future work)
+1. Phase 2 (database) and Phase 3 (auth)
+2. Phase 4 (real data), using seeded data
+3. Phase 5 + Phase 6, starting with **YouTube only** (free API)
+4. Instagram, TikTok and X through Apify
+5. Phases 7 → 8 → 9 → 10
+6. Phases 12–14 (Phase 11 is future work)
 
 **First milestone:** login works, YouTube creators sync for real, and Feed, My Influencers and Profile show real data.

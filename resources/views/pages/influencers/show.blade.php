@@ -104,7 +104,7 @@ new #[Layout('components.layouts.dashboard')] class extends Component {
                 </div>
                 <div>
                     <p class="text-lg font-bold text-zinc-900">{{ $influencer['tracking'] }}</p>
-                    <p class="text-xs text-zinc-500">Tracking on FLWLEE</p>
+                    <p class="text-xs text-zinc-500">Tracking on {{ config('app.name') }}</p>
                 </div>
             </div>
         </div>

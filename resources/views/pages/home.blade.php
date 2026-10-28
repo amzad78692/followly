@@ -103,6 +103,6 @@ new class extends Component {
 
     <footer id="faq" class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-zinc-500">
         <x-brand class="text-base" />
-        <p>&copy; {{ date('Y') }} FLWLEE. All rights reserved.</p>
+        <p>&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</p>
     </footer>
 </div>

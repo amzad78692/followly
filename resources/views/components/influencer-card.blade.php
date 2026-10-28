@@ -18,7 +18,7 @@
         @endforeach
     </ul>
 
-    <p class="mt-3 text-[11px] text-indigo-500">{{ $influencer['tracking'] }} tracking on FLWLEE</p>
+    <p class="mt-3 text-[11px] text-indigo-500">{{ $influencer['tracking'] }} tracking on {{ config('app.name') }}</p>
 
     <div class="mt-auto pt-3">
         @if ($influencer['followed'])
