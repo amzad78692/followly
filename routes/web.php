@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\RemoteImageController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -14,8 +16,12 @@ Route::middleware('auth')->group(function () {
     Volt::route('settings', 'settings')->name('settings');
     Volt::route('influencers', 'influencers.index')->name('influencers.index');
     Volt::route('influencers/add', 'influencers.create')->name('influencers.create');
-    Volt::route('influencers/{influencer}', 'influencers.show')->name('influencers.show');
 });
+
+// Profiles are public so they can be shared and indexed; guests get the public layout.
+Volt::route('influencers/{influencer}', 'influencers.show')->name('influencers.show');
+
+Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 
 require __DIR__.'/auth.php';
 
@@ -31,3 +37,15 @@ Route::get('/{locale}', function ($locale) {
 Route::get('storage/.cache/{imgPath}', [ImageController::class, 'manipulation'])
     ->where('imgPath', '.*')
     ->name('image.manipulation');
+
+Route::get('img', RemoteImageController::class)
+    ->middleware('signed')
+    ->name('image.remote');
+
+Route::get('robots.txt', fn () => response(implode("\n", [
+    'User-agent: *',
+    'Disallow: /admin',
+    '',
+    'Sitemap: '.route('sitemap'),
+    '',
+]), 200, ['Content-Type' => 'text/plain']))->name('robots');

@@ -64,6 +64,8 @@
         </div>
     </flux:main>
 
+    <x-player-modal />
+
     @fluxScripts
 </body>
 </html>

@@ -2,6 +2,7 @@
 
 use App\Settings\ContactSettings;
 use App\Settings\GeneralSettings;
+use App\Support\RemoteImage;
 
 function setting($key, $default = null)
 {
@@ -20,7 +21,16 @@ function setting($key, $default = null)
         }
 
         return app($class)->{$keys[1]} ?? $default;
-    } catch (\Throwable $th) {
+    } catch (Throwable $th) {
         return $default;
     }
+}
+
+/**
+ * A remote image resized to $width (and cropped to $height) and served from our server.
+ * See App\Support\RemoteImage.
+ */
+function image_url(?string $url, int $width, ?int $height = null): ?string
+{
+    return RemoteImage::url($url, $width, $height);
 }

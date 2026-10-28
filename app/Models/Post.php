@@ -107,6 +107,24 @@ class Post extends Model
     }
 
     /**
+     * Player for watching the post without leaving the site (YouTube, TikTok and X):
+     * the iframe URL and its shape (landscape, portrait or tall). Null for Instagram.
+     *
+     * @return array{url: string, shape: string}|null
+     */
+    public function getEmbedAttribute(): ?array
+    {
+        $id = rawurlencode((string) $this->external_id);
+
+        return match ($this->platform) {
+            Platform::YouTube => ['url' => "https://www.youtube-nocookie.com/embed/{$id}?autoplay=1&rel=0", 'shape' => 'landscape'],
+            Platform::TikTok => ['url' => "https://www.tiktok.com/player/v1/{$id}?autoplay=1&rel=0", 'shape' => 'portrait'],
+            Platform::X => ['url' => "https://platform.twitter.com/embed/Tweet.html?id={$id}&dnt=true", 'shape' => 'tall'],
+            default => null,
+        };
+    }
+
+    /**
      * "12:34" or "2:18:05".
      */
     public function getDurationAttribute(): ?string

@@ -58,7 +58,7 @@ new class extends Component {
                 <p class="px-4 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">Influencers</p>
                 @foreach ($results['influencers'] as $influencer)
                     <a href="{{ route('influencers.show', $influencer) }}" wire:navigate wire:key="search-influencer-{{ $influencer->id }}" class="flex items-center gap-3 px-4 py-2 hover:bg-zinc-50">
-                        <img src="{{ $influencer->avatar }}" alt="" class="size-8 rounded-full object-cover">
+                        <img src="{{ image_url($influencer->avatar, 64, 64) }}" alt="" class="size-8 rounded-full object-cover">
                         <span class="min-w-0 flex-1">
                             <span class="flex items-center gap-1 text-sm font-medium text-zinc-900">
                                 <span class="truncate">{{ $influencer->name }}</span>

@@ -2,6 +2,7 @@
 
 use App\Models\AccountSnapshot;
 use App\Models\ApifyRun;
+use App\Support\RemoteImage;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -40,6 +41,14 @@ Schedule::call(fn () => DB::table('notifications')
     ->delete())
     ->name('prune-read-notifications')
     ->dailyAt('03:45');
+
+// Downloaded platform images nobody has requested lately (see config/images.php).
+Artisan::command('images:prune', function () {
+    $this->info(RemoteImage::prune().' cached images removed.');
+})->purpose('Remove cached platform images that have not been requested lately');
+
+Schedule::command('images:prune')
+    ->dailyAt('04:00');
 
 Schedule::command('model:prune', ['--model' => [AccountSnapshot::class, ApifyRun::class]])
     ->dailyAt('03:30');

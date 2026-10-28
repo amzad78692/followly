@@ -139,7 +139,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class ex
             ])>
                 <button type="button" wire:click="open('{{ $notification->id }}')" class="flex min-w-0 flex-1 items-start gap-3 text-start">
                     <span class="relative shrink-0">
-                        <img src="{{ $data['avatar'] }}" alt="" class="size-10 rounded-full object-cover">
+                        <img src="{{ image_url($data['avatar'], 80, 80) }}" alt="" class="size-10 rounded-full object-cover">
                         @if ($platform)
                             <span class="absolute -bottom-1 -end-1 rounded-full bg-white p-0.5 shadow-sm">
                                 <x-platform-icon :platform="$platform" size="size-3.5" />
@@ -161,7 +161,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class ex
                     </span>
 
                     @if ($data['image'] ?? null)
-                        <img src="{{ $data['image'] }}" alt="" class="hidden h-14 w-24 shrink-0 rounded-lg object-cover sm:block">
+                        <img src="{{ image_url($data['image'], 192, 112) }}" alt="" class="hidden h-14 w-24 shrink-0 rounded-lg object-cover sm:block">
                     @endif
                 </button>
 

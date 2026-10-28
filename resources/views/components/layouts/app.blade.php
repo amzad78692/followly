@@ -5,7 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{{ $title ?? setting("general.website_name.$lang") }}</title>
+    @php $seoTitle = $title ?? setting("general.website_name.$lang") ?? config('app.name').' · Follow Once. Track Everywhere.'; @endphp
+    <title>{{ $seoTitle }}</title>
+
+    @include('partials.seo')
 
     <script>
         window.lang = "{{ $lang }}";

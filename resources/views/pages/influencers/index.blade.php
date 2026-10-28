@@ -78,19 +78,19 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Influencers')] class e
     </div>
 
     <div class="mt-6 rounded-2xl border border-zinc-200 bg-white">
-        <div class="flex flex-wrap items-center gap-3 border-b border-zinc-200 p-4">
-            <div class="min-w-48 flex-1">
-                <flux:input wire:model.live.debounce.250ms="search" icon="magnifying-glass" placeholder="Search my influencers..." size="sm" class="max-w-xs" />
+        <div class="grid grid-cols-2 gap-3 border-b border-zinc-200 p-4 sm:flex sm:flex-wrap sm:items-center">
+            <div class="col-span-2 sm:min-w-48 sm:flex-1">
+                <flux:input wire:model.live.debounce.250ms="search" icon="magnifying-glass" placeholder="Search my influencers..." size="sm" class="sm:max-w-xs" />
             </div>
 
-            <flux:select wire:model.live="category" size="sm" class="w-40!">
+            <flux:select wire:model.live="category" size="sm" class="sm:w-40!">
                 <flux:select.option value="">All Categories</flux:select.option>
                 @foreach ($this->categories as $item)
                     <flux:select.option :value="$item->id">{{ $item->name }}</flux:select.option>
                 @endforeach
             </flux:select>
 
-            <flux:select wire:model.live="platform" size="sm" class="w-40!">
+            <flux:select wire:model.live="platform" size="sm" class="sm:w-40!">
                 <flux:select.option value="">All Platforms</flux:select.option>
                 @foreach (\App\Enums\Platform::cases() as $item)
                     <flux:select.option :value="$item->value">{{ $item->label() }}</flux:select.option>
@@ -101,9 +101,9 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Influencers')] class e
         <ul class="divide-y divide-zinc-100 transition-opacity" wire:loading.class="opacity-50" wire:target="search, category, platform">
             @forelse ($this->follows as $follow)
                 @php $influencer = $follow->influencer; @endphp
-                <li class="flex items-center gap-4 px-4 py-3.5" wire:key="row-{{ $influencer->id }}">
+                <li class="flex items-center gap-3 px-4 py-3.5 sm:gap-4" wire:key="row-{{ $influencer->id }}">
                     <a href="{{ route('influencers.show', $influencer) }}" wire:navigate class="flex min-w-0 flex-1 items-center gap-3">
-                        <flux:avatar circle :src="$influencer->avatar" />
+                        <flux:avatar circle :src="image_url($influencer->avatar, 80, 80)" />
                         <div class="min-w-0">
                             <p class="truncate text-sm font-semibold text-zinc-900">{{ $influencer->name }}</p>
                             <p class="text-xs text-zinc-500">{{ $influencer->category?->name ?? '—' }}</p>

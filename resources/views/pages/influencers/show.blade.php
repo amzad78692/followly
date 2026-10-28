@@ -2,12 +2,12 @@
 
 use App\Livewire\Concerns\TogglesFollow;
 use App\Models\Influencer;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
 
-new #[Layout('components.layouts.dashboard')] class extends Component {
+new class extends Component {
     use TogglesFollow;
 
     public const PER_PAGE = 10;
@@ -79,7 +79,38 @@ new #[Layout('components.layouts.dashboard')] class extends Component {
 
     public function rendering($view): void
     {
-        $view->title($this->influencer->name);
+        $view->layout(auth()->check() ? 'components.layouts.dashboard' : 'components.layouts.public')
+            ->title($this->influencer->name)
+            ->layoutData($this->seo());
+    }
+
+    /**
+     * Description, share image and structured data for the profile (see partials/seo).
+     */
+    protected function seo(): array
+    {
+        $influencer = $this->influencer;
+        $url = route('influencers.show', $influencer);
+        $image = url(image_url($influencer->avatar, 400, 400));
+        $platforms = $this->accounts->map(fn ($account) => $account->platform->label())->join(', ', ' and ');
+
+        return [
+            'description' => Str::limit(Str::squish($influencer->bio ?? ''), 160)
+                ?: "Latest posts from {$influencer->name}".($platforms ? " on {$platforms}" : '').', in one feed on '.config('app.name').'.',
+            'image' => $image,
+            'canonical' => $url,
+            'ogType' => 'profile',
+            'jsonLd' => array_filter([
+                '@context' => 'https://schema.org',
+                '@type' => 'Person',
+                'name' => $influencer->name,
+                'alternateName' => $influencer->real_name !== $influencer->name ? $influencer->real_name : null,
+                'description' => $influencer->bio,
+                'image' => $image,
+                'url' => $url,
+                'sameAs' => $this->accounts->pluck('url')->filter()->values()->all(),
+            ]),
+        ];
     }
 }; ?>
 
@@ -94,13 +125,13 @@ new #[Layout('components.layouts.dashboard')] class extends Component {
     <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
         <div class="relative h-40 bg-linear-to-r from-sky-400 via-indigo-500 to-violet-500 sm:h-52">
             @if ($influencer->cover)
-                <img src="{{ $influencer->cover }}" alt="" class="size-full object-cover opacity-60 mix-blend-overlay">
+                <img src="{{ image_url($influencer->cover, 1600) }}" alt="" class="size-full object-cover opacity-60 mix-blend-overlay">
             @endif
         </div>
 
         <div class="px-5 pb-5 sm:px-8">
             <div class="-mt-14 flex flex-wrap items-end gap-4 sm:-mt-16">
-                <img src="{{ $influencer->avatar }}" alt="" class="relative size-28 rounded-full bg-white object-cover ring-4 ring-white sm:size-32">
+                <img src="{{ image_url($influencer->avatar, 256, 256) }}" alt="" class="relative size-28 rounded-full bg-white object-cover ring-4 ring-white sm:size-32">
 
                 <div class="min-w-0 flex-1 pt-16 pb-1">
                     <h1 class="flex items-center gap-2 text-2xl font-bold text-zinc-900">

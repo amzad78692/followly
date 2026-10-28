@@ -230,13 +230,21 @@ The site is English only for now. Leave the existing `en`/`ar` config and `SetLo
 - [ ] Check every page in RTL. The UI already uses logical `ms/me/ps/pe/start/end` classes.
 - [ ] Language switcher in the landing navbar and in Settings
 
-## Phase 12: Polish and performance
+## Phase 12: Polish and performance ✅
 
-- [ ] Store remote thumbnails and avatars locally, or proxy them through Glide (`image.manipulation` route), so slow external images don't hold up pages
-- [ ] Embedded players in a modal for YouTube, TikTok and X when a user opens a post
-- [ ] SEO for the landing page and public profiles (meta and OG tags)
-- [ ] Mobile pass: sidebar toggle, card grids, filter rows
-- [ ] Decide about dark mode. The UI is light-only right now; `@fluxAppearance` is not loaded.
+- [x] Platform images go through a proxy instead of the platform CDNs. `image_url($url, $width, $height)` returns a signed `image.remote` URL (`/img`). `App\Support\RemoteImage` downloads each image once, resizes it to webp with Glide, keeps it in `storage/app/image-cache`, and serves it with a 30-day browser cache. Local URLs (uploads) pass through unchanged.
+  - A failed download sends the browser to the original URL and isn't retried for an hour. Non-images, files over 10 MB and hosts that resolve to private addresses are refused.
+  - `images:prune` (daily, 04:00) removes images nobody has requested for `IMAGE_CACHE_DAYS`. `IMAGE_PROXY=false` links straight to the CDNs.
+  - Used for avatars, covers, post thumbnails and notification images. Email notifications still use the original URLs.
+  - The first visitor still waits for the platform once per image; images are not prefetched on sync.
+- [x] Embedded players: `Post::$embed` gives the iframe for YouTube (youtube-nocookie), TikTok (`/player/v1`) and X (`platform.twitter.com/embed/Tweet.html`). Clicking a post's media, or "Watch here" / "View here" in its menu, opens the shared `x-player-modal` (Escape or the backdrop closes it and stops playback). Instagram posts still open on Instagram.
+- [x] SEO: `partials/seo` adds description, canonical, Open Graph, Twitter card and JSON-LD tags. Pages pass them with `layoutData()`.
+  - Profiles (`/influencers/{slug}`) are now public. Guests get `components.layouts.public` (with the `x-site-header` navbar shared with the landing page); signed-in users keep the dashboard. A guest who presses Follow goes to Register and comes back to the profile.
+  - Profiles get their bio (or a generated line) as the description, the avatar as the share image and a schema.org `Person` with the accounts as `sameAs`.
+  - `/sitemap.xml` (the landing page and every profile, cached for an hour) and `/robots.txt` (a route now, so it can give the sitemap's full URL; `/admin` is disallowed)
+- [x] Mobile pass at 375px: the sidebar toggle, feed, Explore grids, profile, notifications and settings already worked. My Influencers' filters now sit in two columns under the search box, and multi-image posts use two columns on phones.
+- [x] Dark mode: staying light-only for now. Supporting it means `dark:` variants on every custom page and component, not just Flux's own, so it would be a phase of its own.
+- [x] Tests in `tests/Feature/Images/RemoteImageTest.php` and `tests/Feature/Pages/PublicPagesTest.php`
 
 ## Phase 13: Testing
 

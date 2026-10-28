@@ -27,23 +27,12 @@ new class extends Component {
 
 <div>
     {{-- Navbar --}}
-    <header class="mx-auto flex max-w-7xl items-center gap-8 px-6 py-5">
-        <x-brand />
-
-        <nav class="hidden items-center gap-7 text-sm font-medium text-zinc-600 md:flex">
-            <a href="#features" class="hover:text-zinc-900">Features</a>
-            <a href="{{ route('explore') }}" wire:navigate class="hover:text-zinc-900">Explore</a>
-            <a href="#about" class="hover:text-zinc-900">About</a>
-            <a href="#faq" class="hover:text-zinc-900">FAQ</a>
-        </nav>
-
-        <flux:spacer />
-
-        <div class="flex items-center gap-2">
-            <flux:button size="sm" :href="route('login')" wire:navigate>Sign in</flux:button>
-            <flux:button size="sm" variant="primary" :href="route('register')" wire:navigate>Get Started</flux:button>
-        </div>
-    </header>
+    <x-site-header>
+        <a href="#features" class="hover:text-zinc-900">Features</a>
+        <a href="{{ route('explore') }}" wire:navigate class="hover:text-zinc-900">Explore</a>
+        <a href="#about" class="hover:text-zinc-900">About</a>
+        <a href="#faq" class="hover:text-zinc-900">FAQ</a>
+    </x-site-header>
 
     {{-- Hero --}}
     <section class="mx-auto grid max-w-7xl items-center gap-12 px-6 pt-10 pb-16 lg:grid-cols-2 lg:pt-16">

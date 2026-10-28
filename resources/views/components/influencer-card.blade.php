@@ -2,7 +2,7 @@
 
 <div {{ $attributes->class('flex flex-col rounded-2xl border border-zinc-200 bg-white p-4 transition hover:shadow-lg hover:shadow-zinc-900/5') }}>
     <a href="{{ route('influencers.show', $influencer) }}" wire:navigate class="block">
-        <img src="{{ $influencer->avatar }}" alt="" class="size-16 rounded-full object-cover ring-4 ring-indigo-50">
+        <img src="{{ image_url($influencer->avatar, 128, 128) }}" alt="" class="size-16 rounded-full object-cover ring-4 ring-indigo-50">
         <p class="mt-3 flex items-center gap-1 text-sm font-semibold text-zinc-900">
             <span class="truncate">{{ $influencer->name }}</span>
             @if ($influencer->is_verified)
