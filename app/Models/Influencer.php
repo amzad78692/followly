@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Number;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
@@ -43,6 +44,7 @@ class Influencer extends Model implements HasMedia
             'is_featured' => 'boolean',
             'followers_count' => 'integer',
             'combined_reach' => 'integer',
+            'trending_score' => 'float',
         ];
     }
 
@@ -127,6 +129,35 @@ class Influencer extends Model implements HasMedia
         return $query->orderByDesc('followers_count');
     }
 
+    /**
+     * Highest trending score first (see App\Discovery\TrendingRanker), then most tracked.
+     */
+    public function scopeTrending(Builder $query): Builder
+    {
+        return $query->orderByDesc('trending_score')->mostTracked();
+    }
+
+    /**
+     * Creators in the user's most-followed categories that they don't follow yet, most tracked first.
+     * Users who follow no categorised creators get the most tracked creators overall.
+     */
+    public function scopeRecommendedFor(Builder $query, User $user): Builder
+    {
+        $followed = $user->follows()->select('influencer_id');
+
+        $categoryIds = static::whereIn('id', $followed)
+            ->whereNotNull('category_id')
+            ->groupBy('category_id')
+            ->orderByRaw('count(*) desc')
+            ->limit(config('discovery.recommended_categories'))
+            ->pluck('category_id');
+
+        return $query
+            ->whereNotIn('id', $followed)
+            ->when($categoryIds->isNotEmpty(), fn (Builder $q) => $q->whereIn('category_id', $categoryIds))
+            ->mostTracked();
+    }
+
     public function getAvatarAttribute(): string
     {
         return $this->getFirstMediaUrl('avatar')
@@ -147,6 +178,17 @@ class Influencer extends Model implements HasMedia
     public function getFormattedReachAttribute(): string
     {
         return Number::abbreviate($this->combined_reach, maxPrecision: 1);
+    }
+
+    /**
+     * Recalculate every influencer's cached Followly follower count in one query. Follows deleted
+     * by the database (a user's account removed) skip refreshCounts(), so this runs hourly.
+     */
+    public static function recountFollowers(): void
+    {
+        static::query()->toBase()->update([
+            'followers_count' => DB::raw('(select count(*) from follows where follows.influencer_id = influencers.id)'),
+        ]);
     }
 
     /**

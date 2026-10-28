@@ -69,3 +69,7 @@ select:focus[data-flux-control] {
 [data-flux-sidebar-item][data-current] {
     @apply border-transparent bg-indigo-50 font-semibold;
 }
+
+[x-cloak] {
+    display: none !important;
+}

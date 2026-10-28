@@ -20,6 +20,11 @@ class Country extends Model
         'subregion',
     ];
 
+    public function influencers()
+    {
+        return $this->hasMany(Influencer::class);
+    }
+
     public function states()
     {
         return $this->hasMany(State::class);

@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Concerns\TogglesFollow;
+use App\Models\Country;
 use App\Models\Influencer;
 use App\Models\Taxonomy;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,6 +31,10 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
     #[Url]
     public ?string $category = null;
 
+    /** Country ISO2 code. */
+    #[Url]
+    public ?string $country = null;
+
     public bool $showAll = false;
 
     #[Computed]
@@ -44,6 +49,12 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
         return $this->category ? $this->categories->firstWhere('slug', $this->category) : null;
     }
 
+    #[Computed]
+    public function activeCountry(): ?Country
+    {
+        return $this->country ? Country::where('iso2', $this->country)->first() : null;
+    }
+
     /**
      * Sections of influencers for the active tab: [heading => influencers].
      */
@@ -53,40 +64,23 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
         $query = fn () => Influencer::query()
             ->with(['category', 'country', 'accounts'])
             ->when($this->activeCategory, fn (Builder $q, Taxonomy $category) => $q->where('category_id', $category->id))
+            ->when($this->activeCountry, fn (Builder $q, Country $country) => $q->where('country_id', $country->id))
             ->mostTracked();
 
         return match ($this->tab) {
             'category' => $query()->whereNotNull('category_id')->limit(100)->get()->groupBy('category.name')->sortKeys(),
             'country' => $query()->whereNotNull('country_id')->limit(100)->get()->groupBy('country.name')->sortKeys(),
             'language' => $query()->whereNotNull('language')->limit(100)->get()->groupBy('language')->sortKeys(),
-            'recommended' => collect(['Recommended for you' => $this->recommended($query())]),
-            // Ranked by Followly followers until the trending score lands (Phase 7).
-            default => collect(['Trending Now' => $query()->limit($this->showAll ? 24 : 4)->get()]),
+            'recommended' => collect(['Recommended for you' => $query()->reorder()->recommendedFor(auth()->user())->limit(12)->get()]),
+            default => collect(['Trending Now' => $query()->reorder()->trending()->limit($this->showAll ? 24 : 4)->get()]),
         };
-    }
-
-    /**
-     * Creators in the user's most-followed categories that they don't follow yet.
-     */
-    protected function recommended(Builder $query)
-    {
-        $categoryIds = Influencer::whereIn('id', $this->followedIds)
-            ->whereNotNull('category_id')
-            ->groupBy('category_id')
-            ->orderByRaw('count(*) desc')
-            ->pluck('category_id');
-
-        return $query
-            ->whereNotIn('id', $this->followedIds)
-            ->when($categoryIds->isNotEmpty(), fn (Builder $q) => $q->whereIn('category_id', $categoryIds))
-            ->limit(12)
-            ->get();
     }
 
     public function setTab(string $tab): void
     {
         $this->tab = array_key_exists($tab, self::TABS) ? $tab : 'trending';
         $this->category = null;
+        $this->country = null;
     }
 
     public function browse(string $slug): void
@@ -115,16 +109,24 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
         @endforeach
     </div>
 
-    @if ($this->activeCategory)
-        <div class="mt-4">
-            <flux:badge color="indigo">
-                {{ $this->activeCategory->name }}
-                <flux:badge.close wire:click="$set('category', null)" />
-            </flux:badge>
+    @if ($this->activeCategory || $this->activeCountry)
+        <div class="mt-4 flex flex-wrap gap-2">
+            @if ($this->activeCategory)
+                <flux:badge color="indigo">
+                    {{ $this->activeCategory->name }}
+                    <flux:badge.close wire:click="$set('category', null)" />
+                </flux:badge>
+            @endif
+            @if ($this->activeCountry)
+                <flux:badge color="indigo">
+                    {{ $this->activeCountry->name }}
+                    <flux:badge.close wire:click="$set('country', null)" />
+                </flux:badge>
+            @endif
         </div>
     @endif
 
-    <div wire:loading.class="opacity-50" wire:target="setTab, browse, category, showAll" class="transition-opacity">
+    <div wire:loading.class="opacity-50" wire:target="setTab, browse, category, country, showAll" class="transition-opacity">
         @forelse ($this->sections as $heading => $influencers)
             <section class="mt-8" wire:key="section-{{ $tab }}-{{ $heading }}">
                 <div class="flex items-center justify-between">

@@ -31,9 +31,7 @@
         <header class="sticky top-0 z-10 flex h-16 items-center gap-3 border-b border-zinc-200 bg-white/90 px-4 backdrop-blur lg:px-8">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
-            <div class="w-full max-w-md">
-                <flux:input icon="magnifying-glass" placeholder="Search influencers, topics or countries..." size="sm" />
-            </div>
+            <livewire:search-bar />
 
             <flux:spacer />
 

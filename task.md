@@ -80,7 +80,7 @@ Legend: `[x]` done · `[ ]` to do
   - filter by platform (the "Other" chip was dropped; every post belongs to a `Platform` case), sort latest/oldest
   - "load more" with `wire:intersect` plus a button fallback. It grows a `limit` (15 per step) rather than using `cursorPaginate`, which keeps the Livewire state small and needs no cursor bookkeeping; switch to cursors if feeds get very long.
 - [x] **Explore:**
-  - trending is ranked by Followly followers for now; Phase 7 replaces it with the real trending score
+  - trending was ranked by Followly followers; Phase 7 added the real trending score
   - category, country and language groups; "Browse by Category" from the `category` taxonomies (emoji in `meta.emoji`)
   - recommended: unfollowed creators in the user's most-followed categories
   - follow/unfollow through the shared `App\Livewire\Concerns\TogglesFollow` trait (also used on the profile)
@@ -152,15 +152,21 @@ Legend: `[x]` done · `[ ]` to do
 - [x] Tests in `tests/Feature/Sync/SyncTest.php`; the shared `profile()` / `fakePlatforms()` helpers are now in `tests/Pest.php`
 - Not checked against live APIs yet (no `YOUTUBE_API_KEY` / `APIFY_TOKEN`)
 
-## Phase 7: Discovery and ranking
+## Phase 7: Discovery and ranking ✅
 
-- [ ] **Trending score:** new Followly followers in the last 7 days, plus platform follower growth from snapshots. Cache it for 1 hour.
-- [ ] **Recommended:** creators in the user's most-followed categories that they don't follow yet, ranked by tracking count
-- [ ] Counter for "X tracking on Followly" (a `followers_count` cache on `influencers`)
-- [ ] **Global search in the top bar:**
-  - search influencers, categories and countries
-  - dropdown with results
-  - a `/search?q=` page
+- [x] **Trending score** (`App\Discovery\TrendingRanker`, settings in `config/discovery.php`):
+  - new Followly followers in the last 7 days (`TRENDING_DAYS`) × `TRENDING_FOLLOW_WEIGHT` (1), plus platform follower growth in percent × `TRENDING_GROWTH_WEIGHT` (2)
+  - growth compares each account's first and last snapshot inside the window, summed across the creator's accounts; accounts with one snapshot in the window are left out, and growth counts up to ±`TRENDING_GROWTH_CAP` (50%) so small accounts can't swamp the list
+  - stored on `influencers.trending_score` by `php artisan influencers:rank`, which runs hourly (this is the 1-hour cache, and lets Explore sort on an indexed column)
+  - Explore "Trending Now" uses `Influencer::trending()`: score first, then most tracked, so it still works before any snapshots exist
+- [x] **Recommended:** `Influencer::recommendedFor($user)`: unfollowed creators in the user's top `RECOMMENDED_CATEGORIES` (3) categories, most tracked first; users who follow no categorised creators get the most tracked creators overall
+- [x] Counter for "X tracking on Followly": `influencers.followers_count` (from Phase 2) is kept by `follow()` / `unfollow()`, and `influencers:rank` also recounts every influencer in one query (`Influencer::recountFollowers()`), which fixes follows removed by database cascades
+- [x] **Global search in the top bar** (`App\Discovery\GlobalSearch`):
+  - the `search-bar` Volt component (`resources/views/livewire`) searches as you type (2+ characters): influencers by name, handle, category or country; categories and countries that have creators, with counts
+  - dropdown with up to 5 results per group and "See all results"; Enter opens the page
+  - `/search?q=` page: categories and countries as chips, creator cards with follow buttons and "load more"
+  - categories link to Explore's category filter; countries link to a new Explore country filter (`/explore?tab=country&country=US`)
+- [x] Tests in `tests/Feature/Discovery/DiscoveryTest.php`
 
 ## Phase 8: Notifications
 

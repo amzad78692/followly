@@ -18,6 +18,14 @@ class Taxonomy extends ModelsTaxonomy
         return $this->hasMany(self::class, 'parent_id')->orderBy('sort_order');
     }
 
+    /**
+     * Influencers in this category (type "category").
+     */
+    public function influencers(): HasMany
+    {
+        return $this->hasMany(Influencer::class, 'category_id');
+    }
+
     protected static function booted()
     {
         static::deleted(function (Taxonomy $taxonomy) {

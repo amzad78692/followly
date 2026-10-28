@@ -22,6 +22,11 @@ Schedule::command('platforms:sync posts')
 Schedule::command('platforms:sync profiles')
     ->dailyAt('03:00');
 
+// Trending scores and cached follower counts for Explore (see config/discovery.php).
+Schedule::command('influencers:rank')
+    ->hourly()
+    ->withoutOverlapping();
+
 Schedule::command('model:prune', ['--model' => [AccountSnapshot::class, ApifyRun::class]])
     ->dailyAt('03:30');
 
