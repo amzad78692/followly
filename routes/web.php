@@ -2,10 +2,15 @@
 
 use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
+use Livewire\Volt\Volt;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Volt::route('/', 'home')->name('home');
+
+Volt::route('feed', 'feed')->name('feed');
+Volt::route('explore', 'explore')->name('explore');
+Volt::route('influencers', 'influencers.index')->name('influencers.index');
+Volt::route('influencers/add', 'influencers.create')->name('influencers.create');
+Volt::route('influencers/{slug}', 'influencers.show')->name('influencers.show');
 
 Route::get('/{locale}', function ($locale) {
     if (in_array($locale, config('app.supported_locales'))) {

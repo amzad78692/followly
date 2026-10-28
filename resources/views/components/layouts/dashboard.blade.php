@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="{{ $lang ?? app()->getLocale() }}" dir="{{ $direction ?? 'ltr' }}">
+<head>
+    @include('partials.head')
+</head>
+<body class="min-h-screen bg-zinc-50/60 font-sans text-zinc-900 antialiased">
+    <flux:sidebar sticky collapsible="mobile" class="border-e border-zinc-200 bg-white">
+        <flux:sidebar.header>
+            <x-brand class="px-2" />
+            <flux:sidebar.collapse class="lg:hidden" />
+        </flux:sidebar.header>
+
+        <flux:sidebar.nav>
+            <flux:sidebar.item icon="home" :href="route('feed')" :current="request()->routeIs('feed')" wire:navigate>My Feed</flux:sidebar.item>
+            <flux:sidebar.item icon="magnifying-glass" :href="route('explore')" :current="request()->routeIs('explore')" wire:navigate>Explore</flux:sidebar.item>
+            <flux:sidebar.item icon="users" :href="route('influencers.index')" :current="request()->routeIs('influencers.*')" wire:navigate>My Influencers</flux:sidebar.item>
+            <flux:sidebar.item icon="bell" href="#" badge="3" badge:color="red">Notifications</flux:sidebar.item>
+            <flux:sidebar.item icon="cog-6-tooth" href="#">Settings</flux:sidebar.item>
+        </flux:sidebar.nav>
+
+        <flux:sidebar.spacer />
+
+        <div class="rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 p-4 text-white">
+            <p class="text-sm font-semibold">Track a new creator</p>
+            <p class="mt-1 text-xs text-indigo-100">Paste any profile link and we find the rest.</p>
+            <flux:button size="sm" :href="route('influencers.create')" wire:navigate class="mt-3 w-full">Add Influencer</flux:button>
+        </div>
+    </flux:sidebar>
+
+    <flux:main class="p-0!">
+        <header class="sticky top-0 z-10 flex h-16 items-center gap-3 border-b border-zinc-200 bg-white/90 px-4 backdrop-blur lg:px-8">
+            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+
+            <div class="w-full max-w-md">
+                <flux:input icon="magnifying-glass" placeholder="Search influencers, topics or countries..." size="sm" />
+            </div>
+
+            <flux:spacer />
+
+            <flux:button variant="ghost" size="sm" icon="bell" class="relative" aria-label="Notifications" />
+
+            <flux:dropdown position="bottom" align="end">
+                <button type="button" class="cursor-pointer">
+                    <flux:avatar circle size="sm" src="https://i.pravatar.cc/100?img=68" />
+                </button>
+                <flux:menu>
+                    <flux:menu.item icon="user">Profile</flux:menu.item>
+                    <flux:menu.item icon="cog-6-tooth">Settings</flux:menu.item>
+                    <flux:menu.separator />
+                    <flux:menu.item icon="arrow-right-start-on-rectangle" :href="route('home')">Log out</flux:menu.item>
+                </flux:menu>
+            </flux:dropdown>
+        </header>
+
+        <div class="px-4 py-6 lg:px-8">
+            {{ $slot }}
+        </div>
+    </flux:main>
+
+    @fluxScripts
+</body>
+</html>
