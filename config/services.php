@@ -45,6 +45,8 @@ return [
         // Seconds to wait for a run in one request (Apify allows up to 60) and in total.
         'wait_seconds' => (int) env('APIFY_WAIT_SECONDS', 60),
         'timeout_seconds' => (int) env('APIFY_TIMEOUT_SECONDS', 300),
+        // Monthly spend in USD; when reached, Apify runs stop until next month and admins get an email. 0 for no limit.
+        'monthly_budget_usd' => (float) env('APIFY_MONTHLY_BUDGET_USD', 0),
         // One actor per platform; each returns the profile and its recent posts.
         'actors' => [
             'instagram' => env('APIFY_INSTAGRAM_ACTOR', 'apify/instagram-profile-scraper'),

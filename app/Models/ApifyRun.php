@@ -5,12 +5,15 @@ namespace App\Models;
 use App\Enums\Platform;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 
 /**
- * One Apify actor run, logged so spending can be watched (and capped in Phase 6).
+ * One Apify actor run, logged so spending can be watched and capped (ApifyBudget).
  */
 class ApifyRun extends Model
 {
+    use Prunable;
+
     protected $fillable = [
         'platform',
         'actor',
@@ -40,5 +43,10 @@ class ApifyRun extends Model
     public static function spentThisMonth(): float
     {
         return (float) static::thisMonth()->sum('usage_usd');
+    }
+
+    public function prunable(): Builder
+    {
+        return static::where('created_at', '<', now()->subDays(config('platforms.sync.apify_run_retention_days')));
     }
 }

@@ -22,9 +22,14 @@ class InstagramDriver extends ApifyDriver
         return Platform::Instagram;
     }
 
-    protected function input(string $handle, int $limit): array
+    protected function input(array $handles, int $limit): array
     {
-        return ['usernames' => [$handle], 'resultsLimit' => $limit];
+        return ['usernames' => $handles, 'resultsLimit' => $limit];
+    }
+
+    protected function handleOf(array $item): ?string
+    {
+        return $item['username'] ?? null;
     }
 
     protected function handleFromUrl(string $url): ?string

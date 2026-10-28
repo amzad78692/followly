@@ -1,5 +1,11 @@
 <?php
 
+use App\Enums\Platform;
+use App\Platforms\Data\AccountData;
+use App\Platforms\PlatformManager;
+use Tests\Fakes\FakeDriver;
+use Tests\TestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -11,7 +17,7 @@
 |
 */
 
-pest()->extend(Tests\TestCase::class)
+pest()->extend(TestCase::class)
  // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
@@ -44,4 +50,39 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/*
+|--------------------------------------------------------------------------
+| Platform fakes
+|--------------------------------------------------------------------------
+*/
+
+function profile(Platform $platform, string $handle, array $attributes = []): AccountData
+{
+    return new AccountData(...[
+        'platform' => $platform,
+        'externalId' => "{$platform->value}-{$handle}",
+        'handle' => $handle,
+        'name' => ucfirst($handle),
+        'followers' => 1000,
+        ...$attributes,
+    ]);
+}
+
+/**
+ * Swap every driver for a fake answering with the given profiles.
+ *
+ * @return array<string, FakeDriver>
+ */
+function fakePlatforms(AccountData ...$profiles): array
+{
+    $manager = app(PlatformManager::class);
+
+    return collect(Platform::cases())->mapWithKeys(function (Platform $platform) use ($manager, $profiles) {
+        $driver = FakeDriver::with($platform, ...array_filter($profiles, fn (AccountData $p) => $p->platform === $platform));
+        $manager->extend($platform, $driver);
+
+        return [$platform->value => $driver];
+    })->all();
 }

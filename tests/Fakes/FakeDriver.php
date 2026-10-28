@@ -5,7 +5,9 @@ namespace Tests\Fakes;
 use App\Enums\Platform;
 use App\Models\InfluencerAccount;
 use App\Platforms\Data\AccountData;
+use App\Platforms\Data\PostData;
 use App\Platforms\Driver;
+use App\Platforms\Exceptions\AccountNotFoundException;
 use App\Platforms\Exceptions\PlatformException;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
@@ -19,6 +21,9 @@ class FakeDriver extends Driver
     public array $lookups = [];
 
     public bool $fails = false;
+
+    /** @var array<string, array<int, PostData>> posts per lowercase handle */
+    public array $posts = [];
 
     /**
      * @param  array<string, AccountData>  $accounts
@@ -50,11 +55,23 @@ class FakeDriver extends Driver
 
     public function fetchProfile(InfluencerAccount $account): AccountData
     {
-        return $this->accounts[strtolower(ltrim($account->handle, '@'))];
+        if ($this->fails) {
+            throw new PlatformException($this->platform, 'service unavailable');
+        }
+
+        return $this->accounts[strtolower(ltrim($account->handle, '@'))]
+            ?? throw AccountNotFoundException::for($this->platform, $account->handle);
     }
 
     public function fetchRecentPosts(InfluencerAccount $account, ?CarbonInterface $since = null): Collection
     {
-        return collect();
+        if ($this->fails) {
+            throw new PlatformException($this->platform, 'service unavailable');
+        }
+
+        return collect($this->posts[strtolower(ltrim($account->handle, '@'))] ?? [])
+            ->filter(fn (PostData $post) => ! $since || $post->publishedAt->gt($since))
+            ->sortByDesc(fn (PostData $post) => $post->publishedAt)
+            ->values();
     }
 }

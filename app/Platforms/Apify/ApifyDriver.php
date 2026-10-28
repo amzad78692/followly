@@ -23,7 +23,17 @@ abstract class ApifyDriver extends Driver
 
     public function __construct(protected ApifyClient $client) {}
 
-    abstract protected function input(string $handle, int $limit): array;
+    /**
+     * Actor input for one or more handles (without "@"), $limit posts each.
+     *
+     * @param  array<int, string>  $handles
+     */
+    abstract protected function input(array $handles, int $limit): array;
+
+    /**
+     * Which handle an output item belongs to, so a batched run can be split per account.
+     */
+    abstract protected function handleOf(array $item): ?string;
 
     /**
      * The profile from the actor's items, or null when the account does not exist.
@@ -58,10 +68,35 @@ abstract class ApifyDriver extends Driver
 
     public function fetchRecentPosts(InfluencerAccount $account, ?CarbonInterface $since = null): Collection
     {
-        return $this->toPosts($this->items($account->handle))
+        return $this->newestFirst($this->toPosts($this->items($account->handle)))
             ->filter(fn (PostData $post) => ! $since || $post->publishedAt->gt($since))
-            ->sortByDesc(fn (PostData $post) => $post->publishedAt)
             ->values();
+    }
+
+    /**
+     * Profiles and recent posts for many accounts in one actor run.
+     *
+     * @param  Collection<int, InfluencerAccount>  $accounts
+     *                                                        Keyed by account id; the profile is null when the account was not found.
+     * @return Collection<int, array{profile: ?AccountData, posts: Collection<int, PostData>}>
+     */
+    public function fetchMany(Collection $accounts): Collection
+    {
+        $handles = $accounts->map(fn (InfluencerAccount $account) => $this->key($account->handle))->unique();
+
+        // Handles looked up in the last few minutes (e.g. on the Add page) need no new run.
+        $items = $handles->mapWithKeys(fn (string $handle) => [$handle => Cache::get($this->cacheKey($handle))])->filter()->all();
+        $missing = $handles->reject(fn (string $handle) => isset($items[$handle]))->values()->all();
+
+        if ($missing) {
+            $items += $this->run($missing);
+        }
+
+        return $accounts->mapWithKeys(function (InfluencerAccount $account) use ($items) {
+            $own = $items[$this->key($account->handle)] ?? [];
+
+            return [$account->id => ['profile' => $this->toAccount($own), 'posts' => $this->newestFirst($this->toPosts($own))]];
+        });
     }
 
     /**
@@ -69,15 +104,47 @@ abstract class ApifyDriver extends Driver
      */
     protected function items(string $handle): array
     {
-        $handle = ltrim($handle, '@');
-        $limit = config('platforms.posts_per_fetch');
-        $key = 'platforms:apify:'.$this->platform()->value.':'.Str::lower($handle).':'.$limit;
+        $handle = $this->key($handle);
 
-        return Cache::remember($key, now()->addMinutes(static::ITEMS_CACHE_MINUTES), function () use ($handle, $limit) {
-            $this->throttle();
+        return Cache::remember($this->cacheKey($handle), now()->addMinutes(static::ITEMS_CACHE_MINUTES), fn () => $this->run([$handle])[$handle] ?? []);
+    }
 
-            return $this->client->run($this->platform(), $this->actor(), $this->input($handle, $limit));
-        });
+    protected function cacheKey(string $handle): string
+    {
+        return 'platforms:apify:'.$this->platform()->value.':'.$handle.':'.config('platforms.posts_per_fetch');
+    }
+
+    /**
+     * Run the actor and group its items by lowercase handle.
+     *
+     * @param  array<int, string>  $handles
+     * @return array<string, array<int, array<string, mixed>>>
+     */
+    protected function run(array $handles): array
+    {
+        $this->throttle();
+
+        $items = $this->client->run($this->platform(), $this->actor(), $this->input($handles, config('platforms.posts_per_fetch')));
+
+        return collect($items)
+            ->groupBy(fn (array $item) => $this->key((string) $this->handleOf($item)))
+            ->forget('')
+            ->map->all()
+            ->all();
+    }
+
+    protected function key(string $handle): string
+    {
+        return Str::lower(ltrim($handle, '@'));
+    }
+
+    /**
+     * @param  Collection<int, PostData>  $posts
+     * @return Collection<int, PostData>
+     */
+    protected function newestFirst(Collection $posts): Collection
+    {
+        return $posts->sortByDesc(fn (PostData $post) => $post->publishedAt)->values();
     }
 
     protected function actor(): string

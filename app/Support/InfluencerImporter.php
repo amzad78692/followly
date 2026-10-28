@@ -5,22 +5,28 @@ namespace App\Support;
 use App\Models\Influencer;
 use App\Models\InfluencerAccount;
 use App\Platforms\Data\AccountData;
+use App\Sync\SyncDispatcher;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Stores accounts found by the platform drivers, creating the influencer when it is new.
+ * Stores accounts found by the platform drivers, creating the influencer when it is new,
+ * and queues a first sync for the new accounts.
  */
 class InfluencerImporter
 {
+    public function __construct(protected SyncDispatcher $sync) {}
+
     /**
      * @param  Collection<array-key, AccountData>  $accounts  the first one names a new influencer
      * @param  Model|null  $creator  the User or Admin adding them
      */
     public function import(Collection $accounts, ?Influencer $influencer = null, ?Model $creator = null): Influencer
     {
-        return DB::transaction(function () use ($accounts, $influencer, $creator) {
+        $created = collect();
+
+        $influencer = DB::transaction(function () use ($accounts, $influencer, $creator, $created) {
             $influencer ??= $this->createInfluencer($accounts, $creator);
             $platforms = $influencer->accounts()->pluck('platform')->map->value;
 
@@ -38,6 +44,11 @@ class InfluencerImporter
                 // Skip accounts another creator already owns.
                 if ($account->influencer_id === $influencer->id) {
                     $platforms->push($data->platform->value);
+
+                    if ($account->wasRecentlyCreated) {
+                        $account->snapshot();
+                        $created->push($account);
+                    }
                 }
             }
 
@@ -45,6 +56,10 @@ class InfluencerImporter
 
             return $influencer->fresh('accounts');
         });
+
+        $this->sync->dispatch($created);
+
+        return $influencer;
     }
 
     protected function createInfluencer(Collection $accounts, ?Model $creator): Influencer

@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AccountSnapshot extends Model
 {
+    use Prunable;
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -26,5 +30,10 @@ class AccountSnapshot extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(InfluencerAccount::class, 'influencer_account_id');
+    }
+
+    public function prunable(): Builder
+    {
+        return static::where('captured_on', '<', today()->subDays(config('platforms.sync.snapshot_retention_days')));
     }
 }

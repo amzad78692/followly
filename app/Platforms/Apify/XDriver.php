@@ -23,9 +23,15 @@ class XDriver extends ApifyDriver
         return Platform::X;
     }
 
-    protected function input(string $handle, int $limit): array
+    protected function input(array $handles, int $limit): array
     {
-        return ['twitterHandles' => [$handle], 'maxItems' => $limit, 'sort' => 'Latest'];
+        // maxItems caps the whole run, not each handle.
+        return ['twitterHandles' => $handles, 'maxItems' => $limit * count($handles), 'sort' => 'Latest'];
+    }
+
+    protected function handleOf(array $item): ?string
+    {
+        return $item['author']['userName'] ?? null;
     }
 
     protected function handleFromUrl(string $url): ?string

@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\AccountSnapshot;
+use App\Models\ApifyRun;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -8,9 +10,20 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('queue:work --stop-when-empty')
+Schedule::command('queue:work --queue=default,'.config('platforms.sync.queue').' --stop-when-empty')
     ->everyMinute()
     ->withoutOverlapping();
+
+// Platform syncing: each run queues only the accounts that are due (see config/platforms.php).
+Schedule::command('platforms:sync posts')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
+Schedule::command('platforms:sync profiles')
+    ->dailyAt('03:00');
+
+Schedule::command('model:prune', ['--model' => [AccountSnapshot::class, ApifyRun::class]])
+    ->dailyAt('03:30');
 
 // Automatic log cleanup - runs daily at 2:00 AM
 Schedule::command('log:cleanup')

@@ -126,19 +126,31 @@ Legend: `[x]` done · `[ ]` to do
 - [x] Tests in `tests/Feature/Platforms` with `Http::fake()` (YouTube, the three Apify drivers, the client's polling, timeout and cost log) and a `Tests\Fakes\FakeDriver` for lookup and the Add page. `Http::preventStrayRequests()` is on for every test.
 - New creators have no posts until Phase 6 runs their first sync.
 
-## Phase 6: Syncing (queues and scheduler)
+## Phase 6: Syncing (queues and scheduler) ✅
 
-- [ ] `SyncAccountProfile` job: updates followers and avatar, and writes an `account_snapshots` row each day
-- [ ] `SyncAccountPosts` job: upserts posts by `external_id`, and only fetches posts newer than the last sync
-- [ ] Scheduler (`routes/console.php`):
-  - sync posts every 15–30 minutes for accounts that have followers
-  - sync profiles every day
-  - remove old snapshots
-- [ ] Sync accounts with more followers first, to protect the YouTube quota and Apify spend
-- [ ] Sync Apify platforms less often than YouTube (for example every 1–2 hours), and batch many handles into one actor run where the actor supports it
-- [ ] Monthly Apify budget setting; pause Apify syncs and alert admins when it is reached
-- [ ] Run a first sync right away when someone adds a new influencer
-- [ ] Production: queue worker plus `schedule:run` cron, added to `scripts/deploy.sh`
+- [x] `App\Sync\AccountSyncer` does the storing:
+  - `syncProfile()`: followers, handle and verified flag, today's `account_snapshots` row, and the influencer's avatar from their biggest account (platform image links expire)
+  - `syncPosts()`: stores posts newer than the account's latest stored post (no duplicates on `platform` + `external_id`), sets `last_synced_at`, and fires `App\Events\PostsSynced` with the new posts (for Phase 8 notifications)
+- [x] Jobs on the `platforms` queue, sharing `App\Jobs\Concerns\HandlesPlatformErrors`. A rate limit releases the job until the limit resets, without counting as a failure. A missing account is marked failed and not retried. Other errors are saved to `sync_error` and retried after 1, 5 and 15 minutes, with up to 3 errors within 6 hours.
+  - `SyncAccountPosts` and `SyncAccountProfile`: one account each, unique per account
+  - `SyncYouTubeProfiles`: 50 channels in one API call
+  - `SyncApifyBatch`: one actor run for up to `APIFY_BATCH_SIZE` handles. The run returns profiles and posts together, so it updates both. Handles looked up in the last 10 minutes reuse the cached result, so the first sync after the Add page costs nothing extra.
+- [x] `App\Sync\SyncDispatcher` and the `php artisan platforms:sync {posts|profiles} {--platform=*}` command:
+  - only tracked accounts (`InfluencerAccount::tracked()`), biggest first, up to `*_SYNC_MAX` per platform per run
+  - due when the last sync is older than the platform's interval: YouTube 30 min, Instagram/TikTok/X 120 min (`*_SYNC_MINUTES`). Queued accounts are marked `syncing` and skipped for up to an hour. Failed ones wait `PLATFORM_FAILED_RETRY_HOURS` (24).
+  - the daily profile refresh covers YouTube only, because Apify runs return the profile with every post sync
+- [x] Scheduler (`routes/console.php`): posts every 15 minutes, YouTube profiles at 03:00, and `model:prune` at 03:30. Pruning removes snapshots and `apify_runs` rows older than 400 days (`SNAPSHOT_RETENTION_DAYS`, `APIFY_RUN_RETENTION_DAYS`). The worker now reads `--queue=default,platforms`.
+- [x] Monthly Apify budget (`APIFY_MONTHLY_BUDGET_USD`, 0 means no limit). Spend is the sum of `apify_runs.usage_usd` for the month. Once it reaches the budget:
+  - the dispatcher skips Apify platforms
+  - `ApifyClient` refuses any run, including Add page lookups
+  - every admin gets one `ApifyBudgetReached` email per month
+
+  It is an `.env` setting for now; a Filament setting can come with Phase 10.
+- [x] First sync right away: `InfluencerImporter` takes a snapshot of each new account and queues its sync once the transaction commits
+- [x] `DB_QUEUE_RETRY_AFTER` raised to 660 s so a slow Apify batch (up to 300 s, plus download) is not picked up twice
+- [x] Production: `scripts/queue.sh` (run by `deploy.sh`) installs the `schedule:run` cron if it is missing and runs `queue:restart`. Hosting looks like cPanel, so the cron-started `queue:work --stop-when-empty` stays; the script explains how to switch to Supervisor.
+- [x] Tests in `tests/Feature/Sync/SyncTest.php`; the shared `profile()` / `fakePlatforms()` helpers are now in `tests/Pest.php`
+- Not checked against live APIs yet (no `YOUTUBE_API_KEY` / `APIFY_TOKEN`)
 
 ## Phase 7: Discovery and ranking
 
@@ -195,7 +207,8 @@ The site is English only for now. Leave the existing `en`/`ar` config and `SetLo
 
 - [ ] Pest feature tests for each Volt page with `Volt::test()`: renders, filters, follow/unfollow, add-influencer flow
 - [x] Driver tests using `Http::fake()` with YouTube API and Apify actor responses (Phase 5)
-- [ ] Job tests: post upsert (no duplicates), snapshots, notifications sent
+- [x] Job tests: post upsert (no duplicates), snapshots (Phase 6)
+- [ ] Job tests: notifications sent
 - [ ] Auth tests: login, register, guest redirects
 - [ ] CI: Pint + Pest on each push to `main`
 

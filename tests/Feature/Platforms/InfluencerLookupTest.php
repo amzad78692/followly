@@ -8,43 +8,13 @@ use App\Models\User;
 use App\Platforms\AccountFinder;
 use App\Platforms\Data\AccountData;
 use App\Platforms\Exceptions\PlatformException;
-use App\Platforms\PlatformManager;
 use App\Support\InfluencerImporter;
 use App\Support\InfluencerLookup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Volt\Volt;
-use Tests\Fakes\FakeDriver;
 
 uses(RefreshDatabase::class);
-
-function profile(Platform $platform, string $handle, array $attributes = []): AccountData
-{
-    return new AccountData(...[
-        'platform' => $platform,
-        'externalId' => "{$platform->value}-{$handle}",
-        'handle' => $handle,
-        'name' => ucfirst($handle),
-        'followers' => 1000,
-        ...$attributes,
-    ]);
-}
-
-/**
- * Swap every driver for a fake answering with the given profiles.
- *
- * @return array<string, FakeDriver>
- */
-function fakePlatforms(AccountData ...$profiles): array
-{
-    $manager = app(PlatformManager::class);
-
-    return collect(Platform::cases())->mapWithKeys(function (Platform $platform) use ($manager, $profiles) {
-        $driver = FakeDriver::with($platform, ...array_filter($profiles, fn (AccountData $p) => $p->platform === $platform));
-        $manager->extend($platform, $driver);
-
-        return [$platform->value => $driver];
-    })->all();
-}
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -142,7 +112,8 @@ it('adds a new creator from the Add page and follows the chosen accounts', funct
         ->and($influencer->createdBy->is($this->user))->toBeTrue()
         ->and($influencer->combined_reach)->toBe(6000)
         ->and($influencer->accounts->pluck('handle', 'platform.value')->all())->toBe(['youtube' => '@chef', 'instagram' => '@chef'])
-        ->and($influencer->accounts->first()->sync_status)->toBe(SyncStatus::Pending)
+        // The first sync ran straight away (the test queue is synchronous).
+        ->and($influencer->accounts->first()->fresh()->sync_status)->toBe(SyncStatus::Synced)
         ->and($this->user->follows()->sole()->accounts)->toHaveCount(2);
 });
 
@@ -179,6 +150,7 @@ it('shows an error when a platform cannot be reached', function () {
 });
 
 it('does not take accounts another creator owns', function () {
+    Queue::fake();
     $owner = Influencer::factory()->create();
     InfluencerAccount::factory()->for($owner)->create(['platform' => Platform::Instagram, 'handle' => '@chef', 'external_id' => 'instagram-chef']);
 

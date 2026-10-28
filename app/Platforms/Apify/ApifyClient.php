@@ -4,6 +4,7 @@ namespace App\Platforms\Apify;
 
 use App\Enums\Platform;
 use App\Models\ApifyRun;
+use App\Platforms\Exceptions\BudgetExceededException;
 use App\Platforms\Exceptions\PlatformException;
 use App\Platforms\Exceptions\RateLimitedException;
 use Illuminate\Http\Client\ConnectionException;
@@ -31,9 +32,17 @@ class ApifyClient
      *
      * @throws PlatformException
      */
+    public function __construct(protected ApifyBudget $budget) {}
+
     public function run(Platform $platform, string $actor, array $input): array
     {
         config('services.apify.token') ?: throw new PlatformException($platform, 'APIFY_TOKEN is not set');
+
+        if ($this->budget->reached()) {
+            $this->budget->alert();
+
+            throw BudgetExceededException::for($platform, $this->budget->limit());
+        }
 
         $startedAt = hrtime(true);
         $log = new ApifyRun(['platform' => $platform, 'actor' => $actor, 'status' => 'STARTING']);

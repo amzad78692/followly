@@ -20,10 +20,15 @@ class TikTokDriver extends ApifyDriver
         return Platform::TikTok;
     }
 
-    protected function input(string $handle, int $limit): array
+    protected function handleOf(array $item): ?string
+    {
+        return $item['authorMeta']['name'] ?? null;
+    }
+
+    protected function input(array $handles, int $limit): array
     {
         return [
-            'profiles' => [$handle],
+            'profiles' => $handles,
             'resultsPerPage' => $limit,
             'profileScrapeSections' => ['videos'],
             'shouldDownloadVideos' => false,

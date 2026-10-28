@@ -6,6 +6,7 @@ use App\Enums\Platform;
 use App\Enums\SyncStatus;
 use App\Platforms\Data\AccountData;
 use Database\Factories\InfluencerAccountFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -72,6 +73,28 @@ class InfluencerAccount extends Model
     public function snapshots(): HasMany
     {
         return $this->hasMany(AccountSnapshot::class);
+    }
+
+    /**
+     * Accounts at least one user tracks.
+     */
+    public function scopeTracked(Builder $query): Builder
+    {
+        return $query->whereIn('id', FollowAccount::query()->select('influencer_account_id'));
+    }
+
+    /**
+     * Accounts whose posts were last synced more than $minutes ago (or never). Skips accounts
+     * queued less than an hour ago and failed ones until failed_retry_hours have passed.
+     */
+    public function scopeDueForSync(Builder $query, int $minutes): Builder
+    {
+        return $query
+            ->where(fn (Builder $q) => $q->whereNull('last_synced_at')->orWhere('last_synced_at', '<=', now()->subMinutes($minutes)))
+            ->where(fn (Builder $q) => $q
+                ->whereNotIn('sync_status', [SyncStatus::Syncing, SyncStatus::Failed])
+                ->orWhere(fn (Builder $q) => $q->where('sync_status', SyncStatus::Syncing)->where('updated_at', '<=', now()->subHour()))
+                ->orWhere(fn (Builder $q) => $q->where('sync_status', SyncStatus::Failed)->where('updated_at', '<=', now()->subHours(config('platforms.sync.failed_retry_hours')))));
     }
 
     public function getFormattedFollowersAttribute(): string
