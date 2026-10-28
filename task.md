@@ -39,35 +39,28 @@ Legend: `[x]` done · `[ ]` to do
 
 ---
 
-## Phase 2: Database and models
+## Phase 2: Database and models ✅
 
-- [ ] `App\Enums\Platform` (`youtube`, `instagram`, `tiktok`, `x`) with label, colour, unit ("Subscribers"/"Followers") and URL patterns
-- [ ] Migration and model **`Influencer`**:
-  - `name`, `slug` (unique), `real_name`, `bio`
-  - `avatar` and `cover` (media library)
-  - `country_id` (nnjeim/world), `language`
+- [x] Enums: `App\Enums\Platform` (label, unit, profile URL, detect platform from a link), `PostType`, `SyncStatus`
+- [x] Migration and model **`Influencer`**:
+  - `name`, `slug` (unique, generated automatically), `real_name`, `bio`
+  - `avatar_url` / `cover_url` (from the platform) plus `avatar` / `cover` media-library collections for uploads
+  - `category_id`, `country_id` (nnjeim/world), `language`
   - `is_verified`, `is_featured`, `followers_count` (cached), `combined_reach` (cached)
-  - `created_by_type` / `created_by_id` (morph to `User` or `Admin`, since both can add creators)
+  - `created_by_type` / `created_by_id` (morph to `User` or `Admin`)
   - timestamps and soft deletes
-- [ ] Categories: use the existing `Taxonomy` model (aliziodev/laravel-taxonomy) with a `category` type, plus an `influencer ↔ taxonomy` link table
-- [ ] Migration and model **`InfluencerAccount`**:
-  - `influencer_id`, `platform`, `handle`, `external_id`, `url`
-  - `followers` (bigint), `is_verified`, `last_synced_at`, `sync_status`, `sync_error`
-  - unique on (`platform`, `external_id`)
-- [ ] Migration and model **`Post`**:
-  - `influencer_account_id`, `influencer_id` (stored again to make feed queries fast), `platform`, `external_id` (unique per platform)
-  - `type` (video/image/carousel/text), `title`, `body`, `media` (json: urls, thumbnail), `duration_seconds`, `permalink`, `published_at`, `metrics` (json)
-  - index on (`influencer_id`, `published_at`)
-- [ ] Migration **`follows`**:
-  - `user_id`, `influencer_id`, `created_at`, unique pair
-  - plus `follow_accounts` (`follow_id`, `influencer_account_id`) so a user can pick which platforms to track (the checkboxes on the Add page)
-- [ ] Migration **`account_snapshots`**: `influencer_account_id`, `followers`, `captured_on`. This feeds the trending and growth numbers.
-- [ ] Relationships and scopes:
-  - `User::followedInfluencers()`
-  - `Influencer::followers()`, `accounts()`, `posts()`
-  - `Post::scopeFeedFor(User $user)`
-- [ ] Helper to format big numbers: `420000000` becomes `420M`. This replaces the hard-coded strings.
-- [ ] Factories and `DemoSeeder` that move the current `Demo` data into the database
+- [x] Categories: `category_id` on influencers, pointing at the existing `taxonomies` table (type `category`). A plain foreign key is used instead of the package's `taxonomables` link table, because that table is set up for UUID model ids and each influencer has one category.
+- [x] Migration and model **`InfluencerAccount`**: one per influencer per platform, unique on (`platform`, `external_id`). Saving it keeps the influencer's combined reach up to date.
+- [x] Migration and model **`Post`**: `influencer_id` and `platform` are copied from the account automatically, unique on (`platform`, `external_id`), index on (`influencer_id`, `published_at`)
+- [x] Migrations and models **`Follow`** + **`FollowAccount`** (`follows` and `follow_accounts`), so a user can choose which platforms to track
+- [x] Migration and model **`AccountSnapshot`**: one row per account per day (`InfluencerAccount::snapshot()`)
+- [x] Relationships and helpers:
+  - `User::follows()`, `followedInfluencers()`, `isFollowing()`, `follow($influencer, $accountIds)`, `unfollow()`
+  - `Influencer::accounts()`, `posts()`, `followers()`, `category()`, `country()`, `createdBy()`, `scopeSearch()`, `scopeMostTracked()`
+  - `Post::scopeFeedFor(User $user)`, `scopePlatform()`, formatted `duration`
+- [x] Number formatting uses Laravel's `Number::abbreviate()` (`420000000` becomes `420M`) through `formatted_*` accessors
+- [x] Factories (`Influencer`, `InfluencerAccount`, `Post`) and `DemoSeeder` (7 creators, 27 accounts, 11 posts, test user following 6). `DatabaseSeeder` runs it in the local environment only.
+- [x] Pest tests in `tests/Feature/Models/InfluencerTest.php`
 
 ## Phase 3: Authentication
 
