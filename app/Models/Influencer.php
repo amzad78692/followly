@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Platform;
 use Database\Factories\InfluencerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -87,7 +88,7 @@ class Influencer extends Model implements HasMedia
 
     public function accounts(): HasMany
     {
-        return $this->hasMany(InfluencerAccount::class);
+        return $this->hasMany(InfluencerAccount::class)->orderByRaw(Platform::orderSql());
     }
 
     public function posts(): HasMany

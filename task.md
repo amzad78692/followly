@@ -73,29 +73,29 @@ Legend: `[x]` done · `[ ]` to do
 - [x] Rate limits: login 5 attempts per email + IP; password reset 5 requests per IP (plus the broker's own per-email throttle)
 - [x] Pest tests in `tests/Feature/Auth/AuthenticationTest.php`
 
-## Phase 4: Replace fake data with Eloquent
+## Phase 4: Replace fake data with Eloquent ✅
 
-- [ ] **Feed:**
+- [x] **Feed:**
   - `Post::feedFor(auth()->user())`
-  - filter by platform, sort
-  - cursor pagination with a "load more" / infinite scroll (`wire:intersect`)
-- [ ] **Explore:**
-  - trending query (see Phase 7)
-  - category, country and language groups
-  - recommended list
-  - follow/unfollow actions
-- [ ] **My Influencers:** the user's follows, with search, category and platform filters, and unfollow (with a confirm modal)
-- [ ] **Profile:**
-  - route model binding on `slug`
-  - posts paginated
+  - filter by platform (the "Other" chip was dropped; every post belongs to a `Platform` case), sort latest/oldest
+  - "load more" with `wire:intersect` plus a button fallback. It grows a `limit` (15 per step) rather than using `cursorPaginate`, which keeps the Livewire state small and needs no cursor bookkeeping; switch to cursors if feeds get very long.
+- [x] **Explore:**
+  - trending is ranked by Followly followers for now; Phase 7 replaces it with the real trending score
+  - category, country and language groups; "Browse by Category" from the `category` taxonomies (emoji in `meta.emoji`)
+  - recommended: unfollowed creators in the user's most-followed categories
+  - follow/unfollow through the shared `App\Livewire\Concerns\TogglesFollow` trait (also used on the profile)
+- [x] **My Influencers:** the user's follows with the platforms they track, search, category and platform filters, and unfollow with a confirm modal
+- [x] **Profile:**
+  - route model binding on `slug` (`influencers/{influencer}`)
+  - posts with "load more"
   - Related tab (same category, most tracked)
   - "Across Platforms" box showing the last post time per account
-- [ ] **Add Influencer:** connect it to the URL resolver (Phase 5).
-  - If the creator already exists, just follow them.
-  - If not, create the influencer and accounts straight away (no approval), then follow.
-  - Store everything in a transaction.
-- [ ] Delete `App\Support\Demo` once every page uses real data
-- [ ] Empty and loading states (`wire:loading`, Flux skeletons)
+  - accounts are ordered YouTube, Instagram, TikTok, X everywhere (`Platform::orderSql()` on `Influencer::accounts()`)
+- [x] **Add Influencer:** `App\Support\InfluencerLookup` finds existing creators from a profile link (incl. `youtube.com/channel/<id>`), a handle or a name, and the user picks which accounts to track. Following again updates the tracked accounts.
+  - [ ] Creating creators that are not in the database yet needs the platform drivers: moved to Phase 5 (wire `PlatformManager` into `InfluencerLookup`, then create the influencer + accounts in a transaction and follow)
+- [x] Delete `App\Support\Demo`
+- [x] Empty states on every list, skeletons on feed filter changes, dimming on Explore and My Influencers filter changes
+- [x] Pest tests in `tests/Feature/Pages/DashboardPagesTest.php`
 
 ## Phase 5: Platform integration layer
 

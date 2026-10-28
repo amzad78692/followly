@@ -11,7 +11,7 @@ Route::middleware('auth')->group(function () {
     Volt::route('explore', 'explore')->name('explore');
     Volt::route('influencers', 'influencers.index')->name('influencers.index');
     Volt::route('influencers/add', 'influencers.create')->name('influencers.create');
-    Volt::route('influencers/{slug}', 'influencers.show')->name('influencers.show');
+    Volt::route('influencers/{influencer}', 'influencers.show')->name('influencers.show');
 });
 
 require __DIR__.'/auth.php';

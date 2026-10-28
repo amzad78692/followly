@@ -1,15 +1,16 @@
 @props(['platform', 'size' => 'size-4'])
 
 @php
-$bg = match ($platform) {
+$platform = \App\Enums\Platform::tryFrom($platform instanceof \App\Enums\Platform ? $platform->value : (string) $platform);
+$bg = match ($platform?->value) {
     'youtube' => 'bg-red-600',
     'instagram' => 'bg-linear-to-tr from-amber-400 via-pink-500 to-purple-600',
     default => 'bg-zinc-900',
 };
 @endphp
 
-<span {{ $attributes->class([$size, $bg, 'inline-flex shrink-0 items-center justify-center rounded-[25%] text-white']) }} title="{{ \App\Support\Demo::PLATFORMS[$platform]['label'] ?? $platform }}">
-    @switch($platform)
+<span {{ $attributes->class([$size, $bg, 'inline-flex shrink-0 items-center justify-center rounded-[25%] text-white']) }} title="{{ $platform?->label() }}">
+    @switch($platform?->value)
         @case('youtube')
             <svg viewBox="0 0 24 24" class="size-[55%]" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>
             @break
