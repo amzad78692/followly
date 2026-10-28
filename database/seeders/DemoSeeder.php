@@ -7,8 +7,10 @@ use App\Enums\PostType;
 use App\Enums\SyncStatus;
 use App\Models\Country;
 use App\Models\Influencer;
+use App\Models\Post;
 use App\Models\Taxonomy;
 use App\Models\User;
+use App\Notifications\NewPostNotification;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -148,6 +150,15 @@ class DemoSeeder extends Seeder
 
         foreach (self::DEMO_FOLLOWS as $slug) {
             $user->follow($influencers[$slug]);
+        }
+
+        // A notification per tracked account with posts, the newest two unread.
+        if (! $user->notifications()->exists()) {
+            Post::feedFor($user)->with('account.influencer')->get()
+                ->groupBy('influencer_account_id')
+                ->each(fn ($posts) => $user->notifyNow(new NewPostNotification($posts->first()->account, $posts)));
+
+            $user->notifications()->skip(2)->take(PHP_INT_MAX)->get()->markAsRead();
         }
     }
 }

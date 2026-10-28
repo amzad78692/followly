@@ -4,6 +4,7 @@ use App\Models\AccountSnapshot;
 use App\Models\ApifyRun;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
@@ -26,6 +27,19 @@ Schedule::command('platforms:sync profiles')
 Schedule::command('influencers:rank')
     ->hourly()
     ->withoutOverlapping();
+
+// Email digests of new post notifications (users choose daily or weekly).
+Schedule::command('notifications:digest daily')
+    ->dailyAt(config('notifications.digest.time'));
+
+Schedule::command('notifications:digest weekly')
+    ->weeklyOn(1, config('notifications.digest.time'));
+
+Schedule::call(fn () => DB::table('notifications')
+    ->where('read_at', '<', now()->subDays(config('notifications.retention_days')))
+    ->delete())
+    ->name('prune-read-notifications')
+    ->dailyAt('03:45');
 
 Schedule::command('model:prune', ['--model' => [AccountSnapshot::class, ApifyRun::class]])
     ->dailyAt('03:30');

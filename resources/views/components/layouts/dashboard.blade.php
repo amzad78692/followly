@@ -14,7 +14,7 @@
             <flux:sidebar.item icon="home" :href="route('feed')" :current="request()->routeIs('feed')" wire:navigate>My Feed</flux:sidebar.item>
             <flux:sidebar.item icon="magnifying-glass" :href="route('explore')" :current="request()->routeIs('explore')" wire:navigate>Explore</flux:sidebar.item>
             <flux:sidebar.item icon="users" :href="route('influencers.index')" :current="request()->routeIs('influencers.*')" wire:navigate>My Influencers</flux:sidebar.item>
-            <flux:sidebar.item icon="bell" href="#" badge="3" badge:color="red">Notifications</flux:sidebar.item>
+            <livewire:notification-count variant="sidebar" :current="request()->routeIs('notifications')" />
             <flux:sidebar.item icon="cog-6-tooth" href="#">Settings</flux:sidebar.item>
         </flux:sidebar.nav>
 
@@ -35,7 +35,7 @@
 
             <flux:spacer />
 
-            <flux:button variant="ghost" size="sm" icon="bell" class="relative" aria-label="Notifications" />
+            <livewire:notification-count variant="bell" />
 
             <flux:dropdown position="bottom" align="end">
                 <button type="button" class="cursor-pointer">

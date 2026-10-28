@@ -168,12 +168,23 @@ Legend: `[x]` done · `[ ]` to do
   - categories link to Explore's category filter; countries link to a new Explore country filter (`/explore?tab=country&country=US`)
 - [x] Tests in `tests/Feature/Discovery/DiscoveryTest.php`
 
-## Phase 8: Notifications
+## Phase 8: Notifications ✅
 
-- [ ] `NewPostNotification` (database channel) sent to followers after a sync stores new posts
-- [ ] Notifications page (`/notifications`): list, mark one read, mark all read
-- [ ] Unread badge in the sidebar and on the bell (live from the DB, not hard-coded "3")
-- [ ] Optional email digest (daily or weekly), sent through the queue
+- [x] `NewPostNotification` (database channel, type `new-post`) from the queued `App\Listeners\NotifyFollowersOfNewPosts`, which listens for `PostsSynced`:
+  - only users who track that account (`follow_accounts`), not everyone who follows the creator
+  - all new posts from one sync become one notification ("posted 3 times on YouTube"), newest post's title, image and link stored in `data`
+  - posts older than `NOTIFY_MAX_POST_AGE_HOURS` (48) are left out, so a creator's first sync (their back catalogue) doesn't flood anyone, and so are posts published before the user followed
+- [x] Notifications page (`/notifications`, component `notifications.index`, because Filament already registers a Livewire component called `notifications`):
+  - All / Unread filter, "load more", unread rows highlighted
+  - clicking a notification marks it read and opens the creator's profile; per-row "mark as read" and "open on platform"; "Mark all as read"
+- [x] Unread badge in the sidebar and on the top bar bell: the `notification-count` Volt component, counted from the DB, polling every 60 s while visible and refreshing at once when the page marks something read (`notifications-read` event). Shows `99+` above 99.
+- [x] Email digest, sent through the queue:
+  - `users.email_digest` (`App\Enums\DigestFrequency`: daily / weekly, null = off) and `users.digest_sent_at`; the setting gets its UI in Phase 9
+  - `php artisan notifications:digest {daily|weekly}` mails `NewPostsDigest` with the unread new post notifications since the last digest (up to `DIGEST_MAX_ITEMS`, 20); users with nothing new get no email
+  - scheduled daily at `DIGEST_TIME` (08:00) and weekly on Mondays
+- [x] Read notifications older than `NOTIFICATION_RETENTION_DAYS` (90) are deleted daily at 03:45
+- [x] `DemoSeeder` adds a notification per tracked account with posts (newest two unread)
+- [x] Tests in `tests/Feature/Notifications/NotificationsTest.php`
 
 ## Phase 9: Settings
 
@@ -214,7 +225,7 @@ The site is English only for now. Leave the existing `en`/`ar` config and `SetLo
 - [ ] Pest feature tests for each Volt page with `Volt::test()`: renders, filters, follow/unfollow, add-influencer flow
 - [x] Driver tests using `Http::fake()` with YouTube API and Apify actor responses (Phase 5)
 - [x] Job tests: post upsert (no duplicates), snapshots (Phase 6)
-- [ ] Job tests: notifications sent
+- [x] Job tests: notifications sent (Phase 8)
 - [ ] Auth tests: login, register, guest redirects
 - [ ] CI: Pint + Pest on each push to `main`
 

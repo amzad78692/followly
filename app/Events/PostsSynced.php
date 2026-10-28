@@ -6,13 +6,14 @@ use App\Models\InfluencerAccount;
 use App\Models\Post;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 /**
- * A sync stored posts that were not in the database before. Phase 8 notifies followers from here.
+ * A sync stored posts that were not in the database before. NotifyFollowersOfNewPosts tells followers.
  */
 class PostsSynced
 {
-    use Dispatchable;
+    use Dispatchable, SerializesModels;
 
     /**
      * @param  Collection<int, Post>  $posts

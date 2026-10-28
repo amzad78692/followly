@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\DigestFrequency;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -30,6 +31,7 @@ class User extends Authenticatable implements HasMedia
         'email',
         'mobile',
         'password',
+        'email_digest',
     ];
 
     /**
@@ -52,6 +54,8 @@ class User extends Authenticatable implements HasMedia
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'email_digest' => DigestFrequency::class,
+            'digest_sent_at' => 'datetime',
         ];
     }
 
