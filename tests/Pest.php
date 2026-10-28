@@ -1,8 +1,11 @@
 <?php
 
 use App\Enums\Platform;
+use App\Models\Admin;
 use App\Platforms\Data\AccountData;
 use App\Platforms\PlatformManager;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\Fakes\FakeDriver;
 use Tests\TestCase;
 
@@ -85,4 +88,28 @@ function fakePlatforms(AccountData ...$profiles): array
 
         return [$platform->value => $driver];
     })->all();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Admin panel
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Mirrors scripts/migrate.sh: Shield generates the permissions and super_admin gets all of them
+ * (super_admin is a plain role here, not a gate bypass).
+ */
+function superAdmin(array $attributes = []): Admin
+{
+    test()->artisan('shield:generate', ['--all' => true, '--option' => 'permissions', '--panel' => 'admin'])
+        ->assertSuccessful();
+
+    $role = Role::findOrCreate('super_admin', 'admin');
+    $role->syncPermissions(Permission::where('guard_name', 'admin')->get());
+
+    $admin = Admin::factory()->create($attributes);
+    $admin->assignRole($role);
+
+    return $admin;
 }

@@ -11,7 +11,6 @@ use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Jacobtims\FilamentLogger\Resources\ActivityResource\Pages\ListActivities;
 use Livewire\Livewire;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
@@ -19,24 +18,6 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 });
-
-/**
- * Mirrors scripts/migrate.sh: Shield generates the permissions and super_admin gets all of them
- * (super_admin is a plain role here, not a gate bypass).
- */
-function superAdmin(array $attributes = []): Admin
-{
-    test()->artisan('shield:generate', ['--all' => true, '--option' => 'permissions', '--panel' => 'admin'])
-        ->assertSuccessful();
-
-    $role = Role::findOrCreate('super_admin', 'admin');
-    $role->syncPermissions(Permission::where('guard_name', 'admin')->get());
-
-    $admin = Admin::factory()->create($attributes);
-    $admin->assignRole($role);
-
-    return $admin;
-}
 
 test('guests are redirected to the admin login page', function () {
     $this->get('/admin')->assertRedirect('/admin/login');

@@ -51,6 +51,7 @@ class AdminPanelProvider extends PanelProvider
                 AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
             ])
+            ->navigationGroups(['Content', 'Settings', 'System'])
             ->globalSearch(false)
             ->sidebarCollapsibleOnDesktop()
             ->brandLogo(fn () => setting('general.logo') ? asset('storage/'.setting('general.logo')) : '')

@@ -145,7 +145,7 @@ Legend: `[x]` done · `[ ]` to do
   - `ApifyClient` refuses any run, including Add page lookups
   - every admin gets one `ApifyBudgetReached` email per month
 
-  It is an `.env` setting for now; a Filament setting can come with Phase 10.
+  It is an `.env` setting for now; Phase 10 did not add a Filament setting for it.
 - [x] First sync right away: `InfluencerImporter` takes a snapshot of each new account and queues its sync once the transaction commits
 - [x] `DB_QUEUE_RETRY_AFTER` raised to 660 s so a slow Apify batch (up to 300 s, plus download) is not picked up twice
 - [x] Production: `scripts/queue.sh` (run by `deploy.sh`) installs the `schedule:run` cron if it is missing and runs `queue:restart`. Hosting looks like cPanel, so the cron-started `queue:work --stop-when-empty` stays; the script explains how to switch to Supervisor.
@@ -200,15 +200,27 @@ Legend: `[x]` done · `[ ]` to do
 - [x] "Saved." messages through the new `x-saved-message` component
 - [x] Tests in `tests/Feature/Settings/SettingsTest.php`
 
-## Phase 10: Admin (Filament)
+## Phase 10: Admin (Filament) ✅
 
-- [ ] `InfluencerResource`: CRUD, accounts as a relation manager, verify/feature toggles, "Sync now" action
-  - "Add from link" action that uses the same resolver as the user-facing Add Influencer page
-  - show who added each creator (user or admin)
-- [ ] `PostResource`: read-only list with filters, hide/remove action
-- [ ] Category management through the existing taxonomy setup
-- [ ] Dashboard widgets: users, follows, influencers, posts synced today, failed syncs, YouTube quota used, Apify spend this month
-- [ ] Shield permissions for the new resources (`shield:generate`)
+New resources sit in a "Content" navigation group, listed before Settings.
+
+- [x] `InfluencerResource` (`/admin/influencers`, records by slug):
+  - list: avatar, name, platform badges, category, reach, tracking count, verified/featured toggles, "Added by" (name + User/Admin); filters for category, platform, verified, featured, added by, "has a failed sync" and trashed
+  - create, edit and view pages; soft delete, restore, force delete. Uploaded avatar/cover replace the platform images. Creating by hand credits the admin (`created_by`).
+  - accounts relation manager: platform, handle (links to the profile), followers, sync status with the error as a tooltip, last synced. "Add account" resolves a link through `PlatformManager` and stores it with `InfluencerImporter`, refusing a platform the influencer already has or an account another influencer owns. Accounts are never edited by hand.
+  - "Sync now" on an influencer, on accounts, and in bulk: `SyncDispatcher::now()` queues the post sync and, for YouTube, the profile refresh, ignoring the sync interval
+  - "Add from link" (a two-step wizard) runs `InfluencerLookup` like the user-facing Add page: step one finds the accounts, step two picks which to store (same-username guesses start unticked). An influencer that is already fully stored stops on step one with a link to it.
+- [x] `PostResource` (`/admin/posts`): read-only list and view modal, filters for influencer, platform, type, hidden and "stored today"
+  - "Hide" sets `posts.hidden_at`. Hidden posts drop out of the feed (`Post::feedFor()`) and the profile (`Post::scopeVisible()`), and since the row stays, a sync doesn't store them again. "Show again" clears it. Both also work in bulk.
+  - "Remove" deletes the post; the modal warns that a sync may store it again if it is still among the account's newest posts
+- [x] `CategoryResource` (`/admin/categories`): `taxonomies` rows of type `category`, with name, emoji (`meta.emoji`), slug, sort order (drag to reorder) and description, plus an influencer count. Deleting a category leaves its influencers uncategorised (the foreign key nulls on delete).
+- [x] Dashboard widgets:
+  - `StatsOverview` (was a generic count of every resource): users (new this week), follows, influencers (how many are tracked), posts synced today
+  - `SyncHealth`: failed syncs (links to the filtered list), YouTube quota used today against `YOUTUBE_DAILY_QUOTA`, and Apify spend this month against the budget
+- [x] `Platform`, `SyncStatus` and `PostType` implement Filament's `HasLabel` (and `HasColor` for the first two), for badges and filter options
+- [x] Shield: `InfluencerPolicy`, `PostPolicy` and `TaxonomyPolicy` generated; `scripts/migrate.sh` already runs `shield:generate --all` on deploy, which adds their permissions. Assign them to roles other than `super_admin` in Roles.
+- [x] Tests in `tests/Feature/Admin/ContentAdminTest.php`; the `superAdmin()` helper moved to `tests/Pest.php`
+- The Apify budget is still an `.env` setting (`APIFY_MONTHLY_BUDGET_USD`) and has no Filament setting yet
 
 ## Phase 11: Arabic / RTL (future, not in current scope)
 

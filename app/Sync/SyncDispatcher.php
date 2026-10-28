@@ -91,6 +91,24 @@ class SyncDispatcher
         return $accounts->count();
     }
 
+    /**
+     * Sync the given accounts right away (the admin "Sync now" action): their posts, plus the
+     * profile for YouTube accounts, since Apify runs return the profile with the posts anyway.
+     *
+     * @param  iterable<InfluencerAccount>  $accounts
+     * @return int accounts queued
+     */
+    public function now(iterable $accounts): int
+    {
+        $accounts = collect($accounts);
+
+        $accounts->where('platform', Platform::YouTube)->pluck('id')
+            ->chunk(YouTubeDriver::BATCH_SIZE)
+            ->each(fn (Collection $chunk) => SyncYouTubeProfiles::dispatch($chunk->values()->all()));
+
+        return $this->dispatch($accounts);
+    }
+
     protected function usesApify(Platform $platform): bool
     {
         return $this->platforms->driver($platform) instanceof ApifyDriver;

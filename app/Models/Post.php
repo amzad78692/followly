@@ -28,6 +28,7 @@ class Post extends Model
         'permalink',
         'metrics',
         'published_at',
+        'hidden_at',
     ];
 
     protected function casts(): array
@@ -39,6 +40,7 @@ class Post extends Model
             'metrics' => 'array',
             'duration_seconds' => 'integer',
             'published_at' => 'datetime',
+            'hidden_at' => 'datetime',
         ];
     }
 
@@ -65,11 +67,25 @@ class Post extends Model
     }
 
     /**
+     * Posts an admin has not hidden.
+     */
+    public function scopeVisible(Builder $query): Builder
+    {
+        return $query->whereNull('hidden_at');
+    }
+
+    public function isHidden(): bool
+    {
+        return $this->hidden_at !== null;
+    }
+
+    /**
      * Posts from the accounts a user tracks, newest first.
      */
     public function scopeFeedFor(Builder $query, User $user): Builder
     {
         return $query
+            ->visible()
             ->whereIn('influencer_account_id', FollowAccount::query()
                 ->select('follow_accounts.influencer_account_id')
                 ->join('follows', 'follows.id', '=', 'follow_accounts.follow_id')

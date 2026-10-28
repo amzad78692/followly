@@ -2,7 +2,10 @@
 
 namespace App\Enums;
 
-enum Platform: string
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
+
+enum Platform: string implements HasColor, HasLabel
 {
     case YouTube = 'youtube';
     case Instagram = 'instagram';
@@ -16,6 +19,24 @@ enum Platform: string
             self::Instagram => 'Instagram',
             self::TikTok => 'TikTok',
             self::X => 'X',
+        };
+    }
+
+    public function getLabel(): string
+    {
+        return $this->label();
+    }
+
+    /**
+     * Badge colour in the admin panel.
+     */
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::YouTube => 'danger',
+            self::Instagram => 'warning',
+            self::TikTok => 'info',
+            self::X => 'gray',
         };
     }
 

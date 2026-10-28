@@ -36,7 +36,7 @@ new #[Layout('components.layouts.dashboard')] class extends Component {
     #[Computed]
     public function batch()
     {
-        return $this->influencer->posts()->with('influencer')->latest('published_at')->limit($this->limit + 1)->get();
+        return $this->influencer->posts()->visible()->with('influencer')->latest('published_at')->limit($this->limit + 1)->get();
     }
 
     #[Computed]
