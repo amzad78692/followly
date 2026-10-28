@@ -1,0 +1,99 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Maximum Log File Size
+    |--------------------------------------------------------------------------
+    |
+    | The maximum size (in kilobytes) for a single log file to be read.
+    | Files larger than this will be skipped to prevent memory exhaustion.
+    */
+    'max_log_file_size' => (int) env('LOG_MAX_SIZE_KB', 2048),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enable Log Deletion
+    |--------------------------------------------------------------------------
+    |
+    | Whether to allow deletion of log files through the interface. Set to false
+    | to disable this feature and prevent accidental log file removal.
+    */
+    'enable_delete' => env('LOG_ENABLE_DELETE', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Truncate on Clear
+    |--------------------------------------------------------------------------
+    |
+    | Whether clearing a log file truncates its contents (true) or deletes the
+    | file entirely (false). Defaults to truncate, which preserves the file.
+    */
+    'truncate_on_clear' => (bool) env('LOG_TRUNCATE_ON_CLEAR', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enable Copy as Markdown
+    |--------------------------------------------------------------------------
+    |
+    | Whether to allow copying log entries as Markdown. Set to false to disable
+    | this feature.
+    */
+    'enable_copy_markdown' => env('LOG_ENABLE_COPY_MARKDOWN', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Disable Parsed Row Cache
+    |--------------------------------------------------------------------------
+    |
+    | Whether to skip caching parsed log rows between requests. The cache is
+    | keyed by a fingerprint of the log files, so it self-invalidates whenever
+    | a file changes. Set to true to disable it entirely.
+    */
+    'disable_cache' => (bool) env('LOG_DISABLE_CACHE', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Copy as Markdown Log Levels
+    |--------------------------------------------------------------------------
+    |
+    | The log levels that will allow copying as Markdown. Only logs of these levels
+    | will show the "Copy as Markdown" action. Defaults to 'error'.
+    */
+    'copy_markdown_levels' => explode(',', env('LOG_COPY_MARKDOWN_LEVELS', 'error')),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Automatic Log Cleanup
+    |--------------------------------------------------------------------------
+    |
+    | Configure automatic cleanup of log files that exceed the max size limit.
+    | When enabled, the cleanup command will run on schedule to keep log files
+    | manageable by retaining only the most recent entries.
+    */
+    'auto_cleanup_enabled' => env('LOG_AUTO_CLEANUP_ENABLED', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Maximum Log Entries to Keep
+    |--------------------------------------------------------------------------
+    |
+    | When a log file exceeds the maximum size, this setting determines how
+    | many of the most recent log entries to keep when cleaning up the file.
+    */
+    'max_log_entries_to_keep' => (int) env('LOG_MAX_ENTRIES_TO_KEEP', 1000),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cleanup Strategy
+    |--------------------------------------------------------------------------
+    |
+    | Define how to handle large log files:
+    | - 'truncate_oldest': Keep the most recent entries, remove oldest
+    | - 'delete_file': Delete the entire file when it exceeds the limit
+    | - 'archive': Archive to compressed file before deleting (future feature)
+    */
+    'cleanup_strategy' => env('LOG_CLEANUP_STRATEGY', 'truncate_oldest'),
+];

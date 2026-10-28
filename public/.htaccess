@@ -1,0 +1,55 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # ----------------------------------------------------------------------
+    # Rule to serve cached images directly from /storage/.cache/
+    # ----------------------------------------------------------------------
+    # This block checks for a cached version of a requested image that has
+    # query string parameters (like width, height, etc.).
+
+    # Condition 1: The request must have a query string.
+    # The "." simply checks for the existence of at least one character.
+    RewriteCond %{QUERY_STRING} .
+
+    # Condition 2: Check if a cached file that matches the request exists.
+    # It constructs a path like: /storage/.cache/IMAGE_NAME__RAW_QUERY_STRING
+    # - $1 is the image name captured from the RewriteRule below (e.g., "my-photo.png").
+    # - %{QUERY_STRING} is the full, raw query string (e.g., "w=100&h=100").
+    #
+    # Example:
+    #   URL: /storage/.cache/my-photo.png?w=100&h=100
+    #   Checks for file: public/storage/.cache/my-photo.png__w=100&h=100
+    #
+    RewriteCond %{DOCUMENT_ROOT}/storage/.cache/$1__%{QUERY_STRING} -f
+
+    # The Rule: If the above conditions are met, rewrite to the cached file.
+    # - ^storage/.cache/(.+\.(jpe?g|png|gif|webp))$: Matches requests in the /storage/.cache/ directory.
+    # - /storage/.cache/$1__%{QUERY_STRING}: The new path for the cached file.
+    # - [L]: Last rule, stop processing.
+    # - [QSD]: Query String Discard. Prevents the original query string from being appended.
+    # - [NC]: No Case. Makes the match case-insensitive.
+    RewriteRule ^storage/.cache/(.+\.(jpe?g|png|gif|webp))$ /storage/.cache/$1__%{QUERY_STRING} [L,QSD,NC]
+
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
