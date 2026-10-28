@@ -34,6 +34,25 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'youtube' => [
+        'key' => env('YOUTUBE_API_KEY'),
+        // Free daily quota; units used are counted per Pacific day (when Google resets it).
+        'daily_quota' => (int) env('YOUTUBE_DAILY_QUOTA', 10000),
+    ],
+
+    'apify' => [
+        'token' => env('APIFY_TOKEN'),
+        // Seconds to wait for a run in one request (Apify allows up to 60) and in total.
+        'wait_seconds' => (int) env('APIFY_WAIT_SECONDS', 60),
+        'timeout_seconds' => (int) env('APIFY_TIMEOUT_SECONDS', 300),
+        // One actor per platform; each returns the profile and its recent posts.
+        'actors' => [
+            'instagram' => env('APIFY_INSTAGRAM_ACTOR', 'apify/instagram-profile-scraper'),
+            'tiktok' => env('APIFY_TIKTOK_ACTOR', 'clockworks/tiktok-scraper'),
+            'x' => env('APIFY_X_ACTOR', 'apidojo/tweet-scraper'),
+        ],
+    ],
+
     'myfatoorah' => [
         'test_key' => 'SK_KWT_vVZlnnAqu8jRByOWaRPNId4ShzEDNt256dvnjebuyzo52dXjAfRx2ixW5umjWSUx',
         'callback_url' => env('MF_CALLBACK'),

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Amzad\FilamentTranslatableGroup\TranslatableGroup;
+use App\Platforms\PlatformManager;
 use App\Policies\ActivityPolicy;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Filament\Forms\Components\Field;
@@ -22,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(PlatformManager::class);
+
         // Override Cache::rememberForever to handle missing cache table during migrations
         $this->app->booting(function () {
             if (!Schema::hasTable('cache')) {

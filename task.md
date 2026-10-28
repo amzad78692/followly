@@ -92,36 +92,39 @@ Legend: `[x]` done · `[ ]` to do
   - "Across Platforms" box showing the last post time per account
   - accounts are ordered YouTube, Instagram, TikTok, X everywhere (`Platform::orderSql()` on `Influencer::accounts()`)
 - [x] **Add Influencer:** `App\Support\InfluencerLookup` finds existing creators from a profile link (incl. `youtube.com/channel/<id>`), a handle or a name, and the user picks which accounts to track. Following again updates the tracked accounts.
-  - [ ] Creating creators that are not in the database yet needs the platform drivers: moved to Phase 5 (wire `PlatformManager` into `InfluencerLookup`, then create the influencer + accounts in a transaction and follow)
+  - [x] Creating creators that are not in the database yet: done in Phase 5
 - [x] Delete `App\Support\Demo`
 - [x] Empty states on every list, skeletons on feed filter changes, dimming on Explore and My Influencers filter changes
 - [x] Pest tests in `tests/Feature/Pages/DashboardPagesTest.php`
 
-## Phase 5: Platform integration layer
+## Phase 5: Platform integration layer ✅
 
-- [ ] `App\Platforms\Contracts\PlatformDriver`:
-  - `matchesUrl(string): bool`
-  - `resolve(string $urlOrHandle): ?AccountData`
-  - `fetchProfile(InfluencerAccount): AccountData`
-  - `fetchRecentPosts(InfluencerAccount, ?Carbon $since): Collection<PostData>`
-- [ ] DTOs: `AccountData` and `PostData`
-- [ ] `YouTubeDriver` using the YouTube Data API v3 (free):
-  - resolve `@handle`, channel URLs and video URLs to a channel
-  - read new uploads from the channel's uploads playlist (1 quota unit per call, much cheaper than search)
-  - batch up to 50 channels per stats request
-- [ ] `App\Platforms\Apify\ApifyClient`:
-  - runs an actor synchronously (`run-sync-get-dataset-items`), with a timeout and a fallback to async run + poll for slow actors
-  - API token in `.env` (`APIFY_TOKEN`)
-  - logs each run's cost and usage so spending can be watched
-- [ ] `InstagramDriver`, `TikTokDriver` and `XDriver` built on `ApifyClient`. Pick and test one actor per platform (profile + recent posts), and keep the actor IDs in config so they can be swapped.
-- [ ] Map each actor's output into the shared `AccountData` / `PostData` DTOs
-- [ ] `PlatformManager` that picks a driver from a URL or handle
-- [ ] **Finding a creator's other accounts:**
-  - from one URL, find their profiles on other platforms
-  - sources: links in the profile/bio, the same handle on other platforms, existing DB matches
-  - the user confirms the matches on the Add page
-- [ ] API keys and settings in `config/services.php` and `.env.example`
-- [ ] Rate limiting and retry with backoff for each driver. Save errors to `sync_error`.
+- [x] `App\Platforms\Contracts\PlatformDriver`: `platform()`, `matchesUrl()`, `resolve()`, `fetchProfile()`, `fetchRecentPosts(?since)`. Shared plumbing (rate limit, retries, URL parsing, resolve cache) is in the abstract `App\Platforms\Driver`.
+- [x] DTOs `App\Platforms\Data\AccountData` and `PostData`, with `toAccountAttributes()` / `toPostAttributes()` and array round-tripping for Livewire state
+- [x] Exceptions: `PlatformException`, `AccountNotFoundException`, `RateLimitedException` (carries `retryAfter` for Phase 6 jobs)
+- [x] `YouTubeDriver` (YouTube Data API v3):
+  - resolves `@handle`, `/channel/<id>`, `/user/`, `/c/`, bare handles and channel ids, and video links (`watch?v=`, `youtu.be`, `/shorts/`, `/live/`) through the video's channel
+  - new uploads from the uploads playlist (`UU…`), then one `videos` call for duration and stats; scheduled premieres are skipped
+  - `fetchProfiles()` batches 50 channels per call
+  - counts quota units per Pacific day (`quotaUsedToday()`) and stops at `YOUTUBE_DAILY_QUOTA`; `quotaExceeded` becomes `RateLimitedException`
+  - the API has no verified badge, so YouTube accounts are never marked verified
+- [x] `App\Platforms\Apify\ApifyClient`:
+  - starts a run with `waitForFinish` (blocks up to 60 s, so quick actors act synchronously) and polls slow ones until `APIFY_TIMEOUT_SECONDS`, then aborts. This replaces `run-sync-get-dataset-items`, whose response has no run object, so cost could not be logged.
+  - every run is stored in `apify_runs` (status, items, `usage_usd`, duration, error) and logged; `ApifyRun::spentThisMonth()` is ready for the Phase 6 budget
+- [x] `InstagramDriver` (`apify/instagram-profile-scraper`), `TikTokDriver` (`clockworks/tiktok-scraper`), `XDriver` (`apidojo/tweet-scraper`) on a shared `ApifyDriver`. Each actor returns the profile and recent posts together, and `fetchProfile` + `fetchRecentPosts` reuse one run for 10 minutes. Actor ids are in `config/services.php` (`APIFY_*_ACTOR`).
+  - X leaves out retweets and replies. TikTok and X read the profile from the posts, so an account with no posts cannot be resolved.
+  - [ ] **Not yet run against the live actors** (no `APIFY_TOKEN` yet): the mappings follow each actor's documented output and are covered by faked responses. Run one real lookup per platform once the token is set and adjust the mapping if fields differ.
+- [x] `PlatformManager` (singleton): `driver()`, `drivers()`, `forUrl()`, `extend()` to swap a driver, `resolve()` (a link goes to its platform; a bare handle tries YouTube first, then the others)
+- [x] **Finding a creator's other accounts** (`App\Platforms\AccountFinder`):
+  - follows links in profiles and bios, including chains (YouTube description → Instagram bio → X)
+  - then tries the same handle on the remaining platforms (`PLATFORM_DISCOVER_SAME_HANDLE`; each guess on an Apify platform is one actor run)
+  - `InfluencerLookup::lookup()` checks the database first (no API calls for stored creators), matches found accounts to stored ones by platform id (so changed handles still match), and returns a `LookupResult` with the influencer and the accounts not stored yet
+  - Add page lists the new accounts with "Linked from their profile" / "Same username, check it's them" badges; same-handle guesses start unticked. `InfluencerImporter` creates the influencer (`created_by` = the user) and accounts in a transaction, skipping accounts another creator owns, then the user follows the chosen accounts.
+  - an unreachable platform shows "We couldn't reach … right now" instead of an error page
+- [x] Keys and settings: `YOUTUBE_API_KEY`, `APIFY_TOKEN`, actor ids and timeouts in `config/services.php`; rate limits, retry backoff, resolve cache, posts per fetch and discovery in `config/platforms.php`; all in `.env.example`
+- [x] Per-platform rate limit (`config/platforms.php`), HTTP retry with backoff on 429/5xx/connection errors, and `InfluencerAccount::markSyncFailed()` / `applyProfile()` to save errors to `sync_error` and clear them on success
+- [x] Tests in `tests/Feature/Platforms` with `Http::fake()` (YouTube, the three Apify drivers, the client's polling, timeout and cost log) and a `Tests\Fakes\FakeDriver` for lookup and the Add page. `Http::preventStrayRequests()` is on for every test.
+- New creators have no posts until Phase 6 runs their first sync.
 
 ## Phase 6: Syncing (queues and scheduler)
 
@@ -191,14 +194,14 @@ The site is English only for now. Leave the existing `en`/`ar` config and `SetLo
 ## Phase 13: Testing
 
 - [ ] Pest feature tests for each Volt page with `Volt::test()`: renders, filters, follow/unfollow, add-influencer flow
-- [ ] Driver tests using `Http::fake()` and saved YouTube API and Apify actor responses
+- [x] Driver tests using `Http::fake()` with YouTube API and Apify actor responses (Phase 5)
 - [ ] Job tests: post upsert (no duplicates), snapshots, notifications sent
 - [ ] Auth tests: login, register, guest redirects
 - [ ] CI: Pint + Pest on each push to `main`
 
 ## Phase 14: Deployment
 
-- [ ] `.env.example`: `YOUTUBE_API_KEY`, `APIFY_TOKEN`, Apify actor IDs, queue/cache drivers, mail
+- [ ] `.env.example`: queue/cache drivers, mail (`YOUTUBE_API_KEY`, `APIFY_TOKEN` and actor IDs added in Phase 5)
 - [ ] `scripts/`: queue worker (Supervisor), scheduler cron, `npm run build`, `php artisan optimize`
 - [ ] Monitoring: failed jobs alert, sync error rate
 - [ ] Backup plan for the DB
