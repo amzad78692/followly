@@ -12,7 +12,8 @@ use Illuminate\Database\Eloquent\Collection;
 /**
  * Tell everyone who tracks the account about its new posts. Posts older than max_post_age_hours
  * (a first sync stores the account's back catalogue) and posts from before the user followed
- * are left out, so only genuinely new posts notify.
+ * are left out, so only genuinely new posts notify. Users who muted the platform, or turned off
+ * both in-app alerts and the digest, are skipped.
  */
 class NotifyFollowersOfNewPosts implements ShouldQueue
 {
@@ -34,6 +35,10 @@ class NotifyFollowersOfNewPosts implements ShouldQueue
             ->with('user')
             ->chunkById(500, function ($follows) use ($event, $posts) {
                 foreach ($follows as $follow) {
+                    if (! $follow->user->wantsPostNotifications() || ! $follow->user->wantsPostsFrom($event->account->platform)) {
+                        continue;
+                    }
+
                     $since = $posts->filter(fn ($post) => $post->published_at->gt($follow->created_at))->values();
 
                     if ($since->isNotEmpty()) {

@@ -101,6 +101,15 @@ new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class ex
         @endif
     </div>
 
+    @unless (auth()->user()->notify_in_app)
+        <flux:callout icon="bell-slash" class="mt-4">
+            <flux:callout.text>
+                In-app notifications are off, so the bell won't show new posts.
+                <flux:callout.link :href="route('settings').'#notifications'">Change in Settings</flux:callout.link>
+            </flux:callout.text>
+        </flux:callout>
+    @endunless
+
     <div class="mt-4 flex gap-2">
         @foreach (['all' => 'All', 'unread' => 'Unread'] as $key => $label)
             <button type="button" wire:click="$set('filter', '{{ $key }}')" @class([

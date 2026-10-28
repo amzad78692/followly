@@ -4,7 +4,9 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\DigestFrequency;
+use App\Enums\Platform;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -32,6 +34,17 @@ class User extends Authenticatable implements HasMedia
         'mobile',
         'password',
         'email_digest',
+        'notify_in_app',
+        'muted_platforms',
+    ];
+
+    /**
+     * Matches the column defaults, so new models have them before a refresh.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'notify_in_app' => true,
     ];
 
     /**
@@ -56,7 +69,47 @@ class User extends Authenticatable implements HasMedia
             'password' => 'hashed',
             'email_digest' => DigestFrequency::class,
             'digest_sent_at' => 'datetime',
+            'notify_in_app' => 'boolean',
+            'muted_platforms' => AsEnumCollection::of(Platform::class),
         ];
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('users')->singleFile();
+    }
+
+    /**
+     * Whether new posts on this platform should notify the user (in the app or in the digest).
+     */
+    public function wantsPostsFrom(Platform $platform): bool
+    {
+        return ! $this->muted_platforms?->contains($platform);
+    }
+
+    /**
+     * Whether the user gets new post notifications at all: shown in the app, or collected for the digest.
+     */
+    public function wantsPostNotifications(): bool
+    {
+        return $this->notify_in_app || $this->email_digest !== null;
+    }
+
+    /**
+     * Delete the account. Follower counts of the creators they followed are refreshed, since the
+     * follows go with the user through a database cascade.
+     */
+    public function deleteAccount(): void
+    {
+        $influencers = $this->followedInfluencers()->get();
+
+        DB::transaction(function () {
+            $this->notifications()->delete();
+            $this->tokens()->delete();
+            $this->delete();
+        });
+
+        $influencers->each->refreshCounts();
     }
 
     public function follows(): HasMany
@@ -103,8 +156,14 @@ class User extends Authenticatable implements HasMedia
 
     public function getImageUrlAttribute(): string
     {
-        $url = $this->getFirstMediaUrl('users');
+        return $this->avatarUrl() ?: 'https://ui-avatars.com/api/?name='.urlencode($this->name);
+    }
 
-        return $url ?: 'https://ui-avatars.com/api/?name='.urlencode($this->name);
+    /**
+     * The uploaded avatar, or null so the UI falls back to initials.
+     */
+    public function avatarUrl(): ?string
+    {
+        return $this->getFirstMediaUrl('users') ?: null;
     }
 }

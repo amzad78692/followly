@@ -7,6 +7,7 @@ use Livewire\Volt\Component;
 /**
  * Unread notification count for the sidebar item ("sidebar") or the top bar bell ("bell").
  * Polls every minute and refreshes when the notifications page marks something read.
+ * Shows nothing when the user turned off in-app notifications in Settings.
  */
 new class extends Component {
     public string $variant = 'bell';
@@ -17,7 +18,9 @@ new class extends Component {
     #[Computed]
     public function unread(): int
     {
-        return auth()->user()->unreadNotifications()->count();
+        $user = auth()->user();
+
+        return $user->notify_in_app ? $user->unreadNotifications()->count() : 0;
     }
 
     #[On('notifications-read')]

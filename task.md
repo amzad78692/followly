@@ -179,20 +179,26 @@ Legend: `[x]` done · `[ ]` to do
   - clicking a notification marks it read and opens the creator's profile; per-row "mark as read" and "open on platform"; "Mark all as read"
 - [x] Unread badge in the sidebar and on the top bar bell: the `notification-count` Volt component, counted from the DB, polling every 60 s while visible and refreshing at once when the page marks something read (`notifications-read` event). Shows `99+` above 99.
 - [x] Email digest, sent through the queue:
-  - `users.email_digest` (`App\Enums\DigestFrequency`: daily / weekly, null = off) and `users.digest_sent_at`; the setting gets its UI in Phase 9
+  - `users.email_digest` (`App\Enums\DigestFrequency`: daily / weekly, null = off) and `users.digest_sent_at`; the setting's UI is in Phase 9
   - `php artisan notifications:digest {daily|weekly}` mails `NewPostsDigest` with the unread new post notifications since the last digest (up to `DIGEST_MAX_ITEMS`, 20); users with nothing new get no email
   - scheduled daily at `DIGEST_TIME` (08:00) and weekly on Mondays
 - [x] Read notifications older than `NOTIFICATION_RETENTION_DAYS` (90) are deleted daily at 03:45
 - [x] `DemoSeeder` adds a notification per tracked account with posts (newest two unread)
 - [x] Tests in `tests/Feature/Notifications/NotificationsTest.php`
 
-## Phase 9: Settings
+## Phase 9: Settings ✅
 
-- [ ] Settings page (`/settings`):
-  - profile (name, email, avatar)
-  - password
-  - notification preferences (in-app, email digest, per platform)
-  - delete account
+- [x] Settings page (`/settings`, Volt page `settings`), linked from the sidebar and the avatar menu:
+  - profile: name, email (changing it clears `email_verified_at`), avatar upload/remove (`users` media collection, now single-file, max 2 MB). The top bar avatar shows it, falling back to initials (`User::avatarUrl()`).
+  - password: needs the current password, `Password::defaults()` for the new one
+  - notification preferences:
+    - in-app on/off (`users.notify_in_app`, default on). Off hides the bell and sidebar badge, and the notifications page says so with a link to Settings.
+    - email digest off / daily / weekly (`users.email_digest` from Phase 8)
+    - per platform (`users.muted_platforms`, a JSON list of muted `Platform` values, null = none muted)
+    - the new post listener skips users who muted the platform, and users with in-app and digest both off. With in-app off and the digest on, notifications are still stored, because the digest is built from them.
+  - delete account: password confirm in a modal; `User::deleteAccount()` removes the user's notifications, API tokens and media, follows go by cascade, and the followed creators' follower counts are refreshed. Creators the user added stay.
+- [x] "Saved." messages through the new `x-saved-message` component
+- [x] Tests in `tests/Feature/Settings/SettingsTest.php`
 
 ## Phase 10: Admin (Filament)
 

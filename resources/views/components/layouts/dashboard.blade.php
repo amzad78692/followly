@@ -15,7 +15,7 @@
             <flux:sidebar.item icon="magnifying-glass" :href="route('explore')" :current="request()->routeIs('explore')" wire:navigate>Explore</flux:sidebar.item>
             <flux:sidebar.item icon="users" :href="route('influencers.index')" :current="request()->routeIs('influencers.*')" wire:navigate>My Influencers</flux:sidebar.item>
             <livewire:notification-count variant="sidebar" :current="request()->routeIs('notifications')" />
-            <flux:sidebar.item icon="cog-6-tooth" href="#">Settings</flux:sidebar.item>
+            <flux:sidebar.item icon="cog-6-tooth" :href="route('settings')" :current="request()->routeIs('settings')" wire:navigate>Settings</flux:sidebar.item>
         </flux:sidebar.nav>
 
         <flux:sidebar.spacer />
@@ -39,7 +39,7 @@
 
             <flux:dropdown position="bottom" align="end">
                 <button type="button" class="cursor-pointer">
-                    <flux:avatar circle size="sm" :name="auth()->user()->name" />
+                    <flux:avatar circle size="sm" :name="auth()->user()->name" :src="auth()->user()->avatarUrl()" />
                 </button>
                 <flux:menu>
                     <div class="px-2 py-1.5">
@@ -47,8 +47,9 @@
                         <p class="truncate text-xs text-zinc-500">{{ auth()->user()->email }}</p>
                     </div>
                     <flux:menu.separator />
-                    <flux:menu.item icon="user">Profile</flux:menu.item>
-                    <flux:menu.item icon="cog-6-tooth">Settings</flux:menu.item>
+                    <flux:menu.item icon="user" :href="route('settings')" wire:navigate>Profile</flux:menu.item>
+                    <flux:menu.item icon="bell" :href="route('settings').'#notifications'">Notification settings</flux:menu.item>
+                    <flux:menu.item icon="cog-6-tooth" :href="route('settings')" wire:navigate>Settings</flux:menu.item>
                     <flux:menu.separator />
                     <form method="POST" action="{{ route('logout') }}" class="w-full">
                         @csrf

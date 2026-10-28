@@ -11,6 +11,7 @@ Route::middleware('auth')->group(function () {
     Volt::route('explore', 'explore')->name('explore');
     Volt::route('search', 'search')->name('search');
     Volt::route('notifications', 'notifications.index')->name('notifications');
+    Volt::route('settings', 'settings')->name('settings');
     Volt::route('influencers', 'influencers.index')->name('influencers.index');
     Volt::route('influencers/add', 'influencers.create')->name('influencers.create');
     Volt::route('influencers/{influencer}', 'influencers.show')->name('influencers.show');
