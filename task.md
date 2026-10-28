@@ -62,15 +62,16 @@ Legend: `[x]` done · `[ ]` to do
 - [x] Factories (`Influencer`, `InfluencerAccount`, `Post`) and `DemoSeeder` (7 creators, 27 accounts, 11 posts, test user following 6). `DatabaseSeeder` runs it in the local environment only.
 - [x] Pest tests in `tests/Feature/Models/InfluencerTest.php`
 
-## Phase 3: Authentication
+## Phase 3: Authentication ✅
 
-- [ ] Volt pages styled with Flux:
+- [x] Volt pages styled with Flux on a new `auth` layout (`pages/auth/*`, routes in `routes/auth.php`):
   - `login`, `register`, `forgot-password`, `reset-password`
-  - `verify-email`, if email verification is turned on
-- [ ] Make "Sign in" and "Get Started" on the landing page go to these pages
-- [ ] Put the dashboard routes in an `auth` middleware group, and send logged-in visitors from `/` to `/feed`
-- [ ] Log out button in the avatar dropdown
-- [ ] Rate-limit login and password-reset attempts
+  - `verify-email` page and signed verify route are in place; to turn verification on, implement `MustVerifyEmail` on `User` and add the `verified` middleware
+- [x] "Sign in" goes to `/login`; "Get Started" buttons go to `/register`
+- [x] Dashboard routes are in an `auth` middleware group (guests go to `/login`); `/` uses `guest`, so logged-in visitors go to `/feed`
+- [x] Log out button (POST `/logout`) and the user's name/email in the avatar dropdown. `Logout` now uses the default guard (`user`), since there is no `web` guard.
+- [x] Rate limits: login 5 attempts per email + IP; password reset 5 requests per IP (plus the broker's own per-email throttle)
+- [x] Pest tests in `tests/Feature/Auth/AuthenticationTest.php`
 
 ## Phase 4: Replace fake data with Eloquent
 

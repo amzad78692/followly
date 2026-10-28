@@ -41,13 +41,21 @@
 
             <flux:dropdown position="bottom" align="end">
                 <button type="button" class="cursor-pointer">
-                    <flux:avatar circle size="sm" src="https://i.pravatar.cc/100?img=68" />
+                    <flux:avatar circle size="sm" :name="auth()->user()->name" />
                 </button>
                 <flux:menu>
+                    <div class="px-2 py-1.5">
+                        <p class="truncate text-sm font-semibold">{{ auth()->user()->name }}</p>
+                        <p class="truncate text-xs text-zinc-500">{{ auth()->user()->email }}</p>
+                    </div>
+                    <flux:menu.separator />
                     <flux:menu.item icon="user">Profile</flux:menu.item>
                     <flux:menu.item icon="cog-6-tooth">Settings</flux:menu.item>
                     <flux:menu.separator />
-                    <flux:menu.item icon="arrow-right-start-on-rectangle" :href="route('home')">Log out</flux:menu.item>
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">Log out</flux:menu.item>
+                    </form>
                 </flux:menu>
             </flux:dropdown>
         </header>

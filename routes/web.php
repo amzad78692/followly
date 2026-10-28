@@ -4,13 +4,17 @@ use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-Volt::route('/', 'home')->name('home');
+Volt::route('/', 'home')->middleware('guest')->name('home');
 
-Volt::route('feed', 'feed')->name('feed');
-Volt::route('explore', 'explore')->name('explore');
-Volt::route('influencers', 'influencers.index')->name('influencers.index');
-Volt::route('influencers/add', 'influencers.create')->name('influencers.create');
-Volt::route('influencers/{slug}', 'influencers.show')->name('influencers.show');
+Route::middleware('auth')->group(function () {
+    Volt::route('feed', 'feed')->name('feed');
+    Volt::route('explore', 'explore')->name('explore');
+    Volt::route('influencers', 'influencers.index')->name('influencers.index');
+    Volt::route('influencers/add', 'influencers.create')->name('influencers.create');
+    Volt::route('influencers/{slug}', 'influencers.show')->name('influencers.show');
+});
+
+require __DIR__.'/auth.php';
 
 Route::get('/{locale}', function ($locale) {
     if (in_array($locale, config('app.supported_locales'))) {

@@ -40,8 +40,8 @@ new class extends Component {
         <flux:spacer />
 
         <div class="flex items-center gap-2">
-            <flux:button size="sm" :href="route('feed')" wire:navigate>Sign in</flux:button>
-            <flux:button size="sm" variant="primary" :href="route('feed')" wire:navigate>Get Started</flux:button>
+            <flux:button size="sm" :href="route('login')" wire:navigate>Sign in</flux:button>
+            <flux:button size="sm" variant="primary" :href="route('register')" wire:navigate>Get Started</flux:button>
         </div>
     </header>
 
@@ -58,7 +58,7 @@ new class extends Component {
             </p>
 
             <div class="mt-8 flex flex-wrap gap-3">
-                <flux:button variant="primary" :href="route('feed')" wire:navigate class="px-6!">Get Started Free</flux:button>
+                <flux:button variant="primary" :href="route('register')" wire:navigate class="px-6!">Get Started Free</flux:button>
                 <flux:button href="#features" class="px-6!">Learn More</flux:button>
             </div>
         </div>
