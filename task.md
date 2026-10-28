@@ -1,4 +1,4 @@
-# FLWLEE (Followly): Implementation Plan
+# Followly: Implementation Plan
 
 **Goal:** a user follows a creator once and sees that creator's posts from YouTube, Instagram, TikTok and X in one feed.
 
@@ -6,28 +6,22 @@
 
 **Current state:** every front-end screen is built and runs on fake data (`App\Support\Demo`, with follow state in the session). Everything below replaces that fake data with a real backend.
 
-Legend: `[x]` done · `[ ]` to do · ⚠️ needs a decision
+Legend: `[x]` done · `[ ]` to do
 
 ---
 
-## Phase 0: Decisions to make before building
+## Phase 0: Decisions ✅
 
-- [ ] ⚠️ **Where platform data comes from.** This is the biggest risk in the project.
-  - **YouTube:** the official Data API v3 works for public channels. The free quota is 10,000 units per day, so it needs caching and batching.
-  - **Instagram:** the official Graph API only covers Business/Creator accounts that authorize our app. There is no official API for reading other people's public profiles.
-  - **TikTok:** the Display API needs the creator to log in. The Research API is for academics only.
-  - **X:** the API is paid (Basic tier or higher) to read timelines.
-  - **Options:**
-    - (a) Official APIs only: YouTube full, the others limited.
-    - (b) A third-party data provider, such as a social-data API reseller.
-    - (c) A mix, with an adapter per platform so providers can be swapped.
-  - **Recommendation:** (c).
-- [ ] ⚠️ **How users log in:** email and password only, or Google/Apple social login too.
-- [ ] ⚠️ **Who can add creators:**
-  - Any user, with an auto-created influencer record.
-  - Or admin approval first.
-- [ ] ⚠️ **Final brand name:** "FLWLEE" or "Followly". It is currently set in `x-brand` and the page titles.
-- [ ] ⚠️ **Whether Arabic/RTL is needed at launch.** The project already has `en`/`ar` locales and the `SetLocale` middleware.
+- [x] **Platform data:** use the platform's free official API where one exists; otherwise use [Apify](https://apify.com) actors.
+  - **YouTube:** YouTube Data API v3 (free, 10,000 quota units per day, so it needs caching and batching).
+  - **Instagram:** Apify. There is no free official API for reading other people's public profiles.
+  - **TikTok:** Apify. The Display API needs the creator to log in, and the Research API is for academics only.
+  - **X:** Apify. The official API charges to read timelines.
+  - Each platform gets its own driver, so a platform can later move from Apify to an official API without touching the rest of the app.
+- [x] **Login:** email and password only. No social login.
+- [x] **Adding creators:** both users and admins can add creators. No approval step.
+- [x] **Brand name:** Followly.
+- [x] **Language:** English only for now. Leave the existing `en`/`ar` setup and `SetLocale` middleware as they are; bilingual support may come later.
 
 ---
 
@@ -41,6 +35,7 @@ Legend: `[x]` done · `[ ]` to do · ⚠️ needs a decision
 - [x] Add Influencer (`/influencers/add`): lookup, account picker, start tracking
 - [x] Influencer Profile (`/influencers/{slug}`): stats, Posts/About/Related tabs
 - [x] Shared components: `platform-icon`, `post-card`, `influencer-card`, `brand`, `verified`
+- [ ] Rename "FLWLEE" to "Followly" everywhere: `x-brand`, page titles in `partials/head`, "tracking on …" text, footer, `APP_NAME`
 
 ---
 
@@ -52,6 +47,7 @@ Legend: `[x]` done · `[ ]` to do · ⚠️ needs a decision
   - `avatar` and `cover` (media library)
   - `country_id` (nnjeim/world), `language`
   - `is_verified`, `is_featured`, `followers_count` (cached), `combined_reach` (cached)
+  - `created_by_type` / `created_by_id` (morph to `User` or `Admin`, since both can add creators)
   - timestamps and soft deletes
 - [ ] Categories: use the existing `Taxonomy` model (aliziodev/laravel-taxonomy) with a `category` type, plus an `influencer ↔ taxonomy` link table
 - [ ] Migration and model **`InfluencerAccount`**:
@@ -81,7 +77,7 @@ Legend: `[x]` done · `[ ]` to do · ⚠️ needs a decision
 - [ ] Make "Sign in" and "Get Started" on the landing page go to these pages
 - [ ] Put the dashboard routes in an `auth` middleware group, and send logged-in visitors from `/` to `/feed`
 - [ ] Log out button in the avatar dropdown
-- [ ] Optional: social login with Laravel Socialite (depends on the Phase 0 decision)
+- [ ] Rate-limit login and password-reset attempts
 
 ## Phase 4: Replace fake data with Eloquent
 
@@ -100,7 +96,10 @@ Legend: `[x]` done · `[ ]` to do · ⚠️ needs a decision
   - posts paginated
   - Related tab (same category, most tracked)
   - "Across Platforms" box showing the last post time per account
-- [ ] **Add Influencer:** connect it to the URL resolver (Phase 5). Store the follow plus the chosen accounts in a transaction.
+- [ ] **Add Influencer:** connect it to the URL resolver (Phase 5).
+  - If the creator already exists, just follow them.
+  - If not, create the influencer and accounts straight away (no approval), then follow.
+  - Store everything in a transaction.
 - [ ] Delete `App\Support\Demo` once every page uses real data
 - [ ] Empty and loading states (`wire:loading`, Flux skeletons)
 
@@ -112,7 +111,16 @@ Legend: `[x]` done · `[ ]` to do · ⚠️ needs a decision
   - `fetchProfile(InfluencerAccount): AccountData`
   - `fetchRecentPosts(InfluencerAccount, ?Carbon $since): Collection<PostData>`
 - [ ] DTOs: `AccountData` and `PostData`
-- [ ] Drivers: `YouTubeDriver` (Data API v3), `InstagramDriver`, `TikTokDriver` and `XDriver`, each using the source chosen in Phase 0
+- [ ] `YouTubeDriver` using the YouTube Data API v3 (free):
+  - resolve `@handle`, channel URLs and video URLs to a channel
+  - read new uploads from the channel's uploads playlist (1 quota unit per call, much cheaper than search)
+  - batch up to 50 channels per stats request
+- [ ] `App\Platforms\Apify\ApifyClient`:
+  - runs an actor synchronously (`run-sync-get-dataset-items`), with a timeout and a fallback to async run + poll for slow actors
+  - API token in `.env` (`APIFY_TOKEN`)
+  - logs each run's cost and usage so spending can be watched
+- [ ] `InstagramDriver`, `TikTokDriver` and `XDriver` built on `ApifyClient`. Pick and test one actor per platform (profile + recent posts), and keep the actor IDs in config so they can be swapped.
+- [ ] Map each actor's output into the shared `AccountData` / `PostData` DTOs
 - [ ] `PlatformManager` that picks a driver from a URL or handle
 - [ ] **Finding a creator's other accounts:**
   - from one URL, find their profiles on other platforms
@@ -129,15 +137,17 @@ Legend: `[x]` done · `[ ]` to do · ⚠️ needs a decision
   - sync posts every 15–30 minutes for accounts that have followers
   - sync profiles every day
   - remove old snapshots
-- [ ] Sync accounts with more followers first, to protect the API quota
+- [ ] Sync accounts with more followers first, to protect the YouTube quota and Apify spend
+- [ ] Sync Apify platforms less often than YouTube (for example every 1–2 hours), and batch many handles into one actor run where the actor supports it
+- [ ] Monthly Apify budget setting; pause Apify syncs and alert admins when it is reached
 - [ ] Run a first sync right away when someone adds a new influencer
 - [ ] Production: queue worker plus `schedule:run` cron, added to `scripts/deploy.sh`
 
 ## Phase 7: Discovery and ranking
 
-- [ ] **Trending score:** new FLWLEE followers in the last 7 days, plus platform follower growth from snapshots. Cache it for 1 hour.
+- [ ] **Trending score:** new Followly followers in the last 7 days, plus platform follower growth from snapshots. Cache it for 1 hour.
 - [ ] **Recommended:** creators in the user's most-followed categories that they don't follow yet, ranked by tracking count
-- [ ] Counter for "X tracking on FLWLEE" (a `followers_count` cache on `influencers`)
+- [ ] Counter for "X tracking on Followly" (a `followers_count` cache on `influencers`)
 - [ ] **Global search in the top bar:**
   - search influencers, categories and countries
   - dropdown with results
@@ -155,22 +165,25 @@ Legend: `[x]` done · `[ ]` to do · ⚠️ needs a decision
 - [ ] Settings page (`/settings`):
   - profile (name, email, avatar)
   - password
-  - language (en/ar)
   - notification preferences (in-app, email digest, per platform)
   - delete account
 
 ## Phase 10: Admin (Filament)
 
 - [ ] `InfluencerResource`: CRUD, accounts as a relation manager, verify/feature toggles, "Sync now" action
+  - "Add from link" action that uses the same resolver as the user-facing Add Influencer page
+  - show who added each creator (user or admin)
 - [ ] `PostResource`: read-only list with filters, hide/remove action
 - [ ] Category management through the existing taxonomy setup
-- [ ] Dashboard widgets: users, follows, influencers, posts synced today, failed syncs
+- [ ] Dashboard widgets: users, follows, influencers, posts synced today, failed syncs, YouTube quota used, Apify spend this month
 - [ ] Shield permissions for the new resources (`shield:generate`)
 
-## Phase 11: Arabic / RTL
+## Phase 11: Arabic / RTL (future, not in current scope)
+
+The site is English only for now. Leave the existing `en`/`ar` config and `SetLocale` middleware untouched. If bilingual support is added later:
 
 - [ ] Put every UI string in `__()` and add `lang/ar.json`
-- [ ] Check every page in RTL. The UI uses logical `ms/me/ps/pe/start/end` classes, but the hero collage and some other details still need checking.
+- [ ] Check every page in RTL. The UI already uses logical `ms/me/ps/pe/start/end` classes.
 - [ ] Language switcher in the landing navbar and in Settings
 
 ## Phase 12: Polish and performance
@@ -184,14 +197,14 @@ Legend: `[x]` done · `[ ]` to do · ⚠️ needs a decision
 ## Phase 13: Testing
 
 - [ ] Pest feature tests for each Volt page with `Volt::test()`: renders, filters, follow/unfollow, add-influencer flow
-- [ ] Driver tests using `Http::fake()` and saved API responses
+- [ ] Driver tests using `Http::fake()` and saved YouTube API and Apify actor responses
 - [ ] Job tests: post upsert (no duplicates), snapshots, notifications sent
 - [ ] Auth tests: login, register, guest redirects
 - [ ] CI: Pint + Pest on each push to `main`
 
 ## Phase 14: Deployment
 
-- [ ] `.env.example`: platform API keys, queue/cache drivers, mail
+- [ ] `.env.example`: `YOUTUBE_API_KEY`, `APIFY_TOKEN`, Apify actor IDs, queue/cache drivers, mail
 - [ ] `scripts/`: queue worker (Supervisor), scheduler cron, `npm run build`, `php artisan optimize`
 - [ ] Monitoring: failed jobs alert, sync error rate
 - [ ] Backup plan for the DB
@@ -200,12 +213,12 @@ Legend: `[x]` done · `[ ]` to do · ⚠️ needs a decision
 
 ## Suggested order
 
-1. Phase 0 decisions
+1. Rename to Followly (Phase 1 leftover)
 2. Phase 2 (database) and Phase 3 (auth)
 3. Phase 4 (real data), using seeded data
-4. Phase 5 + Phase 6, starting with **YouTube only**
-5. The other platforms
+4. Phase 5 + Phase 6, starting with **YouTube only** (free API)
+5. Instagram, TikTok and X through Apify
 6. Phases 7 → 8 → 9 → 10
-7. Phases 11–14
+7. Phases 12–14 (Phase 11 is future work)
 
 **First milestone:** login works, YouTube creators sync for real, and Feed, My Influencers and Profile show real data.
