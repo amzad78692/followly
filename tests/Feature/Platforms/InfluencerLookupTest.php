@@ -83,6 +83,25 @@ it('does not call the drivers for creators already stored', function () {
         ->and(collect($drivers)->flatMap->lookups)->toBeEmpty();
 });
 
+it('takes accounts already stored from the database while finding a new one', function () {
+    $influencer = Influencer::factory()->create(['name' => 'Chef']);
+    InfluencerAccount::factory()->for($influencer)->create(['platform' => Platform::Instagram, 'handle' => '@chef', 'external_id' => 'ig-chef']);
+    InfluencerAccount::factory()->for($influencer)->create(['platform' => Platform::TikTok, 'handle' => '@chef', 'external_id' => 'tt-chef']);
+
+    $drivers = fakePlatforms(
+        profile(Platform::YouTube, 'chef', ['links' => ['https://www.instagram.com/chef/']]),
+        profile(Platform::Instagram, 'chef', ['externalId' => 'ig-chef']),
+        profile(Platform::TikTok, 'chef', ['externalId' => 'tt-chef']),
+    );
+
+    $result = app(InfluencerLookup::class)->lookup('https://www.youtube.com/@chef');
+
+    expect($result->influencer->is($influencer))->toBeTrue()
+        ->and($result->candidates->keys()->all())->toBe(['youtube'])
+        ->and($drivers['instagram']->lookups)->toBe([])
+        ->and($drivers['tiktok']->lookups)->toBe([]);
+});
+
 it('adds a new creator from the Add page and follows the chosen accounts', function () {
     fakePlatforms(
         profile(Platform::YouTube, 'chef', ['name' => 'Chef Mo', 'bio' => 'Cooking every day', 'avatarUrl' => 'https://img/chef.jpg', 'links' => ['https://www.instagram.com/chef']]),

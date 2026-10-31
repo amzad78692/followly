@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Run final optimization on production only
 echo "🧹 Clearing caches..."
-run_php artisan optimize:clear
+# Keep the app cache: it holds the YouTube quota count, Apify lookup results and rate limits.
+run_php artisan optimize:clear --except=cache
 run_php artisan filament:optimize-clear
 
 if $IS_PRODUCTION; then

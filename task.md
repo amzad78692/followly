@@ -154,7 +154,10 @@ Legend: `[x]` done · `[ ]` to do
 - [x] `DB_QUEUE_RETRY_AFTER` raised to 660 s so a slow Apify batch (up to 300 s, plus download) is not picked up twice
 - [x] Production: `scripts/queue.sh` (run by `deploy.sh`) installs the `schedule:run` cron if it is missing and runs `queue:restart`. Hosting looks like cPanel, so the cron-started `queue:work --stop-when-empty` stays; the script explains how to switch to Supervisor.
 - [x] Tests in `tests/Feature/Sync/SyncTest.php`; the shared `profile()` / `fakePlatforms()` helpers are now in `tests/Pest.php`
-- Checked end to end with live Apify (NASA from an Instagram link: lookup found TikTok and X by handle, import, queued sync, 42 posts in the feed; a forced re-sync made real runs and stored no duplicates). YouTube is still unchecked (no `YOUTUBE_API_KEY`).
+- Checked end to end with live Apify (NASA from an Instagram link: lookup found TikTok and X by handle, import, queued sync, 42 posts in the feed; a forced re-sync made real runs and stored no duplicates). YouTube checked too: `@NASA` matched the stored NASA, 20 videos synced, and the daily profile refresh covers 8 channels in one call. Fixes from that run:
+  - adding a platform to a stored creator re-ran Apify for every account it already had (~50 s, ~$0.08 per lookup); discovery now takes stored accounts from the database (`InfluencerAccount::findFromUrl()` / `findByHandle()`)
+  - every deploy wiped the app cache (`optimize:clear`), resetting the YouTube quota count; `scripts/optimize.sh` now keeps it
+  - demo YouTube accounts have fake channel ids, so a profile refresh marks them failed locally
 
 ## Phase 7: Discovery and ranking ✅
 

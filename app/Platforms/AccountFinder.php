@@ -2,6 +2,7 @@
 
 namespace App\Platforms;
 
+use App\Models\InfluencerAccount;
 use App\Platforms\Data\AccountData;
 use App\Platforms\Exceptions\PlatformException;
 use Illuminate\Support\Collection;
@@ -10,6 +11,7 @@ use Illuminate\Support\Collection;
  * From one profile, finds the same creator on the other platforms:
  * first through links in their profiles and bios, then by trying the same handle.
  * Matches by handle are guesses, so the Add page leaves them unticked.
+ * Accounts already stored are taken from the database instead of the platform.
  */
 class AccountFinder
 {
@@ -33,7 +35,9 @@ class AccountFinder
                     continue;
                 }
 
-                if ($match = $this->attempt(fn () => $driver->resolve($link))) {
+                if ($stored = InfluencerAccount::findFromUrl($driver->platform(), $link)) {
+                    $found->put($stored->platform->value, $stored->toAccountData()->withSource('link'));
+                } elseif ($match = $this->attempt(fn () => $driver->resolve($link))) {
                     $found->put($match->platform->value, $match = $match->withSource('link'));
                     $queue[] = $match;
                 }
@@ -42,7 +46,8 @@ class AccountFinder
 
         if (config('platforms.discovery.same_handle')) {
             foreach ($this->platforms->drivers()->except($found->keys()->all()) as $platform => $driver) {
-                if ($match = $this->attempt(fn () => $driver->resolve($account->handle))) {
+                if ($match = InfluencerAccount::findByHandle($account->handle, $driver->platform())?->toAccountData()
+                    ?? $this->attempt(fn () => $driver->resolve($account->handle))) {
                     $found->put($platform, $match->withSource('handle'));
                 }
             }

@@ -97,6 +97,66 @@ class InfluencerAccount extends Model
                 ->orWhere(fn (Builder $q) => $q->where('sync_status', SyncStatus::Failed)->where('updated_at', '<=', now()->subHours(config('platforms.sync.failed_retry_hours')))));
     }
 
+    /**
+     * The stored account a profile link points to, if any.
+     */
+    public static function findFromUrl(Platform $platform, string $url): ?self
+    {
+        $path = trim(parse_url(str_contains($url, '://') ? $url : "https://{$url}", PHP_URL_PATH) ?? '', '/');
+        $segments = array_values(array_filter(explode('/', $path)));
+
+        if ($segments === []) {
+            return null;
+        }
+
+        // youtube.com/channel/UC... carries the channel id rather than a handle.
+        if ($platform === Platform::YouTube && $segments[0] === 'channel' && isset($segments[1])) {
+            return static::where('platform', $platform)->where('external_id', $segments[1])->whereHas('influencer')->first();
+        }
+
+        $handle = $platform === Platform::YouTube && in_array($segments[0], ['c', 'user']) && isset($segments[1])
+            ? $segments[1]
+            : $segments[0];
+
+        return static::findByHandle(ltrim($handle, '@'), $platform);
+    }
+
+    /**
+     * The stored account with this handle ("name" or "@name"), on any platform unless one is given.
+     */
+    public static function findByHandle(string $handle, ?Platform $platform = null): ?self
+    {
+        $handle = Str::lower(ltrim($handle, '@'));
+
+        if ($handle === '' || str_contains($handle, ' ')) {
+            return null;
+        }
+
+        return static::query()
+            ->when($platform, fn ($q) => $q->where('platform', $platform))
+            ->where(fn ($q) => $q
+                ->whereRaw('lower(handle) = ?', [$handle])
+                ->orWhereRaw('lower(handle) = ?', ['@'.$handle]))
+            ->whereHas('influencer')
+            ->first();
+    }
+
+    /**
+     * The stored profile in the shape drivers return, so lookups can use it without an API call.
+     */
+    public function toAccountData(): AccountData
+    {
+        return new AccountData(
+            platform: $this->platform,
+            externalId: $this->external_id,
+            handle: ltrim($this->handle, '@'),
+            name: $this->influencer?->name ?? ltrim($this->handle, '@'),
+            url: $this->url,
+            followers: $this->followers,
+            isVerified: $this->is_verified,
+        );
+    }
+
     public function getFormattedFollowersAttribute(): string
     {
         return Number::abbreviate($this->followers, maxPrecision: 1);

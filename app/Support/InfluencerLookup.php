@@ -62,8 +62,8 @@ class InfluencerLookup
         }
 
         $account = $platform
-            ? $this->findAccountFromUrl($platform, $query)
-            : $this->findAccountByHandle(ltrim($query, '@'));
+            ? InfluencerAccount::findFromUrl($platform, $query)
+            : InfluencerAccount::findByHandle($query);
 
         if ($account) {
             return $account->influencer;
@@ -94,44 +94,6 @@ class InfluencerLookup
             ->whereHas('influencer')
             ->get()
             ->keyBy(fn (InfluencerAccount $account) => $account->platform->value);
-    }
-
-    protected function findAccountFromUrl(Platform $platform, string $url): ?InfluencerAccount
-    {
-        $path = trim(parse_url(str_contains($url, '://') ? $url : "https://{$url}", PHP_URL_PATH) ?? '', '/');
-        $segments = array_values(array_filter(explode('/', $path)));
-
-        if ($segments === []) {
-            return null;
-        }
-
-        // youtube.com/channel/UC... carries the channel id rather than a handle.
-        if ($platform === Platform::YouTube && $segments[0] === 'channel' && isset($segments[1])) {
-            return InfluencerAccount::where('platform', $platform)->where('external_id', $segments[1])->first();
-        }
-
-        $handle = $platform === Platform::YouTube && in_array($segments[0], ['c', 'user']) && isset($segments[1])
-            ? $segments[1]
-            : $segments[0];
-
-        return $this->findAccountByHandle(ltrim($handle, '@'), $platform);
-    }
-
-    protected function findAccountByHandle(string $handle, ?Platform $platform = null): ?InfluencerAccount
-    {
-        if ($handle === '' || str_contains($handle, ' ')) {
-            return null;
-        }
-
-        $handle = Str::lower($handle);
-
-        return InfluencerAccount::query()
-            ->when($platform, fn ($q) => $q->where('platform', $platform))
-            ->where(fn ($q) => $q
-                ->whereRaw('lower(handle) = ?', [$handle])
-                ->orWhereRaw('lower(handle) = ?', ['@'.$handle]))
-            ->whereHas('influencer')
-            ->first();
     }
 
     protected function looksLikeUrl(string $query): bool
