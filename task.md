@@ -247,17 +247,17 @@ New resources sit in a "Content" navigation group, listed before Settings.
 
 ## Phase 13: Testing
 
-- [ ] Pest feature tests for each Volt page with `Volt::test()`: renders, filters, follow/unfollow, add-influencer flow
+- [x] Pest feature tests for each Volt page: renders, filters, follow/unfollow, add-influencer flow (`tests/Feature/Pages`, `tests/Feature/Platforms/InfluencerLookupTest.php`)
 - [x] Driver tests using `Http::fake()` with YouTube API and Apify actor responses (Phase 5)
 - [x] Job tests: post upsert (no duplicates), snapshots (Phase 6)
 - [x] Job tests: notifications sent (Phase 8)
-- [ ] Auth tests: login, register, guest redirects
+- [x] Auth tests: login, register, guest redirects (Phase 3, `tests/Feature/Auth/AuthenticationTest.php`)
 - [ ] CI: Pint + Pest on each push to `main`
 
 ## Phase 14: Deployment
 
 - [ ] `.env.example`: queue/cache drivers, mail (`YOUTUBE_API_KEY`, `APIFY_TOKEN` and actor IDs added in Phase 5)
-- [ ] `scripts/`: queue worker (Supervisor), scheduler cron, `npm run build`, `php artisan optimize`
+- [x] `scripts/`: scheduler cron and `queue:restart` (`queue.sh`, Phase 6), `php artisan optimize` (`optimize.sh`), and the front-end build (`assets.sh`): `npm ci` + `npm run build` after the composer install, since `public/build` is not in git. Without npm the deploy keeps an existing `public/build` with a warning, or stops when there is none. Production also deletes a stray `public/hot`, which would point pages at a Vite dev server. Supervisor stays optional (see `queue.sh`).
 - [ ] Monitoring: failed jobs alert, sync error rate
 - [ ] Backup plan for the DB
 

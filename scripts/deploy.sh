@@ -6,6 +6,7 @@ source ./scripts/detect_os.sh
 source ./scripts/setup_commands.sh
 source ./scripts/pre_deploy.sh
 source ./scripts/install_deps.sh
+source ./scripts/assets.sh
 source ./scripts/migrate.sh
 source ./scripts/optimize.sh
 source ./scripts/queue.sh
