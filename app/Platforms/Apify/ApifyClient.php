@@ -27,13 +27,13 @@ class ApifyClient
 
     protected const RUNNING = ['READY', 'RUNNING'];
 
+    public function __construct(protected ApifyBudget $budget) {}
+
     /**
      * @return array<int, array<string, mixed>>
      *
      * @throws PlatformException
      */
-    public function __construct(protected ApifyBudget $budget) {}
-
     public function run(Platform $platform, string $actor, array $input): array
     {
         config('services.apify.token') ?: throw new PlatformException($platform, 'APIFY_TOKEN is not set');
