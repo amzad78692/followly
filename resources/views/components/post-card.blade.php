@@ -40,7 +40,7 @@
                     @endif
                     @if ($post->permalink)
                         <flux:menu.item icon="arrow-top-right-on-square" :href="$post->permalink" target="_blank">Open on {{ $post->platform->label() }}</flux:menu.item>
-                        <flux:menu.item icon="link" x-on:click="navigator.clipboard.writeText(@js($post->permalink))">Copy link</flux:menu.item>
+                        <flux:menu.item icon="link" x-on:click="navigator.clipboard.writeText({{ Js::from($post->permalink) }})">Copy link</flux:menu.item>
                     @endif
                 </flux:menu>
             </flux:dropdown>

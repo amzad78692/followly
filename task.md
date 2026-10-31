@@ -154,7 +154,7 @@ Legend: `[x]` done · `[ ]` to do
 - [x] `DB_QUEUE_RETRY_AFTER` raised to 660 s so a slow Apify batch (up to 300 s, plus download) is not picked up twice
 - [x] Production: `scripts/queue.sh` (run by `deploy.sh`) installs the `schedule:run` cron if it is missing and runs `queue:restart`. Hosting looks like cPanel, so the cron-started `queue:work --stop-when-empty` stays; the script explains how to switch to Supervisor.
 - [x] Tests in `tests/Feature/Sync/SyncTest.php`; the shared `profile()` / `fakePlatforms()` helpers are now in `tests/Pest.php`
-- Not checked against live APIs yet (no `YOUTUBE_API_KEY` / `APIFY_TOKEN`)
+- Checked end to end with live Apify (NASA from an Instagram link: lookup found TikTok and X by handle, import, queued sync, 42 posts in the feed; a forced re-sync made real runs and stored no duplicates). YouTube is still unchecked (no `YOUTUBE_API_KEY`).
 
 ## Phase 7: Discovery and ranking ✅
 
@@ -226,14 +226,6 @@ New resources sit in a "Content" navigation group, listed before Settings.
 - [x] Tests in `tests/Feature/Admin/ContentAdminTest.php`; the `superAdmin()` helper moved to `tests/Pest.php`
 - The Apify budget is still an `.env` setting (`APIFY_MONTHLY_BUDGET_USD`) and has no Filament setting yet
 
-## Phase 11: Arabic / RTL (future, not in current scope)
-
-The site is English only for now. Leave the existing `en`/`ar` config and `SetLocale` middleware untouched. If bilingual support is added later:
-
-- [ ] Put every UI string in `__()` and add `lang/ar.json`
-- [ ] Check every page in RTL. The UI already uses logical `ms/me/ps/pe/start/end` classes.
-- [ ] Language switcher in the landing navbar and in Settings
-
 ## Phase 12: Polish and performance ✅
 
 - [x] Platform images go through a proxy instead of the platform CDNs. `image_url($url, $width, $height)` returns a signed `image.remote` URL (`/img`). `App\Support\RemoteImage` downloads each image once, resizes it to webp with Glide, keeps it in `storage/app/image-cache`, and serves it with a 30-day browser cache. Local URLs (uploads) pass through unchanged.
@@ -275,6 +267,6 @@ The site is English only for now. Leave the existing `en`/`ar` config and `SetLo
 3. Phase 5 + Phase 6, starting with **YouTube only** (free API)
 4. Instagram, TikTok and X through Apify
 5. Phases 7 → 8 → 9 → 10
-6. Phases 12–14 (Phase 11 is future work)
+6. Phases 12–14
 
 **First milestone:** login works, YouTube creators sync for real, and Feed, My Influencers and Profile show real data.
