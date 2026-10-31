@@ -252,7 +252,7 @@ New resources sit in a "Content" navigation group, listed before Settings.
 - [x] Job tests: post upsert (no duplicates), snapshots (Phase 6)
 - [x] Job tests: notifications sent (Phase 8)
 - [x] Auth tests: login, register, guest redirects (Phase 3, `tests/Feature/Auth/AuthenticationTest.php`)
-- [x] CI: `.github/workflows/ci.yml` runs `pint --test` and `php artisan test` on each push to `main` and on pull requests (PHP 8.3; it also runs `npm run build`, because rendered pages need the Vite manifest). The older template and config files got a one-off Pint pass so the check starts green.
+- CI: dropped. A GitHub Actions workflow was added and then removed (commit `7015571`), so Pint and Pest run only locally: `vendor/bin/pint --test` and `php artisan test` before pushing. The older template and config files still got their one-off Pint pass.
 - [x] Monitoring and backup tests in `tests/Feature/Operations/OperationsTest.php`
 
 ## Phase 14: Deployment
