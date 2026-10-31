@@ -115,7 +115,7 @@ abstract class Driver implements PlatformDriver
         return array_values(array_unique(array_map(fn ($link) => rtrim($link, '.,;:!?'), $matches[0])));
     }
 
-    private function absolute(string $url): string
+    protected function absolute(string $url): string
     {
         return str_contains($url, '://') ? $url : "https://{$url}";
     }

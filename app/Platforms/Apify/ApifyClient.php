@@ -55,7 +55,7 @@ class ApifyClient
                 $run = $this->data($platform, $this->request()->get("actor-runs/{$run['id']}", ['waitForFinish' => $this->waitSeconds()]));
             }
 
-            $log->fill(['run_id' => $run['id'], 'status' => $run['status'], 'usage_usd' => $run['usageTotalUsd'] ?? 0]);
+            $log->fill(['run_id' => $run['id'], 'status' => $run['status'], 'usage_usd' => $this->cost($run)]);
 
             if (in_array($run['status'], self::RUNNING, true)) {
                 $this->request()->post("actor-runs/{$run['id']}/abort");
@@ -104,6 +104,18 @@ class ApifyClient
         }
 
         return $response->json('data');
+    }
+
+    /**
+     * What the run costs. Pay-per-event actors charge per result, and those charges reach
+     * usageTotalUsd only after Apify accounts for them, so a just-finished run can show 0.
+     */
+    protected function cost(array $run): float
+    {
+        $prices = $run['pricingInfo']['pricingPerEvent']['actorChargeEvents'] ?? [];
+        $events = collect($run['chargedEventCounts'] ?? [])->sum(fn ($count, $event) => $count * ($prices[$event]['eventPriceUsd'] ?? 0));
+
+        return max((float) ($run['usageTotalUsd'] ?? 0), $events);
     }
 
     protected function request(): PendingRequest

@@ -64,7 +64,8 @@ class TikTokDriver extends ApifyDriver
             bio: ($author['signature'] ?? null) ?: null,
             followers: (int) ($author['fans'] ?? 0),
             isVerified: (bool) ($author['verified'] ?? false),
-            links: collect([$author['bioLink'] ?? null])
+            // bioLink comes without a scheme ("example.com/page").
+            links: collect([($author['bioLink'] ?? null) ? $this->absolute($author['bioLink']) : null])
                 ->merge($this->linksIn($author['signature'] ?? null))
                 ->filter()->unique()->values()->all(),
         );
@@ -79,8 +80,10 @@ class TikTokDriver extends ApifyDriver
                 type: ($video['isSlideshow'] ?? false) ? PostType::Carousel : PostType::Video,
                 publishedAt: isset($video['createTimeISO']) ? CarbonImmutable::parse($video['createTimeISO']) : CarbonImmutable::createFromTimestamp($video['createTime']),
                 body: ($video['text'] ?? null) ?: null,
-                images: array_values(array_filter([$video['videoMeta']['coverUrl'] ?? $video['videoMeta']['originalCoverUrl'] ?? null])),
-                durationSeconds: isset($video['videoMeta']['duration']) ? (int) $video['videoMeta']['duration'] : null,
+                images: collect($video['slideshowImageLinks'] ?? [])->map(fn ($image) => $image['downloadLink'] ?? $image['tiktokLink'] ?? null)->filter()->values()->all()
+                    ?: array_values(array_filter([$video['videoMeta']['coverUrl'] ?? $video['videoMeta']['originalCoverUrl'] ?? null])),
+                // Slideshows report a duration of 0.
+                durationSeconds: ((int) ($video['videoMeta']['duration'] ?? 0)) ?: null,
                 permalink: $video['webVideoUrl'] ?? null,
                 metrics: $this->metrics([
                     'views' => $video['playCount'] ?? null,

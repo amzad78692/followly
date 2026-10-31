@@ -113,7 +113,10 @@ Legend: `[x]` done · `[ ]` to do
   - every run is stored in `apify_runs` (status, items, `usage_usd`, duration, error) and logged; `ApifyRun::spentThisMonth()` is ready for the Phase 6 budget
 - [x] `InstagramDriver` (`apify/instagram-profile-scraper`), `TikTokDriver` (`clockworks/tiktok-scraper`), `XDriver` (`apidojo/tweet-scraper`) on a shared `ApifyDriver`. Each actor returns the profile and recent posts together, and `fetchProfile` + `fetchRecentPosts` reuse one run for 10 minutes. Actor ids are in `config/services.php` (`APIFY_*_ACTOR`).
   - X leaves out retweets and replies. TikTok and X read the profile from the posts, so an account with no posts cannot be resolved.
-  - [ ] **Not yet run against the live actors** (no `APIFY_TOKEN` yet): the mappings follow each actor's documented output and are covered by faked responses. Run one real lookup per platform once the token is set and adjust the mapping if fields differ.
+  - [x] **Checked against the live actors** (natgeo, nasa, NASA). Profiles and posts map correctly. Fixed from what the real output showed:
+    - all three actors are pay-per-event, and `usageTotalUsd` stays 0 until Apify accounts for the charges, so the run cost is now `chargedEventCounts` × event price (or `usageTotalUsd` when higher)
+    - TikTok slideshows take their images from `slideshowImageLinks` and get no duration (the actor reports 0); `bioLink` comes without a scheme, so `https://` is added
+    - X: retweets count toward `maxItems` (and are charged) before the driver drops them, so a creator who retweets a lot gets fewer posts per sync. TikTok's pinned video is returned with the newest ones.
 - [x] `PlatformManager` (singleton): `driver()`, `drivers()`, `forUrl()`, `extend()` to swap a driver, `resolve()` (a link goes to its platform; a bare handle tries YouTube first, then the others)
 - [x] **Finding a creator's other accounts** (`App\Platforms\AccountFinder`):
   - follows links in profiles and bios, including chains (YouTube description → Instagram bio → X)

@@ -79,6 +79,18 @@ it('resolves an Instagram profile and logs the run cost', function () {
         ->and(ApifyRun::spentThisMonth())->toBe(0.0123);
 });
 
+it('logs pay-per-event charges that usageTotalUsd does not show yet', function () {
+    fakeApify([instagramProfile()], [
+        'usageTotalUsd' => 0,
+        'pricingInfo' => ['pricingModel' => 'PAY_PER_EVENT', 'pricingPerEvent' => ['actorChargeEvents' => ['profile' => ['eventPriceUsd' => 0.0026]]]],
+        'chargedEventCounts' => ['profile' => 2, 'unpriced' => 5],
+    ]);
+
+    app(PlatformManager::class)->driver('instagram')->resolve('mrbeast');
+
+    expect(ApifyRun::sole()->usage_usd)->toBe(0.0052);
+});
+
 it('maps Instagram posts and reuses the run for the profile', function () {
     fakeApify([instagramProfile()]);
     $driver = app(PlatformManager::class)->driver('instagram');
@@ -120,11 +132,12 @@ it('resolves a TikTok profile and maps its videos', function () {
             'webVideoUrl' => 'https://www.tiktok.com/@mrbeast/video/7300000000000000001',
             'playCount' => 1000, 'diggCount' => 100, 'commentCount' => 10, 'shareCount' => 5,
             'videoMeta' => ['duration' => 58, 'coverUrl' => 'https://cdn/tt1.jpg'],
-            'authorMeta' => ['id' => '6614519312189947909', 'name' => 'mrbeast', 'nickName' => 'MrBeast', 'verified' => true, 'signature' => 'yt: https://youtube.com/@mrbeast', 'avatar' => 'https://cdn/tt-avatar.jpg', 'fans' => 110000000],
+            'authorMeta' => ['id' => '6614519312189947909', 'name' => 'mrbeast', 'nickName' => 'MrBeast', 'verified' => true, 'signature' => 'yt: https://youtube.com/@mrbeast', 'bioLink' => 'beast.games/watch', 'avatar' => 'https://cdn/tt-avatar.jpg', 'fans' => 110000000],
         ],
         [
             'id' => '7300000000000000002', 'text' => 'Slides', 'createTimeISO' => '2026-10-20T12:00:00.000Z', 'isSlideshow' => true,
-            'videoMeta' => ['coverUrl' => 'https://cdn/tt2.jpg'],
+            'videoMeta' => ['duration' => 0, 'coverUrl' => 'https://cdn/tt2.jpg'],
+            'slideshowImageLinks' => [['tiktokLink' => 'https://cdn/s1-tt.jpg', 'downloadLink' => 'https://cdn/s1.jpg'], ['tiktokLink' => 'https://cdn/s2.jpg']],
             'authorMeta' => ['id' => '6614519312189947909', 'name' => 'mrbeast'],
         ],
     ]);
@@ -136,12 +149,15 @@ it('resolves a TikTok profile and maps its videos', function () {
     expect($account->externalId)->toBe('6614519312189947909')
         ->and($account->name)->toBe('MrBeast')
         ->and($account->followers)->toBe(110000000)
-        ->and($account->links)->toBe(['https://youtube.com/@mrbeast'])
+        ->and($account->links)->toBe(['https://beast.games/watch', 'https://youtube.com/@mrbeast'])
         ->and($posts)->toHaveCount(2)
         ->and($posts[0]->type)->toBe(PostType::Video)
         ->and($posts[0]->durationSeconds)->toBe(58)
+        ->and($posts[0]->images)->toBe(['https://cdn/tt1.jpg'])
         ->and($posts[0]->metrics)->toBe(['views' => 1000, 'likes' => 100, 'comments' => 10, 'shares' => 5])
-        ->and($posts[1]->type)->toBe(PostType::Carousel);
+        ->and($posts[1]->type)->toBe(PostType::Carousel)
+        ->and($posts[1]->durationSeconds)->toBeNull()
+        ->and($posts[1]->images)->toBe(['https://cdn/s1.jpg', 'https://cdn/s2.jpg']);
 
     Http::assertSent(fn (Request $request) => str_contains($request->url(), 'clockworks~tiktok-scraper') && $request['profiles'] === ['mrbeast']);
 });
