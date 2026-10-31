@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Admin>
+ * @extends Factory<Admin>
  */
 class AdminFactory extends Factory
 {
@@ -17,9 +18,9 @@ class AdminFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => "Admin",
-            'email' => "admin@gmail.com",
-            'mobile' => "22650262",
+            'name' => 'Admin',
+            'email' => 'admin@gmail.com',
+            'mobile' => '22650262',
             'email_verified_at' => now(),
             'password' => bcrypt('Admin@123'),
         ];

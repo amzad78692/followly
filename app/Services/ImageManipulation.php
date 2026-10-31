@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Services;
 
 use Exception;
@@ -35,23 +34,21 @@ class ImageManipulation
 
     /**
      * Display the image based on the provided path.
-     *
-     * @return string
      */
     public function getModifiedPath(array $params = []): string
     {
         try {
 
             $modifiedImgPath = public_path(
-                rtrim(self::$pathPrefix, '/') .
-                '/' .
-                ltrim($this->filePath, '/') .
-                (count($params) ? '__' . http_build_query($params) : '')
+                rtrim(self::$pathPrefix, '/').
+                '/'.
+                ltrim($this->filePath, '/').
+                (count($params) ? '__'.http_build_query($params) : '')
             );
             $pathToImage = public_path($this->filePath);
 
             $folder = dirname($modifiedImgPath);
-            if (!is_dir($folder)) {
+            if (! is_dir($folder)) {
                 mkdir($folder, 0755, true);
             }
 
@@ -74,5 +71,4 @@ class ImageManipulation
 
         return public_path(self::$imageNotFoundPath);
     }
-
 }

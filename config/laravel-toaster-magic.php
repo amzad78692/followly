@@ -2,13 +2,13 @@
 
 return [
     'options' => [
-        "closeButton" => true,
-        "positionClass" => "toast-top-end",
-        "preventDuplicates" => false,
-        "showDuration" => "300",
-        "timeOut" => "5000",
-        "theme" => "default", // "default, material"
+        'closeButton' => true,
+        'positionClass' => 'toast-top-end',
+        'preventDuplicates' => false,
+        'showDuration' => '300',
+        'timeOut' => '5000',
+        'theme' => 'default', // "default, material"
     ],
     'livewire_enabled' => true,
-    'livewire_version' => 'v3'
+    'livewire_version' => 'v3',
 ];

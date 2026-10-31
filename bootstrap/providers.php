@@ -1,9 +1,15 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\Filament\AdminPanelProvider;
+use App\Providers\ResponseMacroServiceProvider;
+use App\Providers\VoltServiceProvider;
+use Spatie\Glide\GlideServiceProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\Filament\AdminPanelProvider::class,
-    App\Providers\ResponseMacroServiceProvider::class,
-    App\Providers\VoltServiceProvider::class,
-    Spatie\Glide\GlideServiceProvider::class,
+    AppServiceProvider::class,
+    AdminPanelProvider::class,
+    ResponseMacroServiceProvider::class,
+    VoltServiceProvider::class,
+    GlideServiceProvider::class,
 ];

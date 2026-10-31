@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Override Cache::rememberForever to handle missing cache table during migrations
         $this->app->booting(function () {
-            if (!Schema::hasTable('cache')) {
+            if (! Schema::hasTable('cache')) {
                 // Temporarily use array cache during migrations
                 config(['cache.default' => 'array']);
             }

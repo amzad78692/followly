@@ -59,6 +59,6 @@ return [
         'test_key' => 'SK_KWT_vVZlnnAqu8jRByOWaRPNId4ShzEDNt256dvnjebuyzo52dXjAfRx2ixW5umjWSUx',
         'callback_url' => env('MF_CALLBACK'),
         'live_key' => env('MF_API_KEY'),
-        'is_test' => env('MF_IS_TEST', true)
+        'is_test' => env('MF_IS_TEST', true),
     ],
 ];

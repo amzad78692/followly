@@ -26,6 +26,7 @@ abstract class BaseResource extends Resource
     {
         $classBaseName = class_basename(static::class); // e.g. "UserResource"
         $rawName = Str::before($classBaseName, 'Resource'); // e.g. "User"
+
         return Str::headline($rawName); // e.g. "User" or "User Type"
     }
 }

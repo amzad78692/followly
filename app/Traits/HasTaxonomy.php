@@ -24,6 +24,7 @@ trait HasTaxonomy
         return $this->taxonomies()
             ->where('type', TaxonomyType::Tag->value);
     }
+
     public function colors()
     {
         return $this->taxonomies()
