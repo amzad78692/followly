@@ -25,8 +25,13 @@ class XDriver extends ApifyDriver
 
     protected function input(array $handles, int $limit): array
     {
+        // Searching instead of twitterHandles keeps retweets and replies out of the run (each tweet is charged).
         // maxItems caps the whole run, not each handle.
-        return ['twitterHandles' => $handles, 'maxItems' => $limit * count($handles), 'sort' => 'Latest'];
+        return [
+            'searchTerms' => array_map(fn (string $handle) => "from:{$handle} -filter:retweets -filter:replies", $handles),
+            'maxItems' => $limit * count($handles),
+            'sort' => 'Latest',
+        ];
     }
 
     protected function handleOf(array $item): ?string

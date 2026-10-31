@@ -107,8 +107,25 @@ class ApifyClient
     }
 
     /**
-     * What the run costs. Pay-per-event actors charge per result, and those charges reach
-     * usageTotalUsd only after Apify accounts for them, so a just-finished run can show 0.
+     * Re-read the cost of yesterday's and today's runs that were logged at $0. Pay-per-event
+     * charges show up on the run a few seconds after it finishes, after run() has logged it.
+     *
+     * @return int how many runs were updated
+     */
+    public function refreshCosts(): int
+    {
+        return ApifyRun::whereNotNull('run_id')->where('usage_usd', 0)->where('created_at', '>=', now()->subDay())->get()
+            ->filter(function (ApifyRun $log) {
+                $response = $this->request()->get("actor-runs/{$log->run_id}");
+
+                return $response->successful() && $log->update(['usage_usd' => $this->cost($response->json('data') ?? [])]) && $log->usage_usd > 0;
+            })
+            ->count();
+    }
+
+    /**
+     * What the run costs, from usageTotalUsd or, when Apify has not added them to it yet,
+     * the pay-per-event charges.
      */
     protected function cost(array $run): float
     {

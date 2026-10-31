@@ -91,6 +91,21 @@ it('logs pay-per-event charges that usageTotalUsd does not show yet', function (
     expect(ApifyRun::sole()->usage_usd)->toBe(0.0052);
 });
 
+it('fills in the cost of recent runs once Apify has charged them', function () {
+    $pending = ApifyRun::create(['platform' => Platform::X, 'actor' => 'apidojo/tweet-scraper', 'run_id' => 'run-1', 'status' => 'SUCCEEDED', 'usage_usd' => 0]);
+    $old = ApifyRun::create(['platform' => Platform::X, 'actor' => 'apidojo/tweet-scraper', 'run_id' => 'run-2', 'status' => 'SUCCEEDED', 'usage_usd' => 0]);
+    $old->forceFill(['created_at' => now()->subDays(2)])->save();
+    ApifyRun::create(['platform' => Platform::X, 'actor' => 'apidojo/tweet-scraper', 'run_id' => 'run-3', 'status' => 'SUCCEEDED', 'usage_usd' => 0.5]);
+
+    Http::fake(['api.apify.com/v2/actor-runs/run-1' => Http::response(['data' => ['id' => 'run-1', 'usageTotalUsd' => 0.0012]])]);
+
+    $this->artisan('apify:costs')->expectsOutput('1 Apify run costs updated.')->assertSuccessful();
+
+    expect($pending->fresh()->usage_usd)->toBe(0.0012)
+        ->and($old->fresh()->usage_usd)->toBe(0.0);
+    Http::assertSentCount(1);
+});
+
 it('maps Instagram posts and reuses the run for the profile', function () {
     fakeApify([instagramProfile()]);
     $driver = app(PlatformManager::class)->driver('instagram');
@@ -195,6 +210,9 @@ it('resolves an X profile and leaves out retweets and replies', function () {
         ->and($posts->pluck('type')->all())->toBe([PostType::Text, PostType::Carousel, PostType::Video])
         ->and($posts[0]->metrics)->toBe(['views' => 9000, 'likes' => 50, 'comments' => 4, 'shares' => 4])
         ->and($posts[2]->durationSeconds)->toBe(61);
+
+    Http::assertSent(fn (Request $request) => str_contains($request->url(), 'apidojo~tweet-scraper')
+        && $request['searchTerms'] === ['from:mrbeast -filter:retweets -filter:replies']);
 });
 
 it('throws when an account is not found', function () {

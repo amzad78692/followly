@@ -114,9 +114,10 @@ Legend: `[x]` done · `[ ]` to do
 - [x] `InstagramDriver` (`apify/instagram-profile-scraper`), `TikTokDriver` (`clockworks/tiktok-scraper`), `XDriver` (`apidojo/tweet-scraper`) on a shared `ApifyDriver`. Each actor returns the profile and recent posts together, and `fetchProfile` + `fetchRecentPosts` reuse one run for 10 minutes. Actor ids are in `config/services.php` (`APIFY_*_ACTOR`).
   - X leaves out retweets and replies. TikTok and X read the profile from the posts, so an account with no posts cannot be resolved.
   - [x] **Checked against the live actors** (natgeo, nasa, NASA). Profiles and posts map correctly. Fixed from what the real output showed:
-    - all three actors are pay-per-event, and `usageTotalUsd` stays 0 until Apify accounts for the charges, so the run cost is now `chargedEventCounts` × event price (or `usageTotalUsd` when higher)
+    - all three actors are pay-per-event, and the charges reach the run 1–3 s after it finishes, so `run()` logs most runs at $0. The cost is `usageTotalUsd`, or `chargedEventCounts` × event price when that is higher, and `php artisan apify:costs` (every 5 minutes) fills in runs from the last day that are still at $0. The budget can lag by up to 5 minutes.
     - TikTok slideshows take their images from `slideshowImageLinks` and get no duration (the actor reports 0); `bioLink` comes without a scheme, so `https://` is added
-    - X: retweets count toward `maxItems` (and are charged) before the driver drops them, so a creator who retweets a lot gets fewer posts per sync. TikTok's pinned video is returned with the newest ones.
+    - X searches `from:<handle> -filter:retweets -filter:replies` instead of `twitterHandles`, so retweets and replies are neither fetched nor charged. A creator whose recent tweets are all retweets or replies cannot be resolved.
+    - TikTok's pinned video is returned with the newest ones
 - [x] `PlatformManager` (singleton): `driver()`, `drivers()`, `forUrl()`, `extend()` to swap a driver, `resolve()` (a link goes to its platform; a bare handle tries YouTube first, then the others)
 - [x] **Finding a creator's other accounts** (`App\Platforms\AccountFinder`):
   - follows links in profiles and bios, including chains (YouTube description → Instagram bio → X)

@@ -2,6 +2,7 @@
 
 use App\Models\AccountSnapshot;
 use App\Models\ApifyRun;
+use App\Platforms\Apify\ApifyClient;
 use App\Support\RemoteImage;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -23,6 +24,15 @@ Schedule::command('platforms:sync posts')
 
 Schedule::command('platforms:sync profiles')
     ->dailyAt('03:00');
+
+// Apify charges reach a run a few seconds after it finishes, so its logged cost is filled in later.
+Artisan::command('apify:costs', function (ApifyClient $client) {
+    $this->info($client->refreshCosts().' Apify run costs updated.');
+})->purpose('Fill in the cost of recent Apify runs that were logged before Apify charged them');
+
+Schedule::command('apify:costs')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
 
 // Trending scores and cached follower counts for Explore (see config/discovery.php).
 Schedule::command('influencers:rank')

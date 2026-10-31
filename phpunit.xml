@@ -29,5 +29,8 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <!-- Keep real platform keys from a local .env out of tests; tests that need one set it. -->
+        <env name="APIFY_TOKEN" value=""/>
+        <env name="YOUTUBE_API_KEY" value=""/>
     </php>
 </phpunit>
