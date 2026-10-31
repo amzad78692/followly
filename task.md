@@ -252,14 +252,21 @@ New resources sit in a "Content" navigation group, listed before Settings.
 - [x] Job tests: post upsert (no duplicates), snapshots (Phase 6)
 - [x] Job tests: notifications sent (Phase 8)
 - [x] Auth tests: login, register, guest redirects (Phase 3, `tests/Feature/Auth/AuthenticationTest.php`)
-- [ ] CI: Pint + Pest on each push to `main`
+- [x] CI: `.github/workflows/ci.yml` runs `pint --test` and `php artisan test` on each push to `main` and on pull requests (PHP 8.3; it also runs `npm run build`, because rendered pages need the Vite manifest). The older template and config files got a one-off Pint pass so the check starts green.
+- [x] Monitoring and backup tests in `tests/Feature/Operations/OperationsTest.php`
 
 ## Phase 14: Deployment
 
-- [ ] `.env.example`: queue/cache drivers, mail (`YOUTUBE_API_KEY`, `APIFY_TOKEN` and actor IDs added in Phase 5)
+- [x] `.env.example`: MySQL by default, queue/cache notes, how to set up SMTP mail (needed for password resets, digests and admin alerts), and every app setting (rate limits, sync caps, retention, monitoring, backups) with its default
 - [x] `scripts/`: scheduler cron and `queue:restart` (`queue.sh`, Phase 6), `php artisan optimize` (`optimize.sh`), and the front-end build (`assets.sh`): `npm ci` + `npm run build` after the composer install, since `public/build` is not in git. Without npm the deploy keeps an existing `public/build` with a warning, or stops when there is none. Production also deletes a stray `public/hot`, which would point pages at a Vite dev server. Supervisor stays optional (see `queue.sh`).
-- [ ] Monitoring: failed jobs alert, sync error rate
-- [ ] Backup plan for the DB
+- [x] Monitoring: `php artisan monitor:check` (hourly) emails every admin a `HealthAlert`:
+  - queued jobs that failed since the last check (jobs land in `failed_jobs` only after their retries), grouped by job, with the latest error
+  - at most once a day, when at least `MONITOR_SYNC_ERROR_RATE` (25%) of tracked accounts failed their last sync and at least `MONITOR_SYNC_MIN_FAILED` (3) did, per platform, with the most common error
+  - alerts are sent straight away rather than queued, since the queue may be what is broken; they need working mail in production
+- [x] Backups: `php artisan db:backup` (daily, 02:30) writes a gzipped `mysqldump` (`--single-transaction`, so no table locks) to `BACKUP_DISK` under `backups/` and deletes backups older than `BACKUP_KEEP_DAYS` (14). A failed backup emails the admins.
+  - the default `local` disk is on the same server (`storage/app/private/backups`). For a real off-site copy, set `BACKUP_DISK=s3` with the `AWS_*` settings, or have the host's own backups (cPanel) include that folder.
+  - restore: `gunzip < followly-YYYY-MM-DD-HHMMSS.sql.gz | mysql -u USER -p DATABASE`
+  - checked locally against MariaDB 11.8: a 3.9 MB dump with all 36 tables
 
 ---
 

@@ -63,6 +63,15 @@ Schedule::command('images:prune')
 Schedule::command('model:prune', ['--model' => [AccountSnapshot::class, ApifyRun::class]])
     ->dailyAt('03:30');
 
+// Emails to admins about failed jobs and failing syncs, and the daily backup (see config/operations.php).
+Schedule::command('monitor:check')
+    ->hourly()
+    ->withoutOverlapping();
+
+Schedule::command('db:backup')
+    ->dailyAt('02:30')
+    ->withoutOverlapping();
+
 // Automatic log cleanup - runs daily at 2:00 AM
 Schedule::command('log:cleanup')
     ->when(function () {
