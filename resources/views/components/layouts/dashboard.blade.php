@@ -3,8 +3,8 @@
 <head>
     @include('partials.head')
 </head>
-<body class="min-h-screen bg-zinc-50/60 font-sans text-zinc-900 antialiased">
-    <flux:sidebar sticky collapsible="mobile" class="border-e border-zinc-200 bg-white">
+<body class="min-h-screen bg-zinc-50 font-sans text-zinc-900 antialiased">
+    <flux:sidebar sticky collapsible="mobile" class="border-e border-zinc-200 bg-sand">
         <flux:sidebar.header>
             <x-brand class="px-2" />
             <flux:sidebar.collapse class="lg:hidden" />
@@ -20,15 +20,15 @@
 
         <flux:sidebar.spacer />
 
-        <div class="rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 p-4 text-white">
-            <p class="text-sm font-semibold">Track a new creator</p>
-            <p class="mt-1 text-xs text-indigo-100">Paste any profile link and we find the rest.</p>
+        <div class="rounded-2xl bg-accent p-4 text-white">
+            <p class="font-display text-sm font-semibold">Track a new creator</p>
+            <p class="mt-1 text-xs text-white/85">Paste any profile link and we find the rest.</p>
             <flux:button size="sm" :href="route('influencers.create')" wire:navigate class="mt-3 w-full">Add Influencer</flux:button>
         </div>
     </flux:sidebar>
 
     <flux:main class="p-0!">
-        <header class="sticky top-0 z-10 flex h-16 items-center gap-3 border-b border-zinc-200 bg-white/90 px-4 backdrop-blur lg:px-8">
+        <header class="sticky top-0 z-10 flex h-16 items-center gap-3 border-b border-zinc-200 bg-ivory/90 px-4 backdrop-blur lg:px-8">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
             <livewire:search-bar />

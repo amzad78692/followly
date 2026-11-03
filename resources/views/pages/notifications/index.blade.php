@@ -113,8 +113,8 @@ new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class ex
     <div class="mt-4 flex gap-2">
         @foreach (['all' => 'All', 'unread' => 'Unread'] as $key => $label)
             <button type="button" wire:click="$set('filter', '{{ $key }}')" @class([
-                'rounded-lg border px-3 py-1.5 text-sm font-medium transition',
-                'border-indigo-600 bg-indigo-600 text-white shadow-sm' => $filter === $key,
+                'rounded-full border px-3 py-1.5 text-sm font-medium transition',
+                'border-accent bg-accent text-white shadow-sm' => $filter === $key,
                 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50' => $filter !== $key,
             ])>
                 {{ $label }}
@@ -134,7 +134,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class ex
 
             <div wire:key="notification-{{ $notification->id }}" @class([
                 'group flex items-start gap-3 rounded-2xl border p-4 transition',
-                'border-indigo-100 bg-indigo-50/50' => $notification->unread(),
+                'border-khaki/50 bg-sand' => $notification->unread(),
                 'border-zinc-200 bg-white' => $notification->read(),
             ])>
                 <button type="button" wire:click="open('{{ $notification->id }}')" class="flex min-w-0 flex-1 items-start gap-3 text-start">

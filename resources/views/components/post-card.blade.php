@@ -18,7 +18,7 @@
         </a>
 
         <div class="min-w-0 flex-1">
-            <a href="{{ route('influencers.show', $author) }}" wire:navigate class="flex items-center gap-1 text-sm font-semibold text-zinc-900 hover:underline">
+            <a href="{{ route('influencers.show', $author) }}" wire:navigate class="flex items-center gap-1 font-display text-sm font-semibold text-zinc-900 hover:underline">
                 {{ $author->name }}
                 @if ($author->is_verified)
                     <x-verified class="size-3.5" />

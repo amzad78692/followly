@@ -14,6 +14,14 @@ class ContactSettings extends Settings
 
     public ?string $address;
 
+    public ?string $youtube;
+
+    public ?string $instagram;
+
+    public ?string $tiktok;
+
+    public ?string $x;
+
     public static function group(): string
     {
         return 'contact';

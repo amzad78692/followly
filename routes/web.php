@@ -21,6 +21,10 @@ Route::middleware('auth')->group(function () {
 // Profiles are public so they can be shared and indexed; guests get the public layout.
 Volt::route('influencers/{influencer}', 'influencers.show')->name('influencers.show');
 
+Route::view('privacy', 'static.privacy')->name('privacy');
+Route::view('terms', 'static.terms')->name('terms');
+Route::view('contact', 'static.contact')->name('contact');
+
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 
 require __DIR__.'/auth.php';

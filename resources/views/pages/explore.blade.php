@@ -22,7 +22,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
         'recommended' => 'Recommended',
     ];
 
-    public const CATEGORY_COLORS = ['bg-sky-50', 'bg-rose-50', 'bg-emerald-50', 'bg-indigo-50', 'bg-amber-50', 'bg-violet-50'];
+    public const CATEGORY_COLORS = ['bg-sand', 'bg-zinc-100', 'bg-khaki/30', 'bg-gold/15', 'bg-terracotta/10', 'bg-cream'];
 
     #[Url]
     public string $tab = 'trending';
@@ -102,8 +102,8 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
     <div class="mt-5 flex flex-wrap gap-2">
         @foreach ($this::TABS as $key => $label)
             <button type="button" wire:click="setTab('{{ $key }}')" @class([
-                'rounded-lg border px-4 py-1.5 text-sm font-medium transition',
-                'border-indigo-600 bg-indigo-600 text-white shadow-sm' => $tab === $key,
+                'rounded-full border px-4 py-1.5 text-sm font-medium transition',
+                'border-accent bg-accent text-white shadow-sm' => $tab === $key,
                 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50' => $tab !== $key,
             ])>{{ $label }}</button>
         @endforeach
@@ -112,13 +112,13 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
     @if ($this->activeCategory || $this->activeCountry)
         <div class="mt-4 flex flex-wrap gap-2">
             @if ($this->activeCategory)
-                <flux:badge color="indigo">
+                <flux:badge>
                     {{ $this->activeCategory->name }}
                     <flux:badge.close wire:click="$set('category', null)" />
                 </flux:badge>
             @endif
             @if ($this->activeCountry)
-                <flux:badge color="indigo">
+                <flux:badge>
                     {{ $this->activeCountry->name }}
                     <flux:badge.close wire:click="$set('country', null)" />
                 </flux:badge>
@@ -132,7 +132,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
                 <div class="flex items-center justify-between">
                     <flux:heading size="lg" class="font-bold!">{{ $heading }}</flux:heading>
                     @if ($tab === 'trending')
-                        <button type="button" wire:click="$toggle('showAll')" class="text-sm font-medium text-indigo-600 hover:underline">
+                        <button type="button" wire:click="$toggle('showAll')" class="text-sm font-medium text-accent hover:underline">
                             {{ $showAll ? 'Show Less' : 'See All' }}
                         </button>
                     @endif
@@ -166,7 +166,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
         <section class="mt-10">
             <div class="flex items-center justify-between">
                 <flux:heading size="lg" class="font-bold!">Browse by Category</flux:heading>
-                <button type="button" wire:click="setTab('category')" class="text-sm font-medium text-indigo-600 hover:underline">See All</button>
+                <button type="button" wire:click="setTab('category')" class="text-sm font-medium text-accent hover:underline">See All</button>
             </div>
 
             <div class="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-6">

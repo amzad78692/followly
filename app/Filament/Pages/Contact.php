@@ -47,6 +47,18 @@ class Contact extends SettingsPage
                     ->numeric()
                     ->tel(),
                 TextInput::make('address'),
+                TextInput::make('youtube')
+                    ->label('YouTube URL')
+                    ->url(),
+                TextInput::make('instagram')
+                    ->label('Instagram URL')
+                    ->url(),
+                TextInput::make('tiktok')
+                    ->label('TikTok URL')
+                    ->url(),
+                TextInput::make('x')
+                    ->label('X URL')
+                    ->url(),
             ]);
     }
 }

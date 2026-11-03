@@ -94,14 +94,14 @@ new #[Layout('components.layouts.dashboard')] #[Title('Search')] class extends C
             <div class="mt-5 flex flex-wrap gap-2">
                 @foreach ($this->categories as $category)
                     <a href="{{ route('explore', ['tab' => 'category', 'category' => $category->slug]) }}" wire:navigate wire:key="category-{{ $category->id }}"
-                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
+                        class="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
                         {{ $category->meta['emoji'] ?? '🏷️' }} {{ $category->name }}
                         <span class="text-xs text-zinc-400">{{ $category->influencers_count }}</span>
                     </a>
                 @endforeach
                 @foreach ($this->countries as $country)
                     <a href="{{ route('explore', ['tab' => 'country', 'country' => $country->iso2]) }}" wire:navigate wire:key="country-{{ $country->id }}"
-                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
+                        class="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
                         <flux:icon.globe-alt class="size-4 text-zinc-400" /> {{ $country->name }}
                         <span class="text-xs text-zinc-400">{{ $country->influencers_count }}</span>
                     </a>

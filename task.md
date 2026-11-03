@@ -245,6 +245,13 @@ New resources sit in a "Content" navigation group, listed before Settings.
 - [x] Dark mode: staying light-only for now. Supporting it means `dark:` variants on every custom page and component, not just Flux's own, so it would be a phase of its own.
 - [x] Tests in `tests/Feature/Images/RemoteImageTest.php` and `tests/Feature/Pages/PublicPagesTest.php`
 
+## New UI design ✅
+
+- [x] Brown and cream palette plus DM Sans and Space Grotesk as theme tokens in `resources/css/app.css`. The `zinc` scale is warm, so Flux follows it. The Filament admin is unchanged.
+- [x] Landing page rebuilt. Discover Trending uses real influencers; the hero, feed, Add an Influencer and profile sections are sample content.
+- [x] About and FAQ sections, plus `/privacy`, `/terms` and `/contact`. Privacy and Terms hold placeholder text; Contact reads the admin's Contact settings.
+- [ ] Before launch: real logo and hero image, reviewed legal text, social links in the admin's Contact settings (the footer's Follow Us column stays hidden without them)
+
 ## Phase 13: Testing
 
 - [x] Pest feature tests for each Volt page: renders, filters, follow/unfollow, add-influencer flow (`tests/Feature/Pages`, `tests/Feature/Platforms/InfluencerLookupTest.php`)

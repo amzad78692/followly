@@ -66,8 +66,8 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Feed')] class extends 
     <div class="mt-4 flex flex-wrap items-center gap-2">
         @foreach (['all' => 'All Updates'] + collect(\App\Enums\Platform::cases())->mapWithKeys(fn ($p) => [$p->value => $p->label()])->all() as $key => $label)
             <button type="button" wire:click="$set('platform', '{{ $key }}')" @class([
-                'inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition',
-                'border-indigo-600 bg-indigo-600 text-white shadow-sm' => $platform === $key,
+                'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition',
+                'border-accent bg-accent text-white shadow-sm' => $platform === $key,
                 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50' => $platform !== $key,
             ])>
                 @if ($key !== 'all')

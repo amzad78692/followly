@@ -3,7 +3,9 @@
 use App\Models\Influencer;
 use App\Models\InfluencerAccount;
 use App\Models\Post;
+use App\Models\Taxonomy;
 use App\Models\User;
+use App\Settings\ContactSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Volt\Volt;
 
@@ -62,11 +64,64 @@ it('gives the landing page a description', function () {
     $this->get('/')->assertOk()->assertSee('<meta name="description"', false)->assertSee('<meta property="og:title"', false);
 });
 
-it('lists the landing page and every profile in the sitemap', function () {
+it('shows real creators on the landing page under every tab', function (string $tab) {
+    $this->influencer->update(['category_id' => null]);
+
+    Volt::test('home')
+        ->call('setTab', $tab)
+        ->assertSet('tab', $tab)
+        ->assertOk();
+})->with(['trending', 'category', 'country', 'language', 'recommended']);
+
+it('shows the top creator of each group once on the landing page', function () {
+    $category = Taxonomy::create(['type' => 'category', 'name' => 'Bikes', 'slug' => 'bikes']);
+    Influencer::factory()->create(['name' => 'Top Rider', 'category_id' => $category->id, 'followers_count' => 100]);
+    Influencer::factory()->create(['name' => 'Second Rider', 'category_id' => $category->id, 'followers_count' => 10]);
+
+    Volt::test('home')
+        ->call('setTab', 'category')
+        ->assertSee('Top Rider')
+        ->assertDontSee('Second Rider');
+});
+
+it('falls back to the first tab for unknown landing page tabs', function () {
+    Volt::test('home')->call('setTab', 'nope')->assertSet('tab', 'trending');
+});
+
+it('fills the add page from the landing page form', function () {
+    $this->actingAs(User::factory()->create())
+        ->get('/influencers/add?q=@publiccreator')
+        ->assertOk()
+        ->assertSee('@publiccreator');
+});
+
+it('shows the privacy, terms and contact pages', function (string $path, string $text) {
+    $this->get($path)->assertOk()->assertSee($text)->assertSee('Get Started');
+})->with([
+    ['/privacy', 'Privacy Policy'],
+    ['/terms', 'Terms of Service'],
+    ['/contact', 'Contact'],
+]);
+
+it('shows only the social links set in the contact settings', function () {
+    $this->get('/privacy')->assertDontSee('Follow Us');
+
+    $settings = app(ContactSettings::class);
+    $settings->youtube = 'https://www.youtube.com/@followly';
+    $settings->save();
+
+    $this->get('/privacy')
+        ->assertSee('Follow Us')
+        ->assertSee('https://www.youtube.com/@followly')
+        ->assertDontSee('aria-label="Instagram"', false);
+});
+
+it('lists the landing page, static pages and every profile in the sitemap', function () {
     $this->get('/sitemap.xml')
         ->assertOk()
         ->assertHeader('Content-Type', 'application/xml')
         ->assertSee('<loc>'.route('home').'</loc>', false)
+        ->assertSee('<loc>'.route('privacy').'</loc>', false)
         ->assertSee('<loc>'.route('influencers.show', $this->influencer).'</loc>', false);
 });
 

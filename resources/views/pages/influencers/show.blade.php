@@ -123,7 +123,7 @@ new class extends Component {
 <div class="mx-auto max-w-5xl">
     {{-- Cover + identity --}}
     <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-        <div class="relative h-40 bg-linear-to-r from-sky-400 via-indigo-500 to-violet-500 sm:h-52">
+        <div class="relative h-40 bg-linear-to-r from-gold via-khaki to-terracotta sm:h-52">
             @if ($influencer->cover)
                 <img src="{{ image_url($influencer->cover, 1600) }}" alt="" class="size-full object-cover opacity-60 mix-blend-overlay">
             @endif
@@ -164,16 +164,16 @@ new class extends Component {
             <div class="mt-6 grid grid-cols-3 gap-y-5 sm:grid-cols-6">
                 @foreach ($accounts as $account)
                     <div>
-                        <p class="flex items-center gap-1.5 text-lg font-bold text-zinc-900"><x-platform-icon :platform="$account->platform" size="size-4" /> {{ $account->formatted_followers }}</p>
+                        <p class="flex items-center gap-1.5 font-display text-2xl font-bold text-zinc-900"><x-platform-icon :platform="$account->platform" size="size-4" /> {{ $account->formatted_followers }}</p>
                         <p class="text-xs text-zinc-500">{{ $account->platform->unit() }}</p>
                     </div>
                 @endforeach
                 <div class="sm:border-s sm:border-zinc-200 sm:ps-4">
-                    <p class="text-lg font-bold text-zinc-900">{{ $influencer->formatted_reach }}</p>
+                    <p class="font-display text-2xl font-bold text-zinc-900">{{ $influencer->formatted_reach }}</p>
                     <p class="text-xs text-zinc-500">Combined Followers<br><span class="text-zinc-400">(Not unique people)</span></p>
                 </div>
                 <div>
-                    <p class="text-lg font-bold text-zinc-900">{{ $influencer->formatted_tracking }}</p>
+                    <p class="font-display text-2xl font-bold text-zinc-900">{{ $influencer->formatted_tracking }}</p>
                     <p class="text-xs text-zinc-500">Tracking on {{ config('app.name') }}</p>
                 </div>
             </div>
@@ -184,7 +184,7 @@ new class extends Component {
             @foreach (['posts' => 'Latest Posts', 'about' => 'About', 'related' => 'Related Influencers'] as $key => $label)
                 <button type="button" wire:click="$set('tab', '{{ $key }}')" @class([
                     '-mb-px border-b-2 py-3 text-sm font-medium transition',
-                    'border-indigo-600 text-indigo-600' => $tab === $key,
+                    'border-accent text-accent' => $tab === $key,
                     'border-transparent text-zinc-500 hover:text-zinc-800' => $tab !== $key,
                 ])>{{ $label }}</button>
             @endforeach

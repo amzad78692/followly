@@ -29,6 +29,12 @@ new #[Layout('components.layouts.dashboard')] #[Title('Add Influencer')] class e
 
     public bool $searched = false;
 
+    /** The landing page's form sends its link here as ?q=. */
+    public function mount(): void
+    {
+        $this->query = (string) request()->query('q', '');
+    }
+
     #[Computed]
     public function result(): ?Influencer
     {
@@ -145,7 +151,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Add Influencer')] class e
 
             <div class="mt-3 rounded-2xl border border-zinc-200 bg-white p-5">
                 <div class="flex items-center gap-4">
-                    <img src="{{ $result?->avatar ?? $primary->avatarUrl ?? 'https://ui-avatars.com/api/?background=eef2ff&color=4f46e5&name='.urlencode($primary->name) }}" alt="" class="size-20 rounded-full object-cover ring-4 ring-indigo-50">
+                    <img src="{{ $result?->avatar ?? $primary->avatarUrl ?? 'https://ui-avatars.com/api/?background=f9f3e5&color=91754e&name='.urlencode($primary->name) }}" alt="" class="size-20 rounded-full object-cover ring-4 ring-sand">
                     <div class="min-w-0">
                         <p class="flex items-center gap-1.5 text-xl font-bold text-zinc-900">
                             {{ $result?->name ?? $primary->name }}
@@ -160,7 +166,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Add Influencer')] class e
                         @endif
                         <div class="mt-2 flex flex-wrap gap-1.5">
                             @if (! $result)
-                                <flux:badge size="sm" color="indigo">New on {{ config('app.name') }}</flux:badge>
+                                <flux:badge size="sm">New on {{ config('app.name') }}</flux:badge>
                             @endif
                             @foreach (array_filter([$result?->category?->name, $result?->country?->name, $result?->language]) as $badge)
                                 <flux:badge size="sm">{{ $badge }}</flux:badge>
@@ -170,7 +176,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Add Influencer')] class e
                 </div>
 
                 @if ($this->alreadyFollowing)
-                    <flux:callout icon="check-circle" color="indigo" class="mt-5" heading="You already follow {{ $result->name }}. Change which accounts you track below." />
+                    <flux:callout icon="check-circle" class="mt-5" heading="You already follow {{ $result->name }}. Change which accounts you track below." />
                 @endif
 
                 <ul class="mt-5 divide-y divide-zinc-100 border-y border-zinc-100">

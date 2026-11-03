@@ -19,12 +19,12 @@
     <link rel="shortcut icon" href="{{ asset('storage/' . setting('general.favicon')) }}" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700|space-grotesk:600,700" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
 
-<body class="min-h-screen bg-white font-sans text-zinc-900 antialiased" @if ($lang == 'ar') dir="rtl" @endif>
+<body class="min-h-screen bg-zinc-50 font-sans text-zinc-900 antialiased" @if ($lang == 'ar') dir="rtl" @endif>
     {{ $slot }}
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>

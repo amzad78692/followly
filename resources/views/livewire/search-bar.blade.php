@@ -46,7 +46,7 @@ new class extends Component {
 <form wire:submit="submit" method="GET" action="{{ route('search') }}" role="search" class="relative w-full max-w-md"
     x-data="{ open: false }" x-on:click.outside="open = false" x-on:keydown.escape="open = false; $refs.input.blur()">
     <flux:input name="q" x-ref="input" wire:model.live.debounce.300ms="q" x-on:focus="open = true" x-on:input="open = true"
-        icon="magnifying-glass" placeholder="Search influencers, topics or countries..." size="sm" autocomplete="off" aria-label="Search" />
+        icon="magnifying-glass" placeholder="Search influencers, topics or countries..." size="sm" class:input="rounded-full!" autocomplete="off" aria-label="Search" />
 
     @if ($results = $this->results)
         <div x-show="open" x-cloak class="absolute inset-x-0 top-full z-20 mt-2 max-h-[70vh] overflow-y-auto rounded-xl border border-zinc-200 bg-white py-2 shadow-lg shadow-zinc-900/10">
@@ -102,7 +102,7 @@ new class extends Component {
             @endif
 
             <div class="mt-2 border-t border-zinc-100 px-4 pt-2">
-                <a href="{{ route('search', ['q' => trim($q)]) }}" wire:navigate class="text-sm font-medium text-indigo-600 hover:underline">See all results for “{{ trim($q) }}”</a>
+                <a href="{{ route('search', ['q' => trim($q)]) }}" wire:navigate class="text-sm font-medium text-accent hover:underline">See all results for “{{ trim($q) }}”</a>
             </div>
         </div>
     @endif
