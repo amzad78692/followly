@@ -195,7 +195,7 @@ new class extends Component {
     {{-- How it works --}}
     <section id="features" class="mx-auto max-w-7xl scroll-mt-6 px-4 pb-20 text-center sm:px-6">
         <p class="text-[11px] font-semibold uppercase tracking-widest text-terracotta">How it works</p>
-        <h2 class="mt-3 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">Four small steps, zero missed uploads</h2>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">Four Small Steps, Zero Missed Uploads</h2>
         <p class="mt-3 text-base text-zinc-500">Start tracking your favorite influencers in just a few steps.</p>
 
         <ol class="mt-10 grid gap-4 text-start sm:grid-cols-2 lg:grid-cols-4">
