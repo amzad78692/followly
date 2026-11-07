@@ -50,6 +50,16 @@
                     <flux:menu.item icon="user" :href="route('settings')" wire:navigate>Profile</flux:menu.item>
                     <flux:menu.item icon="bell" :href="route('settings').'#notifications'">Notification settings</flux:menu.item>
                     <flux:menu.item icon="cog-6-tooth" :href="route('settings')" wire:navigate>Settings</flux:menu.item>
+                    @if (\App\Models\Admin::where('email', auth()->user()->email)->exists())
+                        @if (auth()->user()->hasVerifiedEmail())
+                            <form method="POST" action="{{ route('admin.login') }}" class="w-full">
+                                @csrf
+                                <flux:menu.item as="button" type="submit" icon="shield-check" class="w-full">Admin panel</flux:menu.item>
+                            </form>
+                        @else
+                            <flux:menu.item icon="shield-check" :href="route('verification.notice')">Verify email for admin panel</flux:menu.item>
+                        @endif
+                    @endif
                     <flux:menu.separator />
                     <form method="POST" action="{{ route('logout') }}" class="w-full">
                         @csrf

@@ -3,6 +3,8 @@
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\RemoteImageController;
 use App\Http\Controllers\SitemapController;
+use App\Models\Admin;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -16,6 +18,20 @@ Route::middleware('auth')->group(function () {
     Volt::route('settings', 'settings')->name('settings');
     Volt::route('influencers', 'influencers.index')->name('influencers.index');
     Volt::route('influencers/add', 'influencers.create')->name('influencers.create');
+
+    // Users whose verified email is also an admin's can open the panel without logging in again.
+    // Verification is required: anyone can register with any email address.
+    Route::post('admin-login', function () {
+        $user = auth()->user();
+        $admin = $user->hasVerifiedEmail() ? Admin::where('email', $user->email)->first() : null;
+
+        abort_unless($admin, 403);
+
+        Auth::guard('admin')->login($admin);
+        request()->session()->regenerate();
+
+        return redirect('/admin');
+    })->name('admin.login');
 });
 
 // Profiles are public so they can be shared and indexed; guests get the public layout.
