@@ -22,6 +22,8 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
 
     public $avatar = null;
 
+    public $banner = null;
+
     // Password
     public string $current_password = '';
 
@@ -61,6 +63,11 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
         $this->validateOnly('avatar', ['avatar' => ['image', 'max:2048']]);
     }
 
+    public function updatedBanner(): void
+    {
+        $this->validateOnly('banner', ['banner' => ['image', 'max:4096']]);
+    }
+
     public function saveProfile(): void
     {
         $user = auth()->user();
@@ -69,6 +76,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
             'avatar' => ['nullable', 'image', 'max:2048'],
+            'banner' => ['nullable', 'image', 'max:4096'],
         ]);
 
         $user->fill(['name' => $validated['name'], 'email' => $validated['email']]);
@@ -87,6 +95,14 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
             $this->avatar = null;
         }
 
+        if ($this->banner) {
+            $user->addMedia($this->banner->getRealPath())
+                ->usingFileName($this->banner->hashName())
+                ->toMediaCollection('banners');
+
+            $this->banner = null;
+        }
+
         $this->dispatch('profile-saved');
     }
 
@@ -94,6 +110,12 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
     {
         auth()->user()->load('media')->clearMediaCollection('users');
         $this->avatar = null;
+    }
+
+    public function removeBanner(): void
+    {
+        auth()->user()->load('media')->clearMediaCollection('banners');
+        $this->banner = null;
     }
 
     public function updatePassword(): void
@@ -154,9 +176,32 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
     {{-- Profile --}}
     <section id="profile" class="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
         <flux:heading size="lg">Profile</flux:heading>
-        <flux:text class="mt-1">Your name and email address.</flux:text>
+        <flux:text class="mt-1">Your banner, photo, name and email address.</flux:text>
 
         <form wire:submit="saveProfile" class="mt-5 space-y-5">
+            <div class="space-y-2">
+                @php($bannerSrc = $banner && ! $errors->has('banner') ? $banner->temporaryUrl() : auth()->user()->bannerUrl())
+                <div class="relative h-32 overflow-hidden rounded-xl bg-gradient-to-r from-zinc-100 to-zinc-200 sm:h-40">
+                    @if ($bannerSrc)
+                        <img src="{{ $bannerSrc }}" alt="" class="size-full object-cover">
+                    @endif
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 shadow-xs transition hover:bg-zinc-50">
+                        <flux:icon.photo class="size-4" />
+                        <span wire:loading.remove wire:target="banner">Upload banner</span>
+                        <span wire:loading wire:target="banner">Uploading…</span>
+                        <input type="file" wire:model="banner" accept="image/*" class="sr-only">
+                    </label>
+                    @if (auth()->user()->bannerUrl() && ! $banner)
+                        <flux:button size="sm" variant="ghost" wire:click="removeBanner">Remove</flux:button>
+                    @endif
+                    <flux:text class="text-xs">Wide image, about 1500×500. Up to 4 MB.</flux:text>
+                </div>
+                <flux:error name="banner" />
+            </div>
+
             <div class="flex items-center gap-4">
                 @if ($avatar && ! $errors->has('avatar'))
                     <img src="{{ $avatar->temporaryUrl() }}" alt="" class="size-16 rounded-full object-cover">

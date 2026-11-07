@@ -100,6 +100,22 @@ it('uploads and removes an avatar', function () {
     expect($this->user->fresh()->avatarUrl())->toBeNull();
 });
 
+it('uploads and removes a banner', function () {
+    Storage::fake('public');
+
+    Volt::test('settings')
+        ->set('banner', UploadedFile::fake()->image('cover.jpg', 1500, 500))
+        ->call('saveProfile')
+        ->assertHasNoErrors()
+        ->assertSet('banner', null);
+
+    expect($this->user->fresh()->bannerUrl())->not->toBeNull();
+
+    Volt::test('settings')->call('removeBanner');
+
+    expect($this->user->fresh()->bannerUrl())->toBeNull();
+});
+
 it('rejects an avatar that is not an image', function () {
     Storage::fake('public');
 

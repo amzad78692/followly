@@ -77,6 +77,7 @@ class User extends Authenticatable implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('users')->singleFile();
+        $this->addMediaCollection('banners')->singleFile();
     }
 
     /**
@@ -165,5 +166,13 @@ class User extends Authenticatable implements HasMedia
     public function avatarUrl(): ?string
     {
         return $this->getFirstMediaUrl('users') ?: null;
+    }
+
+    /**
+     * The uploaded profile banner, or null so the UI shows a plain background.
+     */
+    public function bannerUrl(): ?string
+    {
+        return $this->getFirstMediaUrl('banners') ?: null;
     }
 }
