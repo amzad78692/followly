@@ -6,6 +6,7 @@ use Amzad\FilamentTranslatableGroup\TranslatableGroup;
 use App\Platforms\PlatformManager;
 use App\Policies\ActivityPolicy;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
+use Filament\Actions\Imports\Models\Import;
 use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Columns\Column;
@@ -40,6 +41,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Activity::class, ActivityPolicy::class);
+
+        // Imports are started by Admins, not Users.
+        Import::polymorphicUserRelationship();
 
         Column::configureUsing(function (Column $column): void {
             $column->translateLabel();

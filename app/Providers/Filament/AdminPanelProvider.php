@@ -35,6 +35,8 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->authGuard('admin')
             ->profile()
+            // Shows import results and the failed-rows download.
+            ->databaseNotifications()
             ->colors([
                 'primary' => Color::Amber,
             ])
