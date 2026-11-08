@@ -12,6 +12,8 @@ class GeneralSettings extends Settings
 
     public ?string $favicon;
 
+    public ?string $google_analytics_id;
+
     public static function group(): string
     {
         return 'general';

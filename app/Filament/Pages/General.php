@@ -47,6 +47,12 @@ class General extends SettingsPage
                 FileUpload::make('favicon')
                     ->image()
                     ->directory('settings'),
+                TextInput::make('google_analytics_id')
+                    ->label(__('Google Analytics ID'))
+                    ->placeholder('G-XXXXXXXXXX')
+                    ->helperText(__('Leave empty to turn tracking off.'))
+                    ->regex('/^G-[A-Z0-9]+$/')
+                    ->columnSpanFull(),
             ]);
     }
 }

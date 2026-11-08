@@ -9,6 +9,7 @@
     <title>{{ $seoTitle }}</title>
 
     @include('partials.seo')
+    @include('partials.analytics')
 
     <script>
         window.lang = "{{ $lang }}";
