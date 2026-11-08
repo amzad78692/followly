@@ -12,18 +12,29 @@
     --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
 
-    /* Deeper than the logo blue so white and small text stay above 4.5:1. */
-    --color-accent: #006bdb;
-    --color-accent-content: #006bdb;
+    /* Warm neutrals: Flux and every page read their greys from this scale. */
+    --color-zinc-50: #fbfaf6;
+    --color-zinc-100: #f2ece2;
+    --color-zinc-200: #e6dfd3;
+    --color-zinc-300: #d6cdbd;
+    --color-zinc-400: #9c8f7e;
+    --color-zinc-500: #6f6151;
+    --color-zinc-600: #5c4f40;
+    --color-zinc-700: #483c2e;
+    --color-zinc-800: #392c1e;
+    --color-zinc-900: #2e2114;
+    --color-zinc-950: #1f160c;
+
+    --color-accent: #91754e;
+    --color-accent-content: #91754e;
     --color-accent-foreground: var(--color-white);
 
-    /* Brand palette from the logo; names predate the blue rebrand. */
-    --color-cream: #f7f8fa;
-    --color-ivory: #fbfcfe;
-    --color-sand: #eaf3fe;
-    --color-khaki: #9ccbf9;
-    --color-gold: #007dec;
-    --color-terracotta: #0a4fb3;
+    --color-cream: #fcfaf6;
+    --color-ivory: #fefdfb;
+    --color-sand: #f9f3e5;
+    --color-khaki: #ccbc96;
+    --color-gold: #a88e60;
+    --color-terracotta: #cd6a39;
 }
 
 @layer theme {
