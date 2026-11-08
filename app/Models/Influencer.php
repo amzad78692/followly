@@ -162,7 +162,7 @@ class Influencer extends Model implements HasMedia
     {
         return $this->getFirstMediaUrl('avatar')
             ?: $this->avatar_url
-            ?: 'https://ui-avatars.com/api/?background=f9f3e5&color=91754e&name='.urlencode($this->name);
+            ?: 'https://ui-avatars.com/api/?background=eaf3fe&color=006bdb&name='.urlencode($this->name);
     }
 
     public function getCoverAttribute(): ?string
