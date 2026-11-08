@@ -15,9 +15,7 @@
         window.lang = "{{ $lang }}";
     </script>
 
-    <!-- Favicon -->
-    <link rel="apple-touch-icon" href="{{ asset('storage/' . setting('general.favicon')) }}">
-    <link rel="shortcut icon" href="{{ asset('storage/' . setting('general.favicon')) }}" type="image/x-icon">
+    @include('partials.favicon')
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700|space-grotesk:600,700" rel="stylesheet" />
