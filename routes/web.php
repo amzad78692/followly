@@ -39,6 +39,7 @@ Volt::route('influencers/{influencer}', 'influencers.show')->name('influencers.s
 
 Route::view('privacy', 'static.privacy')->name('privacy');
 Route::view('terms', 'static.terms')->name('terms');
+Route::view('data-deletion', 'static.data-deletion')->name('data-deletion');
 Route::view('contact', 'static.contact')->name('contact');
 
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');

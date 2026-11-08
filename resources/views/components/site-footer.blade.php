@@ -30,6 +30,7 @@
             <ul class="mt-4 space-y-3 text-sm text-zinc-500">
                 <li><a href="{{ route('privacy') }}" wire:navigate class="hover:text-zinc-900">Privacy Policy</a></li>
                 <li><a href="{{ route('terms') }}" wire:navigate class="hover:text-zinc-900">Terms of Service</a></li>
+                <li><a href="{{ route('data-deletion') }}" wire:navigate class="hover:text-zinc-900">Data Deletion</a></li>
                 <li><a href="{{ route('contact') }}" wire:navigate class="hover:text-zinc-900">Contact</a></li>
             </ul>
         </div>

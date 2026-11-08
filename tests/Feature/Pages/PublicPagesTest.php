@@ -56,6 +56,7 @@ it('sends guests who follow to sign up and back to the profile', function () {
         ->set('email', 'fan@example.com')
         ->set('password', 'password')
         ->set('password_confirmation', 'password')
+        ->set('terms', true)
         ->call('register')
         ->assertRedirect(route('influencers.show', $this->influencer));
 });
@@ -100,6 +101,7 @@ it('shows the privacy, terms and contact pages', function (string $path, string 
 })->with([
     ['/privacy', 'Privacy Policy'],
     ['/terms', 'Terms of Service'],
+    ['/data-deletion', 'Data Deletion Instructions'],
     ['/contact', 'Contact'],
 ]);
 

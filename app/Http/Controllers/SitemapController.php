@@ -14,7 +14,7 @@ class SitemapController extends Controller
     public function __invoke()
     {
         $xml = Cache::remember('sitemap', now()->addHour(), function () {
-            $urls = collect(['home', 'privacy', 'terms', 'contact'])->map(fn ($name) => ['loc' => route($name), 'lastmod' => null])->all();
+            $urls = collect(['home', 'privacy', 'terms', 'data-deletion', 'contact'])->map(fn ($name) => ['loc' => route($name), 'lastmod' => null])->all();
 
             foreach (Influencer::query()->select(['slug', 'updated_at'])->orderBy('id')->limit(49_999)->cursor() as $influencer) {
                 $urls[] = ['loc' => route('influencers.show', $influencer), 'lastmod' => $influencer->updated_at?->toAtomString()];
