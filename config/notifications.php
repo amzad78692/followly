@@ -24,6 +24,9 @@ return [
         'max_items' => (int) env('DIGEST_MAX_ITEMS', 20),
     ],
 
+    // Local hour (0-23) when the daily summary is pushed to watches and phones.
+    'daily_summary_hour' => (int) env('DAILY_SUMMARY_HOUR', 20),
+
     // Keep read notifications this many days (model:prune). Unread ones are kept.
     'retention_days' => (int) env('NOTIFICATION_RETENTION_DAYS', 90),
 

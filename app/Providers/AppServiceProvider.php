@@ -11,10 +11,14 @@ use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Filters\BaseFilter;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Spatie\Activitylog\Models\Activity;
 
 class AppServiceProvider extends ServiceProvider
@@ -85,5 +89,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('viewApiDocs', function ($user = null) {
             return auth('admin')->check();
         });
+
+        // Named so each route counts separately: a watch polling must not use up its login attempts.
+        RateLimiter::for('watch-pair-start', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+        RateLimiter::for('watch-pair-poll', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));
+        RateLimiter::for('device-login', fn (Request $request) => Limit::perMinute(5)->by(Str::lower((string) $request->input('email')).'|'.$request->ip()));
+        RateLimiter::for('watch-api', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->id ?: $request->ip()));
     }
 }

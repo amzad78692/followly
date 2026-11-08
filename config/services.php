@@ -55,6 +55,25 @@ return [
         ],
     ],
 
+    // Push to watches and phones. A provider left empty is skipped.
+    'push' => [
+        'fcm_credentials' => env('FCM_CREDENTIALS_PATH'), // Firebase service account JSON file
+
+        'apns' => [
+            'key_path' => env('APNS_KEY_PATH'), // .p8 file
+            'key_id' => env('APNS_KEY_ID'),
+            'team_id' => env('APNS_TEAM_ID'),
+            'sandbox' => (bool) env('APNS_SANDBOX', false),
+            'watch_topic' => env('APNS_WATCH_TOPIC', 'com.followly.watch'),
+            'phone_topic' => env('APNS_PHONE_TOPIC', 'com.followly.companion'),
+        ],
+
+        'hms' => [
+            'app_id' => env('HMS_PUSH_APP_ID'),
+            'secret' => env('HMS_PUSH_APP_SECRET'),
+        ],
+    ],
+
     'myfatoorah' => [
         'test_key' => 'SK_KWT_vVZlnnAqu8jRByOWaRPNId4ShzEDNt256dvnjebuyzo52dXjAfRx2ixW5umjWSUx',
         'callback_url' => env('MF_CALLBACK'),

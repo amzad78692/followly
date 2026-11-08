@@ -46,6 +46,11 @@ Schedule::command('notifications:digest daily')
 Schedule::command('notifications:digest weekly')
     ->weeklyOn(1, config('notifications.digest.time'));
 
+// Watch and phone summaries go out in each user's own evening, so this checks every hour.
+Schedule::command('notifications:daily-summary')
+    ->hourly()
+    ->withoutOverlapping();
+
 Schedule::call(fn () => DB::table('notifications')
     ->where('read_at', '<', now()->subDays(config('notifications.retention_days')))
     ->delete())

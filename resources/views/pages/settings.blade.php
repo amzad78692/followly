@@ -4,9 +4,12 @@ use App\Enums\DigestFrequency;
 use App\Enums\Platform;
 use App\Livewire\Actions\Logout;
 use App\Models\User;
+use App\Watch\Pairing;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Volt\Component;
@@ -39,6 +42,12 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
 
     /** Platform values the user gets new post notifications for. */
     public array $platforms = [];
+
+    // Connected devices
+    public string $pairingCode = '';
+
+    /** The device waiting on the entered code, shown for the user to confirm. */
+    public ?array $pendingDevice = null;
 
     // Delete account
     public string $delete_password = '';
@@ -152,6 +161,57 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
         // The badge hides when in-app alerts are off, so let it recount.
         $this->dispatch('notifications-read');
         $this->dispatch('notifications-saved');
+    }
+
+    #[Computed]
+    public function devices()
+    {
+        return auth()->user()->tokens()->latest()->get();
+    }
+
+    public function findDevice(Pairing $pairing): void
+    {
+        $this->validate(['pairingCode' => ['required', 'string', 'size:6']]);
+
+        $key = 'watch-pairing-entry:'.auth()->id();
+
+        if (RateLimiter::tooManyAttempts($key, 10)) {
+            $this->addError('pairingCode', 'Too many attempts. Try again in a minute.');
+
+            return;
+        }
+
+        $this->pendingDevice = $pairing->find($this->pairingCode);
+
+        if (! $this->pendingDevice) {
+            RateLimiter::hit($key);
+            $this->addError('pairingCode', 'That code is wrong or has expired.');
+        }
+    }
+
+    public function confirmDevice(Pairing $pairing): void
+    {
+        if (! $pairing->approve($this->pairingCode, auth()->user())) {
+            $this->pendingDevice = null;
+            $this->addError('pairingCode', 'That code is wrong or has expired.');
+
+            return;
+        }
+
+        $this->cancelDevice();
+        $this->dispatch('device-connected');
+    }
+
+    public function cancelDevice(): void
+    {
+        $this->reset('pairingCode', 'pendingDevice');
+    }
+
+    public function disconnectDevice(int $id): void
+    {
+        auth()->user()->tokens()->whereKey($id)->delete();
+
+        unset($this->devices);
     }
 
     public function deleteAccount(Logout $logout): void
@@ -279,6 +339,49 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
                 <x-saved-message on="notifications-saved" />
             </div>
         </form>
+    </section>
+
+    {{-- Connected devices --}}
+    <section id="devices" class="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+        <flux:heading size="lg">Connected devices</flux:heading>
+        <flux:text class="mt-1">Enter the code shown on your watch to connect it to your account.</flux:text>
+
+        @if ($pendingDevice)
+            <div class="mt-5 rounded-xl border border-zinc-200 p-4">
+                <flux:heading>Connect "{{ $pendingDevice['name'] }}"?</flux:heading>
+                <flux:text class="mt-1">Only continue if this is your watch and it is showing this code right now.</flux:text>
+
+                <div class="mt-4 flex gap-2">
+                    <flux:button variant="primary" wire:click="confirmDevice">Connect</flux:button>
+                    <flux:button variant="ghost" wire:click="cancelDevice">Cancel</flux:button>
+                </div>
+            </div>
+        @else
+            <form wire:submit="findDevice" class="mt-5 flex items-start gap-3">
+                <div class="w-40">
+                    <flux:input wire:model="pairingCode" aria-label="Pairing code" placeholder="ABC123" maxlength="6" autocomplete="off" class="uppercase" />
+                    <flux:error name="pairingCode" />
+                </div>
+                <flux:button type="submit" variant="primary">Continue</flux:button>
+                <x-saved-message on="device-connected" />
+            </form>
+        @endif
+
+        <div class="mt-5 divide-y divide-zinc-100">
+            @forelse ($this->devices as $device)
+                <div wire:key="device-{{ $device->id }}" class="flex items-center justify-between gap-3 py-3">
+                    <div class="min-w-0">
+                        <p class="truncate text-sm font-medium text-zinc-900">{{ $device->name }}</p>
+                        <flux:text class="text-xs">
+                            {{ $device->last_used_at ? 'Last used '.$device->last_used_at->diffForHumans() : 'Not used yet' }}
+                        </flux:text>
+                    </div>
+                    <flux:button size="sm" variant="ghost" wire:click="disconnectDevice({{ $device->id }})">Disconnect</flux:button>
+                </div>
+            @empty
+                <flux:text>No devices connected.</flux:text>
+            @endforelse
+        </div>
     </section>
 
     {{-- Delete account --}}

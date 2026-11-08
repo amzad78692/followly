@@ -35,6 +35,8 @@ class User extends Authenticatable implements HasMedia
         'password',
         'email_digest',
         'notify_in_app',
+        'notify_push',
+        'push_daily_summary',
         'muted_platforms',
     ];
 
@@ -45,6 +47,8 @@ class User extends Authenticatable implements HasMedia
      */
     protected $attributes = [
         'notify_in_app' => true,
+        'notify_push' => true,
+        'push_daily_summary' => false,
     ];
 
     /**
@@ -70,6 +74,8 @@ class User extends Authenticatable implements HasMedia
             'email_digest' => DigestFrequency::class,
             'digest_sent_at' => 'datetime',
             'notify_in_app' => 'boolean',
+            'notify_push' => 'boolean',
+            'push_daily_summary' => 'boolean',
             'muted_platforms' => AsEnumCollection::of(Platform::class),
         ];
     }
@@ -89,11 +95,19 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
-     * Whether the user gets new post notifications at all: shown in the app, or collected for the digest.
+     * Whether the user gets new post notifications at all: shown in the app, collected for the
+     * digest, or pushed to a connected watch or phone.
      */
     public function wantsPostNotifications(): bool
     {
-        return $this->notify_in_app || $this->email_digest !== null;
+        return $this->notify_in_app
+            || $this->email_digest !== null
+            || ($this->notify_push && $this->deviceTokens()->exists());
+    }
+
+    public function deviceTokens(): HasMany
+    {
+        return $this->hasMany(DeviceToken::class);
     }
 
     /**

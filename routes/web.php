@@ -16,6 +16,8 @@ Route::middleware('auth')->group(function () {
     Volt::route('search', 'search')->name('search');
     Volt::route('notifications', 'notifications.index')->name('notifications');
     Volt::route('settings', 'settings')->name('settings');
+    // The short address shown on a watch while it waits for its pairing code.
+    Route::get('connect', fn () => redirect(route('settings').'#devices'))->name('connect');
     Volt::route('influencers', 'influencers.index')->name('influencers.index');
     Volt::route('influencers/add', 'influencers.create')->name('influencers.create');
 

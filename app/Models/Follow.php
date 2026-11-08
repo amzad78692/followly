@@ -11,7 +11,17 @@ class Follow extends Model
     protected $fillable = [
         'user_id',
         'influencer_id',
+        'notify',
+        'pinned_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'notify' => 'boolean',
+            'pinned_at' => 'datetime',
+        ];
+    }
 
     public function user(): BelongsTo
     {
