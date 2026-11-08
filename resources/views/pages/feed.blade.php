@@ -100,9 +100,29 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Feed')] class extends 
         @endforeach
     </div>
 
-    <div wire:loading.remove wire:target="platform, sort" class="mt-3 space-y-4">
-        @forelse ($this->posts as $post)
-            <x-post-card :post="$post" wire:key="post-{{ $post->id }}" />
+    <div wire:loading.remove wire:target="platform, sort" class="mt-3 space-y-8">
+        @forelse ($this->posts->groupBy('influencer_id') as $posts)
+            @php($author = $posts->first()->influencer)
+            {{-- Keyed by filter so changing it starts again from the first post. --}}
+            <section wire:key="influencer-{{ $author->id }}-{{ $platform }}-{{ $sort }}"
+                x-data="{ slide(direction) { $refs.slider.scrollBy({ left: direction * $refs.slider.clientWidth * (document.dir === 'rtl' ? -1 : 1), behavior: 'smooth' }) } }">
+                <div class="mb-3 flex items-center gap-2">
+                    <a href="{{ route('influencers.show', $author) }}" wire:navigate class="flex min-w-0 flex-1 items-center gap-2">
+                        <flux:avatar circle size="sm" :src="image_url($author->avatar, 80, 80)" />
+                        <flux:heading class="truncate">{{ $author->name }}</flux:heading>
+                    </a>
+                    @if ($posts->count() > 1)
+                        <flux:button size="sm" icon="chevron-left" class="rtl:rotate-180" x-on:click="slide(-1)" aria-label="Previous post by {{ $author->name }}" />
+                        <flux:button size="sm" icon="chevron-right" class="rtl:rotate-180" x-on:click="slide(1)" aria-label="Next post by {{ $author->name }}" />
+                    @endif
+                </div>
+
+                <div x-ref="slider" class="flex snap-x snap-mandatory items-start gap-4 overflow-x-auto [scrollbar-width:none]">
+                    @foreach ($posts as $post)
+                        <x-post-card :post="$post" class="w-full shrink-0 snap-start" wire:key="post-{{ $post->id }}" />
+                    @endforeach
+                </div>
+            </section>
         @empty
             <div class="rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-16 text-center">
                 <flux:icon.inbox class="mx-auto size-10 text-zinc-300" />
@@ -119,7 +139,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Feed')] class extends 
         @endforelse
 
         @if ($this->hasMore)
-            <div wire:intersect="loadMore" class="flex justify-center py-4">
+            <div wire:intersect="loadMore" wire:key="load-more" class="flex justify-center py-4">
                 <flux:button size="sm" wire:click="loadMore" wire:loading.attr="disabled" wire:target="loadMore">
                     <span wire:loading.remove wire:target="loadMore">Load more</span>
                     <span wire:loading wire:target="loadMore">Loading…</span>
