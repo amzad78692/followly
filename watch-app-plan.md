@@ -15,7 +15,7 @@
 - [ ] Phase 2: Wear OS app (runs on emulators; needs Firebase and a real watch)
 - [ ] Phase 3: Apple Watch app (code written; needs a Mac)
 - [ ] Phase 4: Flutter phone companion and Huawei bridge (app built; Huawei test not run)
-- [ ] Phase 5: Huawei Watch app (ArkTS) (code written; not compiled)
+- [ ] Phase 5: Huawei Watch app (ArkTS) (compiles; 22 logic tests pass; not run on a watch)
 - [ ] Phase 6: Huawei Watch GT app (Lite JS) (code written; not compiled)
 - [ ] Phase 7: Release and monitoring
 
@@ -143,7 +143,7 @@ Flutter and Android Studio are already installed. Java and `adb` are not on the 
 - [ ] Set `JAVA_HOME` to `C:\Program Files\Android\Android Studio\jbr`
 - [ ] Add `%ANDROID_HOME%\platform-tools` to `Path`
 - [x] Install Android API 36 and the Wear OS system images
-- [ ] Install DevEco Studio (installer running to `D:\DevEco Studio`; first launch needs the licence accepted)
+- [x] Install DevEco Studio
 - [ ] Install the HarmonyOS wearable and lite wearable SDKs in DevEco Studio
 - [ ] Run `flutter doctor -v` and fix Android issues
 - [ ] Commit `wear-os`, `phone-companion`, `huawei-watch`, `huawei-gt`, `shared` and the root `.gitignore`
@@ -432,34 +432,34 @@ Document this in `shared/bridge-protocol.md`.
 
 In DevEco Studio, create an **Empty Ability** project using the ArkTS Stage model, select **Wearable**, and save to `D:\Flutter\followly-watch\huawei-watch`.
 
-- [ ] Create the project with bundle name `com.followly.huawei` (written, not compiled)
+- [x] Create the project with bundle name `com.followly.huawei`
 - [ ] Configure automatic signing with the Huawei account
 - [ ] Add Wear Engine messaging and the companion's package and signing fingerprint
-- [ ] Add a small bridge client that follows `shared/bridge-protocol.md` (written, not compiled)
-- [ ] Add local storage for the latest response (written, not compiled)
+- [ ] Add a small bridge client that follows `shared/bridge-protocol.md` (compiles and logic tests pass, not run on a watch)
+- [ ] Add local storage for the latest response (compiles and logic tests pass, not run on a watch)
 - [ ] Create a 466 × 466 round simulator or test device profile
 
 ### Features
 
-- [ ] Companion-required and not-signed-in screens (written, not compiled)
-- [ ] Home with unread badge (written, not compiled)
-- [ ] Updates with paging and read state (written, not compiled)
-- [ ] Update Detail with thumbnail, if image transfer passes the size test (written, not compiled)
-- [ ] Open on Phone through the companion (written, not compiled)
-- [ ] My Creators (written, not compiled)
-- [ ] Quick Actions with confirmation before Unfollow (written, not compiled)
-- [ ] Trending categories and creators (written, not compiled)
-- [ ] Notification settings (written, not compiled)
-- [ ] Daily Summary (written, not compiled)
-- [ ] Phone unavailable, offline and error states (written, not compiled)
-- [ ] Show cached updates when the phone is unavailable (written, not compiled)
+- [ ] Companion-required and not-signed-in screens (compiles and logic tests pass, not run on a watch)
+- [ ] Home with unread badge (compiles and logic tests pass, not run on a watch)
+- [ ] Updates with paging and read state (compiles and logic tests pass, not run on a watch)
+- [ ] Update Detail with thumbnail, if image transfer passes the size test (compiles and logic tests pass, not run on a watch)
+- [ ] Open on Phone through the companion (compiles and logic tests pass, not run on a watch)
+- [ ] My Creators (compiles and logic tests pass, not run on a watch)
+- [ ] Quick Actions with confirmation before Unfollow (compiles and logic tests pass, not run on a watch)
+- [ ] Trending categories and creators (compiles and logic tests pass, not run on a watch)
+- [ ] Notification settings (compiles and logic tests pass, not run on a watch)
+- [ ] Daily Summary (compiles and logic tests pass, not run on a watch)
+- [ ] Phone unavailable, offline and error states (compiles and logic tests pass, not run on a watch)
+- [ ] Show cached updates when the phone is unavailable (compiles and logic tests pass, not run on a watch)
 
 ### Quality
 
-- [ ] `ArcList` or suitable circular list behavior (written, not compiled)
-- [ ] English and Arabic right-to-left layout (written, not compiled)
-- [ ] Crown scrolling (written, not compiled)
-- [ ] Accessibility labels (written, not compiled)
+- [ ] `ArcList` or suitable circular list behavior (compiles and logic tests pass, not run on a watch)
+- [ ] English and Arabic right-to-left layout (compiles and logic tests pass, not run on a watch)
+- [ ] Crown scrolling (compiles and logic tests pass, not run on a watch)
+- [ ] Accessibility labels (compiles and logic tests pass, not run on a watch)
 - [ ] Test each model on the final supported list
 - [ ] Test Bluetooth disconnect and reconnect
 - [ ] Battery check on a real watch
