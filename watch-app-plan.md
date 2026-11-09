@@ -8,13 +8,15 @@
 
 ## Progress
 
-- [ ] Phase 0: Accounts, devices and tools
-- [ ] Phase 1: Laravel backend
-- [ ] Phase 2: Wear OS app
-- [ ] Phase 3: Apple Watch app
-- [ ] Phase 4: Flutter phone companion and Huawei bridge
-- [ ] Phase 5: Huawei Watch app (ArkTS)
-- [ ] Phase 6: Huawei Watch GT app (Lite JS)
+`[x]` means done and checked. `[ ]` with a note means the code exists but is not confirmed working yet.
+
+- [ ] Phase 0: Accounts, devices and tools (partly done)
+- [ ] Phase 1: Laravel backend (code pushed; real push not confirmed)
+- [ ] Phase 2: Wear OS app (runs on emulators; needs Firebase and a real watch)
+- [ ] Phase 3: Apple Watch app (code written; needs a Mac)
+- [ ] Phase 4: Flutter phone companion and Huawei bridge (app built; Huawei test not run)
+- [ ] Phase 5: Huawei Watch app (ArkTS) (code written; not compiled)
+- [ ] Phase 6: Huawei Watch GT app (Lite JS) (code written; not compiled)
 - [ ] Phase 7: Release and monitoring
 
 ---
@@ -140,10 +142,11 @@ Flutter and Android Studio are already installed. Java and `adb` are not on the 
 
 - [ ] Set `JAVA_HOME` to `C:\Program Files\Android\Android Studio\jbr`
 - [ ] Add `%ANDROID_HOME%\platform-tools` to `Path`
-- [ ] Install Android API 36 and the Wear OS system images
-- [ ] Install DevEco Studio
+- [x] Install Android API 36 and the Wear OS system images
+- [ ] Install DevEco Studio (installer running to `D:\DevEco Studio`; first launch needs the licence accepted)
 - [ ] Install the HarmonyOS wearable and lite wearable SDKs in DevEco Studio
 - [ ] Run `flutter doctor -v` and fix Android issues
+- [ ] Commit `wear-os`, `phone-companion`, `huawei-watch`, `huawei-gt`, `shared` and the root `.gitignore`
 
 ### Project folder
 
@@ -153,9 +156,9 @@ Set-Location D:\Flutter\followly-watch
 git init
 ```
 
-- [ ] Create `D:\Flutter\followly-watch`
-- [ ] Initialize the git repository and connect a private remote, so the Mac can pull the project
-- [ ] Add a `.gitignore` that excludes signing keys, `google-services.json` and `agconnect-services.json`
+- [x] Create `D:\Flutter\followly-watch`
+- [x] Initialize the git repository and connect a private remote, so the Mac can pull the project
+- [x] Add a `.gitignore` that excludes signing keys, `google-services.json` and `agconnect-services.json`
 - [ ] Add `shared/design-tokens.md` with the watch colors, spacing and type sizes
 - [ ] Export the Followly logo for watch icons and complications
 
@@ -246,6 +249,8 @@ All routes use `auth:sanctum`, rate limiting and JSON errors.
 
 - [x] Automated tests can pair, read every screen's data and change settings
 - [ ] A real watch or phone receives a test push
+- [ ] Decide whether to add a follow endpoint; without one, Trending on watches can only show who you already follow
+- [ ] Stop an old Wear OS or Apple Watch token from blocking phone alerts for a Huawei watch user
 
 ---
 
@@ -257,41 +262,41 @@ All routes use `auth:sanctum`, rate limiting and JSON errors.
 
 In Android Studio, choose **New Project → Wear OS → Empty Compose App** and save to `D:\Flutter\followly-watch\wear-os`.
 
-- [ ] Create the project with package `com.followly.wear`
-- [ ] Set `minSdk = 30` and `targetSdk = 36`
-- [ ] Mark the app as standalone with `com.google.android.wearable.standalone`
-- [ ] Add Compose for Wear OS Material 3 and Wear Navigation
-- [ ] Add OkHttp, kotlinx.serialization and Coil
-- [ ] Add DataStore for cached responses
-- [ ] Encrypt the API token with Android Keystore
+- [x] Create the project with package `com.followly.wear`
+- [x] Set `minSdk = 30` and `targetSdk = 36`
+- [x] Mark the app as standalone with `com.google.android.wearable.standalone`
+- [x] Add Compose for Wear OS Material 3 and Wear Navigation
+- [x] Add OkHttp, kotlinx.serialization and Coil
+- [x] Add DataStore for cached responses
+- [x] Encrypt the API token with Android Keystore
 - [ ] Add Firebase Messaging and `google-services.json`
-- [ ] Add `watchface-complications-data-source-ktx`
-- [ ] Add `wear-remote-interactions` for Open on Phone
-- [ ] Create round small and large emulators
+- [x] Add `watchface-complications-data-source-ktx`
+- [x] Add `wear-remote-interactions` for Open on Phone
+- [x] Create round small and large emulators
 
 ### Features
 
-- [ ] Pairing code and waiting screen
-- [ ] Home with unread badge
-- [ ] Updates with paging and read state
-- [ ] Update Detail with thumbnail
+- [x] Pairing code and waiting screen
+- [x] Home with unread badge
+- [x] Updates with paging and read state
+- [x] Update Detail with thumbnail
 - [ ] Open on Phone with a clear failure message
-- [ ] My Creators
-- [ ] Quick Actions with confirmation before Unfollow
-- [ ] Trending categories and creators
-- [ ] Notification settings
-- [ ] Daily Summary
-- [ ] Unread-count complication
+- [x] My Creators
+- [x] Quick Actions with confirmation before Unfollow
+- [x] Trending categories and creators
+- [x] Notification settings
+- [x] Daily Summary
+- [x] Unread-count complication
 - [ ] Push notifications that open the correct update
-- [ ] Loading, empty, offline, expired sign-in and error states
-- [ ] Show cached updates when offline
+- [x] Loading, empty, offline, expired sign-in and error states
+- [x] Show cached updates when offline
 
 ### Quality
 
-- [ ] English and Arabic right-to-left layout
-- [ ] Rotary crown scrolling
-- [ ] TalkBack labels
-- [ ] Small and large round screens
+- [x] English and Arabic right-to-left layout
+- [x] Rotary crown scrolling
+- [x] TalkBack labels
+- [x] Small and large round screens
 - [ ] Complication updates after push and during normal refresh
 - [ ] Battery check with background refresh enabled
 - [ ] Test on a real Wear OS watch
@@ -308,40 +313,40 @@ This phase must be built on a Mac. Create the project on the Mac, push it to the
 
 In Xcode, choose **File → New → Project → watchOS → App**, then select a **Watch-only App**.
 
-- [ ] Create the project with bundle ID `com.followly.watch`
-- [ ] Set the deployment target to watchOS 10
-- [ ] Add a WidgetKit extension for complications
-- [ ] Enable Push Notifications, Background Modes, App Groups and Keychain Sharing
+- [ ] Create the project with bundle ID `com.followly.watch` (written, not compiled)
+- [ ] Set the deployment target to watchOS 10 (written, not compiled)
+- [ ] Add a WidgetKit extension for complications (written, not compiled)
+- [ ] Enable Push Notifications, Background Modes, App Groups and Keychain Sharing (written, not compiled)
 - [ ] Create the APNs key and add it to the Laravel production secrets
-- [ ] Use `URLSession` and `Codable` for the API
-- [ ] Use `AsyncImage` or a small image cache for avatars
-- [ ] Store the API token in Keychain
+- [ ] Use `URLSession` and `Codable` for the API (written, not compiled)
+- [ ] Use `AsyncImage` or a small image cache for avatars (written, not compiled)
+- [ ] Store the API token in Keychain (written, not compiled)
 - [ ] Add 41 mm, 45 mm and Ultra simulators
 
 ### Features
 
-- [ ] Pairing code and waiting screen
-- [ ] Home with unread badge
-- [ ] Updates with paging and read state
-- [ ] Update Detail with thumbnail
-- [ ] Open on Phone with Handoff and clear instructions
-- [ ] My Creators
-- [ ] Quick Actions with confirmation before Unfollow
-- [ ] Trending categories and creators
-- [ ] Notification settings
-- [ ] Daily Summary
-- [ ] Circular, corner, inline and rectangular complications
-- [ ] Push notifications that open the correct update
-- [ ] Background refresh and WidgetKit reload
-- [ ] Loading, empty, offline, expired sign-in and error states
-- [ ] Show cached updates when offline
+- [ ] Pairing code and waiting screen (written, not compiled)
+- [ ] Home with unread badge (written, not compiled)
+- [ ] Updates with paging and read state (written, not compiled)
+- [ ] Update Detail with thumbnail (written, not compiled)
+- [ ] Open on Phone with Handoff and clear instructions (written, not compiled)
+- [ ] My Creators (written, not compiled)
+- [ ] Quick Actions with confirmation before Unfollow (written, not compiled)
+- [ ] Trending categories and creators (written, not compiled)
+- [ ] Notification settings (written, not compiled)
+- [ ] Daily Summary (written, not compiled)
+- [ ] Circular, corner, inline and rectangular complications (written, not compiled)
+- [ ] Push notifications that open the correct update (written, not compiled)
+- [ ] Background refresh and WidgetKit reload (written, not compiled)
+- [ ] Loading, empty, offline, expired sign-in and error states (written, not compiled)
+- [ ] Show cached updates when offline (written, not compiled)
 
 ### Quality
 
-- [ ] Adapt the circular mockups to rounded-rectangle screens
-- [ ] English and Arabic right-to-left layout
-- [ ] Digital Crown scrolling
-- [ ] VoiceOver labels
+- [ ] Adapt the circular mockups to rounded-rectangle screens (written, not compiled)
+- [ ] English and Arabic right-to-left layout (written, not compiled)
+- [ ] Digital Crown scrolling (written, not compiled)
+- [ ] VoiceOver labels (written, not compiled)
 - [ ] Test on smallest and largest supported screens
 - [ ] Confirm the app works when the iPhone is away and the watch has internet
 - [ ] Battery check with background refresh enabled
@@ -364,10 +369,10 @@ flutter create --org com.followly --project-name followly_companion --platforms=
 
 Rename the Android and iOS application IDs to `com.followly.companion` if Flutter generates a different one.
 
-- [ ] Create the Flutter project
-- [ ] Add `http`, `flutter_secure_storage`, `firebase_messaging`, `flutter_local_notifications`, `url_launcher` and `huawei_push`
-- [ ] Add the Huawei Maven repository and the Wear Engine Android SDK
-- [ ] Add a small Android `MethodChannel` for Wear Engine
+- [x] Create the Flutter project
+- [x] Add `http`, `flutter_secure_storage`, `firebase_messaging`, `flutter_local_notifications`, `url_launcher` and `huawei_push`
+- [x] Add the Huawei Maven repository and the Wear Engine Android SDK
+- [x] Add a small Android `MethodChannel` for Wear Engine
 - [ ] Add `agconnect-services.json` and the release signing fingerprint
 
 ### Huawei technical test
@@ -384,28 +389,29 @@ Rename the Android and iOS application IDs to `com.followly.companion` if Flutte
 
 ### Companion features
 
-- [ ] Email and password sign-in
-- [ ] Secure token storage
-- [ ] Connected Huawei watch status
-- [ ] Instructions for installing Huawei Health and pairing the watch
-- [ ] Register FCM or Huawei Push token with the backend
-- [ ] Show new-post phone notifications so Huawei Health can mirror them to the watch
-- [ ] Handle watch requests through the Laravel API
-- [ ] Cache the latest bridge response
-- [ ] Open posts through a tappable phone notification, to avoid Android background launch limits
-- [ ] Sign out and revoke the token
-- [ ] Add English and Arabic
+- [x] Email and password sign-in
+- [x] Secure token storage
+- [ ] Connected Huawei watch status (written and tested with fakes, not run for real)
+- [x] Instructions for installing Huawei Health and pairing the watch
+- [ ] Register FCM or Huawei Push token with the backend (written and tested with fakes, not run for real)
+- [ ] Show new-post phone notifications so Huawei Health can mirror them to the watch (written and tested with fakes, not run for real)
+- [ ] Handle watch requests through the Laravel API (written and tested with fakes, not run for real)
+- [x] Cache the latest bridge response
+- [ ] Open posts through a tappable phone notification, to avoid Android background launch limits (written and tested with fakes, not run for real)
+- [x] Sign out and revoke the token
+- [x] Add English and Arabic
 
 ### Bridge protocol
 
 Document this in `shared/bridge-protocol.md`.
 
-- [ ] Include a protocol version and request ID in every message
-- [ ] Define `get_home`, `get_updates`, `get_detail`, `get_summary`
-- [ ] Define `get_creators`, `get_trending`, `get_settings`
-- [ ] Define `mark_read`, `update_creator`, `unfollow`, `update_settings`, `open_on_phone`
-- [ ] Define `not_signed_in`, `offline`, `not_found` and `server_error`
+- [x] Include a protocol version and request ID in every message
+- [x] Define `get_home`, `get_updates`, `get_detail`, `get_summary`
+- [x] Define `get_creators`, `get_trending`, `get_settings`
+- [x] Define `mark_read`, `update_creator`, `unfollow`, `update_settings`, `open_on_phone`
+- [x] Define `not_signed_in`, `offline`, `not_found` and `server_error`
 - [ ] Keep responses small enough for the measured Wear Engine limit
+- [ ] Split or trim replies over the 4096-byte message limit Huawei documents
 - [ ] Ensure only the signed Followly watch apps can use the bridge
 
 ### Quality
@@ -426,34 +432,34 @@ Document this in `shared/bridge-protocol.md`.
 
 In DevEco Studio, create an **Empty Ability** project using the ArkTS Stage model, select **Wearable**, and save to `D:\Flutter\followly-watch\huawei-watch`.
 
-- [ ] Create the project with bundle name `com.followly.huawei`
+- [ ] Create the project with bundle name `com.followly.huawei` (written, not compiled)
 - [ ] Configure automatic signing with the Huawei account
 - [ ] Add Wear Engine messaging and the companion's package and signing fingerprint
-- [ ] Add a small bridge client that follows `shared/bridge-protocol.md`
-- [ ] Add local storage for the latest response
+- [ ] Add a small bridge client that follows `shared/bridge-protocol.md` (written, not compiled)
+- [ ] Add local storage for the latest response (written, not compiled)
 - [ ] Create a 466 × 466 round simulator or test device profile
 
 ### Features
 
-- [ ] Companion-required and not-signed-in screens
-- [ ] Home with unread badge
-- [ ] Updates with paging and read state
-- [ ] Update Detail with thumbnail, if image transfer passes the size test
-- [ ] Open on Phone through the companion
-- [ ] My Creators
-- [ ] Quick Actions with confirmation before Unfollow
-- [ ] Trending categories and creators
-- [ ] Notification settings
-- [ ] Daily Summary
-- [ ] Phone unavailable, offline and error states
-- [ ] Show cached updates when the phone is unavailable
+- [ ] Companion-required and not-signed-in screens (written, not compiled)
+- [ ] Home with unread badge (written, not compiled)
+- [ ] Updates with paging and read state (written, not compiled)
+- [ ] Update Detail with thumbnail, if image transfer passes the size test (written, not compiled)
+- [ ] Open on Phone through the companion (written, not compiled)
+- [ ] My Creators (written, not compiled)
+- [ ] Quick Actions with confirmation before Unfollow (written, not compiled)
+- [ ] Trending categories and creators (written, not compiled)
+- [ ] Notification settings (written, not compiled)
+- [ ] Daily Summary (written, not compiled)
+- [ ] Phone unavailable, offline and error states (written, not compiled)
+- [ ] Show cached updates when the phone is unavailable (written, not compiled)
 
 ### Quality
 
-- [ ] `ArcList` or suitable circular list behavior
-- [ ] English and Arabic right-to-left layout
-- [ ] Crown scrolling
-- [ ] Accessibility labels
+- [ ] `ArcList` or suitable circular list behavior (written, not compiled)
+- [ ] English and Arabic right-to-left layout (written, not compiled)
+- [ ] Crown scrolling (written, not compiled)
+- [ ] Accessibility labels (written, not compiled)
 - [ ] Test each model on the final supported list
 - [ ] Test Bluetooth disconnect and reconnect
 - [ ] Battery check on a real watch
@@ -468,22 +474,22 @@ In DevEco Studio, create an **Empty Ability** project using the ArkTS Stage mode
 
 In DevEco Studio, create a **Lite Wearable** JS project and save to `D:\Flutter\followly-watch\huawei-gt`.
 
-- [ ] Create the project with bundle name `com.followly.huawei.gt`
-- [ ] Use ES5-compatible JavaScript only
+- [ ] Create the project with bundle name `com.followly.huawei.gt` (written, not compiled)
+- [x] Use ES5-compatible JavaScript only
 - [ ] Add the lite Wear Engine messaging SDK and the companion's package and signing fingerprint
 - [ ] Install HUAWEI DevEco Assistant on the phone for device installation and logs
 - [ ] Test the project on a real GT watch before building screens
 
 ### Features
 
-- [ ] Companion-required and not-signed-in screens
-- [ ] Simple menu with unread count
-- [ ] Latest 10 updates as text
-- [ ] Update Detail as text
-- [ ] Mark as read
-- [ ] Open on Phone through the companion
-- [ ] Daily Summary as text
-- [ ] Phone unavailable, offline and error states
+- [ ] Companion-required and not-signed-in screens (written, not compiled)
+- [ ] Simple menu with unread count (written, not compiled)
+- [ ] Latest 10 updates as text (written, not compiled)
+- [ ] Update Detail as text (written, not compiled)
+- [ ] Mark as read (written, not compiled)
+- [ ] Open on Phone through the companion (written, not compiled)
+- [ ] Daily Summary as text (written, not compiled)
+- [ ] Phone unavailable, offline and error states (written, not compiled)
 
 ### Limits to respect
 
@@ -492,9 +498,10 @@ Community testing reports these limits. Confirm them during Phase 4.
 - [ ] App package under 10 MB
 - [ ] Each page under 48 KB
 - [ ] Fits in about 1 MB of app memory
-- [ ] Only small bundled icons; no remote images
-- [ ] Short bridge messages only
-- [ ] App state restores safely after restart
+- [x] Only small bundled icons; no remote images
+- [ ] Update `protocol.js` to match `shared/bridge-protocol.md`; it was written before that file existed
+- [ ] Short bridge messages only (written, not compiled)
+- [ ] App state restores safely after restart (written, not compiled)
 
 ### Quality
 
