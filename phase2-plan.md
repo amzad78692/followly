@@ -16,7 +16,7 @@ Legend: `[x]` done · `[ ]` to do
 - [x] Phase 3: Master Dashboard and Smart Feed (switching the main navigation is left for Phase 8)
 - [x] Phase 4: Watchlist and Collections
 - [x] Phase 5: Search and Discovery
-- [ ] Phase 6: Notifications, Alerts and Timeline
+- [x] Phase 6: Notifications, Alerts and Timeline
 - [ ] Phase 7: Admin dashboard
 - [ ] Phase 8: Mobile polish, testing and launch
 
@@ -113,14 +113,14 @@ One migration batch for everything Phases 3 to 6 need.
 
 ## Phase 6: Notifications, Alerts and Timeline
 
-- [ ] **Notifications Center:** upgrade the notifications page with type filters (new posts, alerts, system), mark as read, mark all as read, and pagination
-- [ ] **Followly Alerts:**
-  - [ ] Settings section to add and remove keywords (limit of 20 per user)
-  - [ ] After each sync, match new post captions against keywords (whole word, case-insensitive)
-  - [ ] Send one notification per post per user, using the existing in-app, email and push channels and respecting the user's preferences
-- [ ] **Followly Timeline:** a "Timeline" tab on the influencer page showing all their posts across platforms by date, grouped by day, with SmartLink groups shown once
-- [ ] **Settings and Preferences:** reorganise the settings page into sections (Account, Login methods, Notifications, Alerts, Devices)
-- [ ] Tests: keyword matching (no partial-word matches), no duplicate alerts, preferences respected
+- [x] **Notifications Center:** upgrade the notifications page with type filters (new posts, alerts, system), mark as read, mark all as read, and pagination
+- [x] **Followly Alerts:**
+  - [x] Settings section to add and remove keywords (limit of 20 per user)
+  - [x] After each sync, match new post captions against keywords (whole word, case-insensitive)
+  - [x] Send one notification per post per user, using the existing in-app, email and push channels and respecting the user's preferences
+- [x] **Followly Timeline:** a "Timeline" tab on the influencer page showing all their posts across platforms by date, grouped by day, with SmartLink groups shown once
+- [x] **Settings and Preferences:** reorganise the settings page into sections (Account, Login methods, Notifications, Alerts, Devices)
+- [x] Tests: keyword matching (no partial-word matches), no duplicate alerts, preferences respected
 
 ---
 

@@ -66,6 +66,10 @@ class NewPostsDigest extends Notification implements ShouldQueue
     {
         $title = $data['title'] ?: 'New post';
 
+        if ($data['keywords'] ?? null) {
+            return 'Alert for "'.implode('", "', $data['keywords']).'": '.$title;
+        }
+
         return ($data['count'] ?? 1) > 1 ? "{$data['count']} new posts, latest: {$title}" : $title;
     }
 }

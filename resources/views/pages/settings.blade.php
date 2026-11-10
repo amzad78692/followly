@@ -6,6 +6,7 @@ use App\Livewire\Actions\Logout;
 use App\Models\User;
 use App\Watch\Pairing;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password;
@@ -42,6 +43,11 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
 
     /** Platform values the user gets new post notifications for. */
     public array $platforms = [];
+
+    // Alerts
+    public const MAX_KEYWORDS = 20;
+
+    public string $keyword = '';
 
     // Connected devices
     public string $pairingCode = '';
@@ -165,6 +171,39 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
     }
 
     #[Computed]
+    public function keywords()
+    {
+        return auth()->user()->keywordAlerts()->oldest()->get();
+    }
+
+    public function addKeyword(): void
+    {
+        $this->keyword = Str::squish($this->keyword);
+
+        $this->validate(['keyword' => ['required', 'string', 'min:2', 'max:50',
+            Rule::unique('keyword_alerts')->where('user_id', auth()->id()),
+        ]], ['keyword.unique' => 'You already have this keyword.']);
+
+        if ($this->keywords->count() >= self::MAX_KEYWORDS) {
+            $this->addError('keyword', 'You can have up to '.self::MAX_KEYWORDS.' keywords. Remove one first.');
+
+            return;
+        }
+
+        auth()->user()->keywordAlerts()->create(['keyword' => $this->keyword]);
+
+        $this->reset('keyword');
+        unset($this->keywords);
+    }
+
+    public function removeKeyword(int $id): void
+    {
+        auth()->user()->keywordAlerts()->whereKey($id)->delete();
+
+        unset($this->keywords);
+    }
+
+    #[Computed]
     public function devices()
     {
         return auth()->user()->tokens()->latest()->get();
@@ -234,12 +273,18 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
 <div class="mx-auto max-w-3xl space-y-6">
     <div>
         <flux:heading size="xl" level="1" class="font-bold!">Settings</flux:heading>
-        <flux:text class="mt-1">Your profile, password and notifications.</flux:text>
+        <flux:text class="mt-1">Your account, sign-in, notifications, alerts and devices.</flux:text>
+
+        <nav class="mt-4 flex flex-wrap gap-2 text-sm">
+            @foreach (['account' => 'Account', 'login' => 'Login methods', 'notifications' => 'Notifications', 'alerts' => 'Alerts', 'devices' => 'Devices'] as $anchor => $label)
+                <a href="#{{ $anchor }}" class="rounded-full border border-zinc-200 bg-white px-3 py-1.5 font-medium text-zinc-700 transition hover:bg-zinc-50">{{ $label }}</a>
+            @endforeach
+        </nav>
     </div>
 
-    {{-- Profile --}}
-    <section id="profile" class="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
-        <flux:heading size="lg">Profile</flux:heading>
+    {{-- Account --}}
+    <section id="account" class="scroll-mt-24 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+        <flux:heading size="lg">Account</flux:heading>
         <flux:text class="mt-1">Your banner, photo, name and email address.</flux:text>
 
         <form wire:submit="saveProfile" class="mt-5 space-y-5">
@@ -300,9 +345,21 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
         </form>
     </section>
 
-    {{-- Password --}}
-    <section id="password" class="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
-        <flux:heading size="lg">Password</flux:heading>
+    {{-- Login methods --}}
+    <section id="login" class="scroll-mt-24 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+        <flux:heading size="lg">Login methods</flux:heading>
+        <flux:text class="mt-1">The ways you can sign in to {{ config('app.name') }}.</flux:text>
+
+        <ul class="mt-5 divide-y divide-zinc-100 rounded-xl border border-zinc-200">
+            @foreach (['Email and password' => (bool) auth()->user()->password, 'Google' => (bool) auth()->user()->google_id, 'Apple' => (bool) auth()->user()->apple_id] as $method => $connected)
+                <li class="flex items-center justify-between px-4 py-3 text-sm">
+                    <span class="font-medium text-zinc-800">{{ $method }}</span>
+                    <flux:badge size="sm" :color="$connected ? 'green' : 'zinc'">{{ $connected ? 'Connected' : 'Not set up' }}</flux:badge>
+                </li>
+            @endforeach
+        </ul>
+
+        <flux:heading class="mt-6">Password</flux:heading>
         <flux:text class="mt-1">Use a long password you don't use anywhere else.</flux:text>
 
         <form wire:submit="updatePassword" class="mt-5 space-y-5">
@@ -322,7 +379,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
     </section>
 
     {{-- Notifications --}}
-    <section id="notifications" class="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+    <section id="notifications" class="scroll-mt-24 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
         <flux:heading size="lg">Notifications</flux:heading>
         <flux:text class="mt-1">How we tell you about new posts from the creators you track.</flux:text>
 
@@ -349,9 +406,36 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
         </form>
     </section>
 
-    {{-- Connected devices --}}
-    <section id="devices" class="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
-        <flux:heading size="lg">Connected devices</flux:heading>
+    {{-- Alerts --}}
+    <section id="alerts" class="scroll-mt-24 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+        <flux:heading size="lg">Alerts</flux:heading>
+        <flux:text class="mt-1">Get notified when any creator's new post mentions one of your keywords (whole words, any capitalisation). Up to {{ $this::MAX_KEYWORDS }} keywords; alerts follow your notification preferences above.</flux:text>
+
+        <form wire:submit="addKeyword" class="mt-5 flex items-start gap-3">
+            <div class="min-w-0 flex-1 sm:max-w-xs">
+                <flux:input wire:model="keyword" aria-label="Keyword" placeholder="e.g. giveaway" maxlength="50" autocomplete="off" />
+                <flux:error name="keyword" />
+            </div>
+            <flux:button type="submit" variant="primary" icon="plus">Add</flux:button>
+        </form>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+            @forelse ($this->keywords as $alert)
+                <span wire:key="keyword-{{ $alert->id }}" class="inline-flex items-center gap-1 rounded-full bg-zinc-100 py-1 ps-3 pe-1 text-sm text-zinc-800">
+                    {{ $alert->keyword }}
+                    <button type="button" wire:click="removeKeyword({{ $alert->id }})" class="rounded-full p-1 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-800" aria-label="Remove {{ $alert->keyword }}">
+                        <flux:icon.x-mark class="size-3.5" />
+                    </button>
+                </span>
+            @empty
+                <flux:text>No keywords yet.</flux:text>
+            @endforelse
+        </div>
+    </section>
+
+    {{-- Devices --}}
+    <section id="devices" class="scroll-mt-24 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+        <flux:heading size="lg">Devices</flux:heading>
         <flux:text class="mt-1">Enter the code shown on your watch to connect it to your account.</flux:text>
 
         @if ($pendingDevice)

@@ -10,6 +10,9 @@ use Livewire\Volt\Component;
 new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class extends Component {
     public const PER_PAGE = 20;
 
+    /** Filter key => notification types it shows; null shows everything else (system). */
+    public const TYPES = ['posts' => ['new-post'], 'alerts' => ['keyword-alert'], 'system' => null];
+
     #[Url]
     public string $filter = 'all';
 
@@ -26,7 +29,11 @@ new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class ex
     #[Computed]
     public function batch()
     {
+        $types = array_merge(...array_values(array_filter(self::TYPES)));
+
         return ($this->filter === 'unread' ? auth()->user()->unreadNotifications() : auth()->user()->notifications())
+            ->when(self::TYPES[$this->filter] ?? null, fn ($q, $only) => $q->whereIn('type', $only))
+            ->when($this->filter === 'system', fn ($q) => $q->whereNotIn('type', $types))
             ->limit($this->limit + 1)
             ->get();
     }
@@ -65,6 +72,12 @@ new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class ex
         $notification = auth()->user()->notifications()->findOrFail($id);
         $notification->markAsRead();
 
+        if (! isset($notification->data['influencer_slug'])) {
+            $this->refreshList();
+
+            return;
+        }
+
         $this->redirectRoute('influencers.show', $notification->data['influencer_slug'], navigate: true);
     }
 
@@ -93,7 +106,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class ex
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
             <flux:heading size="xl" level="1" class="font-bold!">Notifications</flux:heading>
-            <flux:text class="mt-1">New posts from the creators you track.</flux:text>
+            <flux:text class="mt-1">New posts from the creators you track, and your keyword alerts.</flux:text>
         </div>
 
         @if ($this->unreadCount)
@@ -110,8 +123,8 @@ new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class ex
         </flux:callout>
     @endunless
 
-    <div class="mt-4 flex gap-2">
-        @foreach (['all' => 'All', 'unread' => 'Unread'] as $key => $label)
+    <div class="mt-4 flex flex-wrap gap-2">
+        @foreach (['all' => 'All', 'unread' => 'Unread', 'posts' => 'New posts', 'alerts' => 'Alerts', 'system' => 'System'] as $key => $label)
             <button type="button" wire:click="$set('filter', '{{ $key }}')" @class([
                 'rounded-full border px-3 py-1.5 text-sm font-medium transition',
                 'border-accent bg-accent text-white shadow-sm' => $filter === $key,
@@ -139,7 +152,11 @@ new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class ex
             ])>
                 <button type="button" wire:click="open('{{ $notification->id }}')" class="flex min-w-0 flex-1 items-start gap-3 text-start">
                     <span class="relative shrink-0">
-                        <img src="{{ image_url($data['avatar'], 80, 80) }}" alt="" class="size-10 rounded-full object-cover">
+                        @if ($data['avatar'] ?? null)
+                            <img src="{{ image_url($data['avatar'], 80, 80) }}" alt="" class="size-10 rounded-full object-cover">
+                        @else
+                            <span class="flex size-10 items-center justify-center rounded-full bg-zinc-100"><flux:icon.bell class="size-5 text-zinc-400" /></span>
+                        @endif
                         @if ($platform)
                             <span class="absolute -bottom-1 -end-1 rounded-full bg-white p-0.5 shadow-sm">
                                 <x-platform-icon :platform="$platform" size="size-3.5" />
@@ -149,14 +166,21 @@ new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class ex
 
                     <span class="min-w-0 flex-1">
                         <span class="block text-sm text-zinc-700">
-                            <span class="font-semibold text-zinc-900">{{ $data['influencer_name'] }}</span>
-                            @if (($data['count'] ?? 1) > 1)
+                            @if ($notification->type === 'keyword-alert')
+                                <flux:badge size="sm" color="amber" icon="bolt" class="me-1">{{ implode(', ', $data['keywords']) }}</flux:badge>
+                                <span class="font-semibold text-zinc-900">{{ $data['influencer_name'] }}</span>
+                                mentioned it on {{ $platform?->label() }}
+                            @elseif (! isset($data['influencer_name']))
+                                <span class="font-semibold text-zinc-900">{{ $data['subject'] ?? config('app.name') }}</span>
+                            @elseif (($data['count'] ?? 1) > 1)
+                                <span class="font-semibold text-zinc-900">{{ $data['influencer_name'] }}</span>
                                 posted {{ $data['count'] }} times on {{ $platform?->label() }}
                             @else
+                                <span class="font-semibold text-zinc-900">{{ $data['influencer_name'] }}</span>
                                 posted on {{ $platform?->label() }}
                             @endif
                         </span>
-                        <span class="mt-0.5 line-clamp-2 block text-sm text-zinc-500">{{ $data['title'] ?: 'New post' }}</span>
+                        <span class="mt-0.5 line-clamp-2 block text-sm text-zinc-500">{{ ($data['title'] ?? $data['message'] ?? null) ?: 'New post' }}</span>
                         <span class="mt-1 block text-xs text-zinc-400">{{ $notification->created_at->diffForHumans() }}</span>
                     </span>
 

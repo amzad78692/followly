@@ -29,7 +29,7 @@ class SendDigests extends Command
             foreach ($users as $user) {
                 $since = $user->digest_sent_at && $user->digest_sent_at->gt($frequency->since()) ? $user->digest_sent_at : $frequency->since();
 
-                $query = $user->unreadNotifications()->where('type', 'new-post')->where('created_at', '>', $since);
+                $query = $user->unreadNotifications()->whereIn('type', ['new-post', 'keyword-alert'])->where('created_at', '>', $since);
                 $total = $query->count();
 
                 if ($total > 0) {
