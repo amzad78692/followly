@@ -13,6 +13,7 @@ class Follow extends Model
         'influencer_id',
         'notify',
         'pinned_at',
+        'watchlisted_at',
     ];
 
     protected function casts(): array
@@ -20,6 +21,7 @@ class Follow extends Model
         return [
             'notify' => 'boolean',
             'pinned_at' => 'datetime',
+            'watchlisted_at' => 'datetime',
         ];
     }
 

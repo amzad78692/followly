@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Amzad\FilamentTranslatableGroup\TranslatableGroup;
+use App\Http\Middleware\RecordActivity;
 use App\Platforms\PlatformManager;
 use App\Policies\ActivityPolicy;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
@@ -50,6 +51,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Activity::class, ActivityPolicy::class);
 
         Event::listen(fn (SocialiteWasCalled $event) => $event->extendSocialite('apple', AppleProvider::class));
+
+        // Here rather than bootstrap/app.php; runs after the session has started.
+        $this->app['router']->pushMiddlewareToGroup('web', RecordActivity::class);
 
         // Imports are started by Admins, not Users.
         Import::polymorphicUserRelationship();

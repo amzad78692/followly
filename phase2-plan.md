@@ -12,7 +12,7 @@ Legend: `[x]` done · `[ ]` to do
 
 - [ ] Phase 0: Decisions and setup
 - [x] Phase 1: Google and Apple login (needs real Google and Apple keys to try live)
-- [ ] Phase 2: Database groundwork
+- [x] Phase 2: Database groundwork
 - [ ] Phase 3: Master Dashboard and Smart Feed
 - [ ] Phase 4: Watchlist and Collections
 - [x] Phase 5: Search and Discovery
@@ -56,14 +56,14 @@ Legend: `[x]` done · `[ ]` to do
 
 One migration batch for everything Phases 3 to 6 need.
 
-- [ ] `follows.watchlisted_at` (nullable timestamp). There is a limit of 10 per user, checked in code.
-- [ ] `collections` table: `id`, `user_id`, `name`, `share_token` (nullable, unique), `timestamps`
-- [ ] `collection_influencer` pivot: `collection_id`, `influencer_id`
-- [ ] `posts.group_id` (nullable, indexed) for SmartLink groups
-- [ ] `keyword_alerts` table: `id`, `user_id`, `keyword`, `timestamps`
-- [ ] `user_activity_days` table: `user_id`, `date` (unique pair) for daily and monthly active users
-- [ ] Middleware that records today's activity once per user per day (cached, so it costs nothing per request)
-- [ ] Models and relations: `Collection`, `KeywordAlert`, `User::collections()`, `User::watchlist()`
+- [x] `follows.watchlisted_at` (nullable timestamp). There is a limit of 10 per user, checked in code.
+- [x] `collections` table: `id`, `user_id`, `name`, `share_token` (nullable, unique), `timestamps`
+- [x] `collection_influencer` pivot: `collection_id`, `influencer_id`
+- [x] `posts.group_id` (nullable, indexed) for SmartLink groups
+- [x] `keyword_alerts` table: `id`, `user_id`, `keyword`, `timestamps`
+- [x] `user_activity_days` table: `user_id`, `date` (unique pair) for daily and monthly active users
+- [x] Middleware that records today's activity once per user per day (cached, so it costs nothing per request)
+- [x] Models and relations: `Collection`, `KeywordAlert`, `User::collections()`, `User::watchlist()`
 
 ---
 

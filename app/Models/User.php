@@ -137,6 +137,24 @@ class User extends Authenticatable implements HasMedia
         return $this->belongsToMany(Influencer::class, 'follows')->withTimestamps();
     }
 
+    /**
+     * Followed influencers the user put on their watchlist (max 10, checked where it is set).
+     */
+    public function watchlist(): BelongsToMany
+    {
+        return $this->followedInfluencers()->wherePivotNotNull('watchlisted_at')->withPivot('watchlisted_at');
+    }
+
+    public function collections(): HasMany
+    {
+        return $this->hasMany(Collection::class);
+    }
+
+    public function keywordAlerts(): HasMany
+    {
+        return $this->hasMany(KeywordAlert::class);
+    }
+
     public function isFollowing(Influencer $influencer): bool
     {
         return $this->follows()->where('influencer_id', $influencer->id)->exists();

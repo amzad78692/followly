@@ -108,6 +108,11 @@ class Influencer extends Model implements HasMedia
         return $this->belongsToMany(User::class, 'follows')->withTimestamps();
     }
 
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(Collection::class);
+    }
+
     /**
      * The user or admin who added this influencer.
      */

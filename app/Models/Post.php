@@ -18,6 +18,7 @@ class Post extends Model
     protected $fillable = [
         'influencer_id',
         'influencer_account_id',
+        'group_id',
         'platform',
         'external_id',
         'type',
