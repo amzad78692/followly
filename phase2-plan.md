@@ -2,7 +2,7 @@
 
 **Goal:** upgrade the user website with a new Master Dashboard, better ways to organise influencers, better search and alerts, Google and Apple login, and an admin overview page.
 
-**Out of scope:** AI features (Daily Briefing, Catch-Up, Advanced AI), new platforms (Facebook, Threads, LinkedIn, Spotify, Apple Podcasts, Discord), Supabase, Grafana, Clarity, Sentry and Cloudflare.
+**Out of scope:** AI features (Daily Briefing, Catch-Up, Advanced AI), Followly Compare, new platforms (Facebook, Threads, LinkedIn, Spotify, Apple Podcasts, Discord), Supabase, Grafana, Clarity, Sentry and Cloudflare.
 
 **Stack (unchanged):** Laravel, Livewire with Volt, Flux UI, Tailwind, Filament (admin), MySQL.
 
@@ -26,7 +26,7 @@ Legend: `[x]` done · `[ ]` to do
 
 ## Phase 0: Decisions and setup
 
-- [ ] **Followly Compare:** drop it, or build it with plain keyword matching (no AI). *Open question.*
+- [x] **Followly Compare:** dropped from Phase 2.
 - [ ] **Master Dashboard URL:** build it at `/dashboard` and leave `/feed` (My Feed) running. After launch, `/feed` redirects to `/dashboard`.
 - [ ] **SmartLink rule (no AI):** posts are the same story when they come from the same influencer, are posted within 24 hours of each other, and either share a link or have captions that are at least 80% similar after cleanup. Tune the threshold with real data.
 - [ ] **Smart Feed ranking (no AI):** newer posts score higher; posts from Watchlist influencers get a boost; high engagement compared with the influencer's usual numbers adds a small boost; SmartLink groups show as one card.
