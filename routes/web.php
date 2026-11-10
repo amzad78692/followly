@@ -11,6 +11,7 @@ use Livewire\Volt\Volt;
 Volt::route('/', 'home')->middleware('guest')->name('home');
 
 Route::middleware('auth')->group(function () {
+    Volt::route('dashboard', 'dashboard')->name('dashboard');
     Volt::route('feed', 'feed')->name('feed');
     Volt::route('explore', 'explore')->name('explore');
     Volt::route('search', 'search')->name('search');

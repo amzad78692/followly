@@ -13,7 +13,7 @@ Legend: `[x]` done · `[ ]` to do
 - [ ] Phase 0: Decisions and setup
 - [x] Phase 1: Google and Apple login (needs real Google and Apple keys to try live)
 - [x] Phase 2: Database groundwork
-- [ ] Phase 3: Master Dashboard and Smart Feed
+- [x] Phase 3: Master Dashboard and Smart Feed (switching the main navigation is left for Phase 8)
 - [x] Phase 4: Watchlist and Collections
 - [x] Phase 5: Search and Discovery
 - [ ] Phase 6: Notifications, Alerts and Timeline
@@ -69,16 +69,16 @@ One migration batch for everything Phases 3 to 6 need.
 
 ## Phase 3: Master Dashboard and Smart Feed
 
-- [ ] New `/dashboard` page (Volt), with My Feed left untouched
-- [ ] Layout: Watchlist strip at the top, Smart Feed in the middle, Collections and Trending in the side panel (stacked on mobile)
-- [ ] Filters: all, watchlist, one collection, one platform
-- [ ] **SmartLink job:** after each sync (`PostsSynced` event), group new posts with matching posts using the Phase 0 rule and set `posts.group_id`
-- [ ] Backfill command: run SmartLink over existing posts once
-- [ ] **SmartLink card:** one post card with platform icons; clicking an icon opens that platform's version
-- [ ] **Smart Feed query:** use the Phase 0 ranking, show a group once, and paginate with infinite scroll
-- [ ] Empty states: no follows yet, no posts yet
+- [x] New `/dashboard` page (Volt), with My Feed left untouched
+- [x] Layout: Watchlist strip at the top, Smart Feed in the middle, Collections and Trending in the side panel (stacked on mobile)
+- [x] Filters: all, watchlist, one collection, one platform
+- [x] **SmartLink job:** after each sync (`PostsSynced` event), group new posts with matching posts using the Phase 0 rule and set `posts.group_id`
+- [x] Backfill command: run SmartLink over existing posts once
+- [x] **SmartLink card:** one post card with platform icons; clicking an icon opens that platform's version
+- [x] **Smart Feed query:** use the Phase 0 ranking, show a group once, and paginate with infinite scroll
+- [x] Empty states: no follows yet, no posts yet
 - [ ] Point the main navigation to Dashboard after launch (Phase 8)
-- [ ] Tests: SmartLink grouping (same story is grouped; different stories are not), feed ranking order
+- [x] Tests: SmartLink grouping (same story is grouped; different stories are not), feed ranking order
 
 ---
 
