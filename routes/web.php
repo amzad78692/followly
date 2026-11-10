@@ -20,6 +20,7 @@ Route::middleware('auth')->group(function () {
     Route::get('connect', fn () => redirect(route('settings').'#devices'))->name('connect');
     Volt::route('influencers', 'influencers.index')->name('influencers.index');
     Volt::route('influencers/add', 'influencers.create')->name('influencers.create');
+    Volt::route('collections', 'collections.index')->name('collections.index');
 
     // Users whose verified email is also an admin's can open the panel without logging in again.
     // Verification is required: anyone can register with any email address.
@@ -38,6 +39,7 @@ Route::middleware('auth')->group(function () {
 
 // Profiles are public so they can be shared and indexed; guests get the public layout.
 Volt::route('influencers/{influencer}', 'influencers.show')->name('influencers.show');
+Volt::route('c/{token}', 'collections.shared')->name('collections.shared');
 
 Route::view('privacy', 'static.privacy')->name('privacy');
 Route::view('terms', 'static.terms')->name('terms');

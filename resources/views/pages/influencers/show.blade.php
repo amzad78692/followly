@@ -146,6 +146,7 @@ new class extends Component {
                 </div>
 
                 <div class="flex items-center gap-2 pb-1">
+                    @auth <livewire:influencer-actions :influencer-id="$influencer->id" key="profile-actions" /> @endauth
                     @if ($followed)
                         <flux:button icon="check" wire:click="toggle({{ $influencer->id }})">Following</flux:button>
                     @else

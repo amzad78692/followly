@@ -14,7 +14,7 @@ Legend: `[x]` done · `[ ]` to do
 - [x] Phase 1: Google and Apple login (needs real Google and Apple keys to try live)
 - [x] Phase 2: Database groundwork
 - [ ] Phase 3: Master Dashboard and Smart Feed
-- [ ] Phase 4: Watchlist and Collections
+- [x] Phase 4: Watchlist and Collections
 - [x] Phase 5: Search and Discovery
 - [ ] Phase 6: Notifications, Alerts and Timeline
 - [ ] Phase 7: Admin dashboard
@@ -84,15 +84,15 @@ One migration batch for everything Phases 3 to 6 need.
 
 ## Phase 4: Watchlist and Collections
 
-- [ ] Star button on influencer cards and the profile page to add or remove from Watchlist
-- [ ] Block an 11th star with a clear message
-- [ ] Collections page: create, rename and delete collections
-- [ ] Add or remove an influencer to a collection from their card or profile page
-- [ ] A collection opens as a filtered feed on the Dashboard
-- [ ] **Shared Collections:** a Share button creates `share_token`; Unshare clears it
-- [ ] Public page `/c/{token}` (no login needed): collection name and influencer list with a Follow button (login prompt for guests)
-- [ ] Shared pages show only public data and never the owner's email
-- [ ] Tests: watchlist limit, a user cannot edit another user's collection, shared link works and stops working after unshare
+- [x] Star button on influencer cards and the profile page to add or remove from Watchlist
+- [x] Block an 11th star with a clear message
+- [x] Collections page: create, rename and delete collections
+- [x] Add or remove an influencer to a collection from their card or profile page
+- [x] A collection opens as a filtered feed on the Dashboard
+- [x] **Shared Collections:** a Share button creates `share_token`; Unshare clears it
+- [x] Public page `/c/{token}` (no login needed): collection name and influencer list with a Follow button (login prompt for guests)
+- [x] Shared pages show only public data and never the owner's email
+- [x] Tests: watchlist limit, a user cannot edit another user's collection, shared link works and stops working after unshare
 
 ---
 

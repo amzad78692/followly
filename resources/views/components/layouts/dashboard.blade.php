@@ -14,6 +14,7 @@
             <flux:sidebar.item icon="home" :href="route('feed')" :current="request()->routeIs('feed')" wire:navigate>My Feed</flux:sidebar.item>
             <flux:sidebar.item icon="magnifying-glass" :href="route('explore')" :current="request()->routeIs('explore')" wire:navigate>Explore</flux:sidebar.item>
             <flux:sidebar.item icon="users" :href="route('influencers.index')" :current="request()->routeIs('influencers.*')" wire:navigate>My Influencers</flux:sidebar.item>
+            <flux:sidebar.item icon="folder" :href="route('collections.index')" :current="request()->routeIs('collections.*')" wire:navigate>Collections</flux:sidebar.item>
             <livewire:notification-count variant="sidebar" :current="request()->routeIs('notifications')" />
             <flux:sidebar.item icon="cog-6-tooth" :href="route('settings')" :current="request()->routeIs('settings')" wire:navigate>Settings</flux:sidebar.item>
         </flux:sidebar.nav>

@@ -25,6 +25,7 @@
     <p class="mt-3 text-center text-[11px] text-zinc-500">{{ $influencer->formatted_tracking }} tracking on {{ config('app.name') }}</p>
 
     <div class="mt-auto pt-3">
+        @auth <div class="mb-2"><livewire:influencer-actions :influencer-id="$influencer->id" :key="'actions-'.$attributes->get('wire:key', $influencer->id)" /></div> @endauth
         @if ($followed)
             <flux:button size="sm" icon="check" class="w-full" wire:click="toggle({{ $influencer->id }})">Following</flux:button>
         @else
