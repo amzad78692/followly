@@ -180,8 +180,8 @@ new class extends Component {
         </div>
 
         {{-- Tabs --}}
-        <nav class="flex gap-6 border-t border-zinc-200 px-5 sm:px-8">
-            @foreach (['posts' => 'Latest Posts', 'about' => 'About', 'related' => 'Related Influencers'] as $key => $label)
+        <nav class="flex gap-6 overflow-x-auto whitespace-nowrap border-t border-zinc-200 px-5 sm:px-8">
+            @foreach (['posts' => 'Latest Posts', 'about' => 'About', 'related' => 'Related Influencers', 'analytics' => 'Analytics'] as $key => $label)
                 <button type="button" wire:click="$set('tab', '{{ $key }}')" @class([
                     '-mb-px border-b-2 py-3 text-sm font-medium transition',
                     'border-accent text-accent' => $tab === $key,
@@ -219,6 +219,8 @@ new class extends Component {
                     @endforeach
                 </ul>
             </div>
+        @elseif ($tab === 'analytics')
+            <livewire:influencer-analytics :influencer="$influencer" :key="'analytics-'.$influencer->id" />
         @elseif ($tab === 'related')
             <div class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
                 @forelse ($this->related as $item)

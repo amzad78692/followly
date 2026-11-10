@@ -72,7 +72,7 @@ class TrendingRanker
      *
      * @return Collection<int, float>
      */
-    protected function growth(int $days): Collection
+    public function growth(int $days): Collection
     {
         $bounds = DB::table('account_snapshots')
             ->whereDate('captured_on', '>=', today()->subDays($days))

@@ -1,5 +1,6 @@
 <?php
 
+use App\Discovery\TrendingRanker;
 use App\Livewire\Concerns\TogglesFollow;
 use App\Models\Country;
 use App\Models\Influencer;
@@ -43,6 +44,15 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
         return Taxonomy::where('type', 'category')->orderBy('sort_order')->orderBy('name')->get();
     }
 
+    /**
+     * Countries that have creators, most creators first.
+     */
+    #[Computed]
+    public function countries()
+    {
+        return Country::whereHas('influencers')->withCount('influencers')->orderByDesc('influencers_count')->limit(12)->get();
+    }
+
     #[Computed]
     public function activeCategory(): ?Taxonomy
     {
@@ -68,12 +78,25 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
             ->mostTracked();
 
         return match ($this->tab) {
-            'category' => $query()->whereNotNull('category_id')->limit(100)->get()->groupBy('category.name')->sortKeys(),
-            'country' => $query()->whereNotNull('country_id')->limit(100)->get()->groupBy('country.name')->sortKeys(),
+            'category' => $query()->reorder()->trending()->whereNotNull('category_id')->limit(100)->get()->groupBy('category.name')->sortKeys(),
+            'country' => $query()->reorder()->trending()->whereNotNull('country_id')->limit(100)->get()->groupBy('country.name')->sortKeys(),
             'language' => $query()->whereNotNull('language')->limit(100)->get()->groupBy('language')->sortKeys(),
             'recommended' => collect(['Recommended for you' => $query()->reorder()->recommendedFor(auth()->user())->limit(12)->get()]),
-            default => collect(['Trending Now' => $query()->reorder()->trending()->limit($this->showAll ? 24 : 4)->get()]),
+            default => collect([
+                'Trending Now' => $query()->reorder()->trending()->limit($this->showAll ? 24 : 4)->get(),
+                'Rising This Week' => $this->rising($query()),
+            ]),
         };
+    }
+
+    /**
+     * Fastest platform follower growth over the last 7 days, from account snapshots.
+     */
+    protected function rising(Builder $query)
+    {
+        $growth = app(TrendingRanker::class)->growth(7)->filter(fn ($percent) => $percent > 0)->sortDesc()->take(8);
+
+        return $query->whereIn('id', $growth->keys())->get()->sortBy(fn ($influencer) => -$growth[$influencer->id])->values();
     }
 
     public function setTab(string $tab): void
@@ -87,6 +110,12 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
     {
         $this->tab = 'category';
         $this->category = $slug;
+    }
+
+    public function browseCountry(string $iso2): void
+    {
+        $this->tab = 'country';
+        $this->country = $iso2;
     }
 
     protected function followToggled(): void
@@ -126,12 +155,12 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
         </div>
     @endif
 
-    <div wire:loading.class="opacity-50" wire:target="setTab, browse, category, country, showAll" class="transition-opacity">
+    <div wire:loading.class="opacity-50" wire:target="setTab, browse, browseCountry, category, country, showAll" class="transition-opacity">
         @forelse ($this->sections as $heading => $influencers)
             <section class="mt-8" wire:key="section-{{ $tab }}-{{ $heading }}">
                 <div class="flex items-center justify-between">
                     <flux:heading size="lg" class="font-bold!">{{ $heading }}</flux:heading>
-                    @if ($tab === 'trending')
+                    @if ($tab === 'trending' && $loop->first)
                         <button type="button" wire:click="$toggle('showAll')" class="text-sm font-medium text-accent hover:underline">
                             {{ $showAll ? 'Show Less' : 'See All' }}
                         </button>
@@ -145,6 +174,8 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
                         <flux:text class="col-span-full">
                             @if ($tab === 'recommended')
                                 You already follow everyone we would recommend. 🎉
+                            @elseif ($heading === 'Rising This Week')
+                                No follower growth recorded this week yet.
                             @else
                                 No creators here yet.
                             @endif
@@ -176,6 +207,25 @@ new #[Layout('components.layouts.dashboard')] #[Title('Explore')] class extends 
                             {{ $item->meta['emoji'] ?? '🏷️' }}
                         </span>
                         <span class="mt-2 block text-sm font-medium text-zinc-700">{{ $item->name }}</span>
+                    </button>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    @if ($this->countries->isNotEmpty())
+        <section class="mt-10">
+            <div class="flex items-center justify-between">
+                <flux:heading size="lg" class="font-bold!">Browse by Country</flux:heading>
+                <button type="button" wire:click="setTab('country')" class="text-sm font-medium text-accent hover:underline">See All</button>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+                @foreach ($this->countries as $item)
+                    <button type="button" wire:click="browseCountry('{{ $item->iso2 }}')" wire:key="country-{{ $item->id }}"
+                        class="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
+                        <flux:icon.globe-alt class="size-4 text-zinc-400" /> {{ $item->name }}
+                        <span class="text-xs text-zinc-400">{{ $item->influencers_count }}</span>
                     </button>
                 @endforeach
             </div>

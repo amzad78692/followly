@@ -25,14 +25,7 @@ new class extends Component {
             return null;
         }
 
-        $search = app(GlobalSearch::class);
-        $limit = config('discovery.search.dropdown_limit');
-
-        return [
-            'influencers' => $search->influencers($this->q, $limit),
-            'categories' => $search->categories($this->q, $limit),
-            'countries' => $search->countries($this->q, $limit),
-        ];
+        return app(GlobalSearch::class)->grouped($this->q, config('discovery.search.dropdown_limit'));
     }
 
     public function submit(): void
@@ -46,11 +39,11 @@ new class extends Component {
 <form wire:submit="submit" method="GET" action="{{ route('search') }}" role="search" class="relative w-full max-w-md"
     x-data="{ open: false }" x-on:click.outside="open = false" x-on:keydown.escape="open = false; $refs.input.blur()">
     <flux:input name="q" x-ref="input" wire:model.live.debounce.300ms="q" x-on:focus="open = true" x-on:input="open = true"
-        icon="magnifying-glass" placeholder="Search influencers, topics or countries..." size="sm" class:input="rounded-full!" autocomplete="off" aria-label="Search" />
+        icon="magnifying-glass" placeholder="Search influencers, posts or topics..." size="sm" class:input="rounded-full!" autocomplete="off" aria-label="Search" />
 
     @if ($results = $this->results)
         <div x-show="open" x-cloak class="absolute inset-x-0 top-full z-20 mt-2 max-h-[70vh] overflow-y-auto rounded-xl border border-zinc-200 bg-white py-2 shadow-lg shadow-zinc-900/10">
-            @if ($results['influencers']->isEmpty() && $results['categories']->isEmpty() && $results['countries']->isEmpty())
+            @if (collect($results)->every->isEmpty())
                 <p class="px-4 py-3 text-sm text-zinc-500">No results for “{{ $q }}”.</p>
             @endif
 
@@ -74,6 +67,19 @@ new class extends Component {
                             @foreach ($influencer->accounts as $account)
                                 <x-platform-icon :platform="$account->platform" size="size-3.5" />
                             @endforeach
+                        </span>
+                    </a>
+                @endforeach
+            @endif
+
+            @if ($results['posts']->isNotEmpty())
+                <p class="px-4 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">Posts</p>
+                @foreach ($results['posts'] as $post)
+                    <a href="{{ route('influencers.show', $post->influencer) }}" wire:navigate wire:key="search-post-{{ $post->id }}" class="flex items-center gap-3 px-4 py-2 hover:bg-zinc-50">
+                        <x-platform-icon :platform="$post->platform" size="size-4" />
+                        <span class="min-w-0 flex-1">
+                            <span class="block truncate text-sm text-zinc-900">{{ \Illuminate\Support\Str::limit($post->title ?: $post->body, 80) }}</span>
+                            <span class="block truncate text-xs text-zinc-500">{{ $post->influencer->name }} · {{ $post->published_at?->diffForHumans(short: true) }}</span>
                         </span>
                     </a>
                 @endforeach

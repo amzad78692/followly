@@ -13,8 +13,13 @@ new #[Layout('components.layouts.dashboard')] #[Title('Search')] class extends C
 
     public const PER_PAGE = 24;
 
+    public const TABS = ['all' => 'All', 'influencers' => 'Influencers', 'posts' => 'Posts', 'topics' => 'Categories & Countries'];
+
     #[Url]
     public string $q = '';
+
+    #[Url]
+    public string $tab = 'all';
 
     public int $limit = self::PER_PAGE;
 
@@ -57,6 +62,20 @@ new #[Layout('components.layouts.dashboard')] #[Title('Search')] class extends C
         return $this->searchable ? app(GlobalSearch::class)->countries($this->q, 12) : collect();
     }
 
+    #[Computed]
+    public function posts()
+    {
+        return $this->searchable ? app(GlobalSearch::class)->posts($this->q, self::PER_PAGE) : collect();
+    }
+
+    /**
+     * Whether a section shows on the active tab.
+     */
+    public function shows(string $section): bool
+    {
+        return in_array($this->tab, ['all', $section]);
+    }
+
     public function loadMore(): void
     {
         if ($this->hasMore) {
@@ -82,7 +101,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Search')] class extends C
 
     @if (! $this->searchable)
         <flux:text class="mt-1">Type at least {{ config('discovery.search.min_length') }} characters in the search box to find influencers, categories and countries.</flux:text>
-    @elseif ($this->influencers->isEmpty() && $this->categories->isEmpty() && $this->countries->isEmpty())
+    @elseif ($this->influencers->isEmpty() && $this->posts->isEmpty() && $this->categories->isEmpty() && $this->countries->isEmpty())
         <div class="mt-8 rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-14 text-center">
             <flux:icon.magnifying-glass class="mx-auto size-10 text-zinc-300" />
             <flux:heading class="mt-3">Nothing matches “{{ trim($q) }}”</flux:heading>
@@ -90,7 +109,17 @@ new #[Layout('components.layouts.dashboard')] #[Title('Search')] class extends C
             <flux:button variant="primary" size="sm" class="mt-4" :href="route('influencers.create')" wire:navigate>Add Influencer</flux:button>
         </div>
     @else
-        @if ($this->categories->isNotEmpty() || $this->countries->isNotEmpty())
+        <nav class="mt-5 flex flex-wrap gap-2">
+            @foreach ($this::TABS as $key => $label)
+                <button type="button" wire:click="$set('tab', '{{ $key }}')" @class([
+                    'rounded-full border px-4 py-1.5 text-sm font-medium transition',
+                    'border-accent bg-accent text-white shadow-sm' => $tab === $key,
+                    'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50' => $tab !== $key,
+                ])>{{ $label }}</button>
+            @endforeach
+        </nav>
+
+        @if ($this->shows('topics') && ($this->categories->isNotEmpty() || $this->countries->isNotEmpty()))
             <div class="mt-5 flex flex-wrap gap-2">
                 @foreach ($this->categories as $category)
                     <a href="{{ route('explore', ['tab' => 'category', 'category' => $category->slug]) }}" wire:navigate wire:key="category-{{ $category->id }}"
@@ -109,6 +138,27 @@ new #[Layout('components.layouts.dashboard')] #[Title('Search')] class extends C
             </div>
         @endif
 
+        @if ($tab === 'topics' &&$this->categories->isEmpty() && $this->countries->isEmpty())
+            <flux:text class="mt-6">No categories or countries match “{{ trim($q) }}”.</flux:text>
+        @endif
+
+        @if ($this->shows('posts') && ($tab === 'posts' || $this->posts->isNotEmpty()))
+            <section class="mt-8">
+                <flux:heading size="lg" class="font-bold!">Posts</flux:heading>
+                <div class="mt-4 grid gap-4 md:grid-cols-2">
+                    @forelse ($tab === 'posts' ? $this->posts : $this->posts->take(4) as $post)
+                        <x-post-card :post="$post" compact wire:key="post-{{ $post->id }}" />
+                    @empty
+                        <flux:text class="col-span-full">No posts mention “{{ trim($q) }}”.</flux:text>
+                    @endforelse
+                </div>
+                @if ($tab === 'all' && $this->posts->count() > 4)
+                    <button type="button" wire:click="$set('tab', 'posts')" class="mt-3 text-sm font-medium text-accent hover:underline">See all posts</button>
+                @endif
+            </section>
+        @endif
+
+        @if ($this->shows('influencers'))
         <section class="mt-8">
             <flux:heading size="lg" class="font-bold!">Influencers</flux:heading>
 
@@ -129,5 +179,6 @@ new #[Layout('components.layouts.dashboard')] #[Title('Search')] class extends C
                 </div>
             @endif
         </section>
+        @endif
     @endif
 </div>

@@ -15,7 +15,7 @@ Legend: `[x]` done · `[ ]` to do
 - [ ] Phase 2: Database groundwork
 - [ ] Phase 3: Master Dashboard and Smart Feed
 - [ ] Phase 4: Watchlist and Collections
-- [ ] Phase 5: Search and Discovery
+- [x] Phase 5: Search and Discovery
 - [ ] Phase 6: Notifications, Alerts and Timeline
 - [ ] Phase 7: Admin dashboard
 - [ ] Phase 8: Mobile polish, testing and launch
@@ -98,16 +98,16 @@ One migration batch for everything Phases 3 to 6 need.
 
 ## Phase 5: Search and Discovery
 
-- [ ] **Unified Search:** extend `App\Discovery\GlobalSearch` to return influencers, posts (caption text) and categories in one grouped result
-- [ ] Search bar dropdown shows the top results; the full search page has tabs
-- [ ] Add MySQL full-text indexes on post captions and influencer names if search is slow
-- [ ] **Discover and Trending:** upgrade the Explore page with `TrendingRanker`; sections for trending now, rising this week, by category, and by country
-- [ ] **Creator Analytics:** an "Analytics" tab on the influencer page, built from `account_snapshots`
-  - [ ] Follower growth chart per platform
-  - [ ] Posts per week
-  - [ ] Average likes, comments and views per post
-  - [ ] Most popular posts
-- [ ] Tests: search returns each result type; analytics handles an influencer with no snapshots
+- [x] **Unified Search:** extend `App\Discovery\GlobalSearch` to return influencers, posts (caption text) and categories in one grouped result
+- [x] Search bar dropdown shows the top results; the full search page has tabs
+- [x] Add MySQL full-text indexes on post captions and influencer names if search is slow (measured 16ms with LIKE, not needed yet)
+- [x] **Discover and Trending:** upgrade the Explore page with `TrendingRanker`; sections for trending now, rising this week, by category, and by country
+- [x] **Creator Analytics:** an "Analytics" tab on the influencer page, built from `account_snapshots`
+  - [x] Follower growth chart per platform
+  - [x] Posts per week
+  - [x] Average likes, comments and views per post
+  - [x] Most popular posts
+- [x] Tests: search returns each result type; analytics handles an influencer with no snapshots
 
 ---
 
