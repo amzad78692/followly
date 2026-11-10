@@ -74,6 +74,22 @@ return [
         ],
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => '/auth/google/callback',
+    ],
+
+    // Client secret is generated from the .p8 key on each request, so it never expires.
+    'apple' => [
+        'client_id' => env('APPLE_CLIENT_ID'), // Services ID
+        'client_secret' => env('APPLE_CLIENT_SECRET'),
+        'key_id' => env('APPLE_KEY_ID'),
+        'team_id' => env('APPLE_TEAM_ID'),
+        'private_key' => env('APPLE_PRIVATE_KEY'), // absolute path to AuthKey_XXXX.p8
+        'redirect' => '/auth/apple/callback',
+    ],
+
     'myfatoorah' => [
         'test_key' => 'SK_KWT_vVZlnnAqu8jRByOWaRPNId4ShzEDNt256dvnjebuyzo52dXjAfRx2ixW5umjWSUx',
         'callback_url' => env('MF_CALLBACK'),

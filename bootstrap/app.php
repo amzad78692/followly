@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             SetLocale::class,
         ]);
 
+        // Apple's cross-site POST carries no CSRF token; the provider's encrypted nonce cookie protects it instead.
+        $middleware->validateCsrfTokens(except: ['auth/apple/callback']);
+
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('feed'));
     })

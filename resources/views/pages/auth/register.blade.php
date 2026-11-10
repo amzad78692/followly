@@ -43,6 +43,8 @@ new #[Layout('components.layouts.auth')] #[Title('Create account')] class extend
     <flux:heading size="xl" level="1" class="font-bold!">Create your account</flux:heading>
     <flux:text class="mt-1">Follow once. Track everywhere.</flux:text>
 
+    <x-social-login />
+
     <form wire:submit="register" class="mt-6 space-y-5">
         <flux:input wire:model="name" label="Name" type="text" required autofocus autocomplete="name" />
         <flux:input wire:model="email" label="Email" type="email" required autocomplete="email" />

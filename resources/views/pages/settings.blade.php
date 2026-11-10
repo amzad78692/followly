@@ -130,7 +130,8 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
     public function updatePassword(): void
     {
         $validated = $this->validate([
-            'current_password' => ['required', 'string', 'current_password'],
+            // Google/Apple accounts have no password yet, so they set one without the current one.
+            'current_password' => auth()->user()->password ? ['required', 'string', 'current_password'] : ['nullable'],
             'password' => ['required', 'string', 'confirmed', Password::defaults()],
         ]);
 
@@ -216,7 +217,10 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
 
     public function deleteAccount(Logout $logout): void
     {
-        $this->validate(['delete_password' => ['required', 'string', 'current_password']]);
+        // Without a password, typing the account email confirms instead.
+        $this->validate(['delete_password' => auth()->user()->password
+            ? ['required', 'string', 'current_password']
+            : ['required', 'string', Rule::in([auth()->user()->email])]]);
 
         $user = auth()->user();
 
@@ -302,7 +306,11 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
         <flux:text class="mt-1">Use a long password you don't use anywhere else.</flux:text>
 
         <form wire:submit="updatePassword" class="mt-5 space-y-5">
-            <flux:input wire:model="current_password" label="Current password" type="password" required autocomplete="current-password" viewable />
+            @if (auth()->user()->password)
+                <flux:input wire:model="current_password" label="Current password" type="password" required autocomplete="current-password" viewable />
+            @else
+                <flux:text>You sign in with Google or Apple. Set a password to also sign in with your email.</flux:text>
+            @endif
             <flux:input wire:model="password" label="New password" type="password" required autocomplete="new-password" viewable />
             <flux:input wire:model="password_confirmation" label="Confirm new password" type="password" required autocomplete="new-password" viewable />
 
@@ -397,10 +405,14 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
             <form wire:submit="deleteAccount" class="space-y-5">
                 <div>
                     <flux:heading size="lg">Delete your account?</flux:heading>
-                    <flux:text class="mt-1">This can't be undone. Enter your password to confirm.</flux:text>
+                    <flux:text class="mt-1">This can't be undone. Enter your {{ auth()->user()->password ? 'password' : 'email address' }} to confirm.</flux:text>
                 </div>
 
-                <flux:input wire:model="delete_password" label="Password" type="password" required autocomplete="current-password" viewable />
+                @if (auth()->user()->password)
+                    <flux:input wire:model="delete_password" label="Password" type="password" required autocomplete="current-password" viewable />
+                @else
+                    <flux:input wire:model="delete_password" label="Email address" type="email" required />
+                @endif
 
                 <div class="flex justify-end gap-2">
                     <flux:modal.close>

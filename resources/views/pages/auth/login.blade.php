@@ -72,6 +72,8 @@ new #[Layout('components.layouts.auth')] #[Title('Sign in')] class extends Compo
         <flux:callout variant="success" icon="check-circle" class="mt-6" :heading="session('status')" />
     @endif
 
+    <x-social-login />
+
     <form wire:submit="login" class="mt-6 space-y-5">
         <flux:input wire:model="email" label="Email" type="email" required autofocus autocomplete="email" />
 

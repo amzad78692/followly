@@ -11,7 +11,7 @@ Legend: `[x]` done · `[ ]` to do
 ## Progress
 
 - [ ] Phase 0: Decisions and setup
-- [ ] Phase 1: Google and Apple login
+- [x] Phase 1: Google and Apple login (needs real Google and Apple keys to try live)
 - [ ] Phase 2: Database groundwork
 - [ ] Phase 3: Master Dashboard and Smart Feed
 - [ ] Phase 4: Watchlist and Collections
@@ -39,16 +39,16 @@ Legend: `[x]` done · `[ ]` to do
 
 ## Phase 1: Google and Apple login
 
-- [ ] Install `laravel/socialite` and `socialiteproviders/apple`
-- [ ] Migration: make `users.password` nullable; add `google_id` and `apple_id` (unique, nullable)
-- [ ] Routes: `auth/{provider}/redirect` and `auth/{provider}/callback` (only `google` and `apple` allowed)
-- [ ] Callback logic: find the user by provider ID → otherwise by verified email (link the accounts) → otherwise create a new user
-- [ ] Apple sends the user's name only on the first login, so save it then
-- [ ] Handle Apple's private relay emails (`@privaterelay.appleid.com`)
-- [ ] Add "Continue with Google" and "Continue with Apple" buttons to the login and register pages
-- [ ] Settings: let a user with no password set one, so they are not locked out if they unlink
-- [ ] Existing email-and-password accounts keep working unchanged
-- [ ] Tests: new user, existing user linked by email, returning user, cancelled login
+- [x] Install `laravel/socialite` and `socialiteproviders/apple`
+- [x] Migration: add `google_id` and `apple_id` (unique, nullable); `password` was already nullable
+- [x] Routes: `auth/{provider}/redirect` and `auth/{provider}/callback` (only `google` and `apple` allowed)
+- [x] Callback logic: find the user by provider ID → otherwise by verified email (link the accounts) → otherwise create a new user
+- [x] Apple sends the user's name only on the first login, so save it then
+- [x] Handle Apple's private relay emails (`@privaterelay.appleid.com`)
+- [x] Add "Continue with Google" and "Continue with Apple" buttons to the login and register pages
+- [x] Settings: a user with no password can set one, and confirms account deletion by typing their email
+- [x] Existing email-and-password accounts keep working unchanged
+- [x] Tests: new user, existing user linked by email, returning user, cancelled login
 
 ---
 

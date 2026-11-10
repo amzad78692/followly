@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SocialLoginController;
 use App\Livewire\Actions\Logout;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,12 @@ Route::middleware('guest')->group(function () {
     Volt::route('register', 'auth.register')->name('register');
     Volt::route('forgot-password', 'auth.forgot-password')->name('password.request');
     Volt::route('reset-password/{token}', 'auth.reset-password')->name('password.reset');
+
+    Route::get('auth/{provider}/redirect', [SocialLoginController::class, 'redirect'])
+        ->whereIn('provider', ['google', 'apple'])->name('social.redirect');
+    // Apple posts the callback (form_post); Google uses GET.
+    Route::match(['get', 'post'], 'auth/{provider}/callback', [SocialLoginController::class, 'callback'])
+        ->whereIn('provider', ['google', 'apple'])->name('social.callback');
 });
 
 Route::middleware('auth')->group(function () {
