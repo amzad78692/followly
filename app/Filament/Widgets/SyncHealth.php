@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Enums\SyncStatus;
 use App\Filament\Resources\Influencers\InfluencerResource;
+use App\Models\ApifyRun;
 use App\Models\InfluencerAccount;
 use App\Platforms\Apify\ApifyBudget;
 use App\Platforms\PlatformManager;
@@ -23,7 +24,7 @@ class SyncHealth extends BaseWidget
 
     protected static ?int $sort = 2;
 
-    protected ?string $heading = 'Syncing';
+    protected ?string $heading = 'Syncing and API usage';
 
     protected function getStats(): array
     {
@@ -60,11 +61,12 @@ class SyncHealth extends BaseWidget
         $budget = app(ApifyBudget::class);
         $spent = $budget->spent();
         $limit = $budget->limit();
+        $runs = Number::format(ApifyRun::thisMonth()->count()).' runs · ';
 
         return Stat::make('Apify spend this month', Number::currency($spent, 'USD'))
-            ->description($limit > 0
+            ->description($runs.($limit > 0
                 ? 'of '.Number::currency($limit, 'USD').' budget'.($budget->reached() ? ', reached: Apify syncs paused' : '')
-                : 'No budget set')
+                : 'No budget set'))
             ->icon(Heroicon::OutlinedCurrencyDollar)
             ->color($budget->reached() ? 'danger' : ($limit > 0 && $spent >= $limit * 0.8 ? 'warning' : 'success'));
     }

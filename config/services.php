@@ -90,6 +90,12 @@ return [
         'redirect' => '/auth/apple/callback',
     ],
 
+    // Admin dashboard traffic numbers. The tracking tag's measurement ID lives in Admin > Settings > General.
+    'google_analytics' => [
+        'property_id' => env('GA4_PROPERTY_ID'), // numeric, e.g. 123456789
+        'credentials' => env('GA4_CREDENTIALS_PATH'), // absolute path to the service account JSON key
+    ],
+
     'myfatoorah' => [
         'test_key' => 'SK_KWT_vVZlnnAqu8jRByOWaRPNId4ShzEDNt256dvnjebuyzo52dXjAfRx2ixW5umjWSUx',
         'callback_url' => env('MF_CALLBACK'),

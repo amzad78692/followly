@@ -17,7 +17,7 @@ Legend: `[x]` done · `[ ]` to do
 - [x] Phase 4: Watchlist and Collections
 - [x] Phase 5: Search and Discovery
 - [x] Phase 6: Notifications, Alerts and Timeline
-- [ ] Phase 7: Admin dashboard
+- [x] Phase 7: Admin dashboard
 - [ ] Phase 8: Mobile polish, testing and launch
 
 **Build order:** Phases 1 and 7 do not depend on the others and can be built in parallel. Phase 2 must come before Phases 3 to 6.
@@ -128,18 +128,18 @@ One migration batch for everything Phases 3 to 6 need.
 
 Google Analytics is the only outside service. Every other number comes from our own database.
 
-- [ ] Install `google/analytics-data` (GA4 Data API) and store the service account credentials in `.env`, never in git
-- [ ] Add the GA4 tracking tag to the public site layout
-- [ ] Filament dashboard widgets:
-  - [ ] **Google Analytics:** visitors, sessions and page views (last 7 and 30 days), top pages, and traffic sources. Cache for 1 hour.
-  - [ ] **Sign-ups:** today, this week, this month, and a 30-day chart, including Google and Apple sign-ups
-  - [ ] **Active users:** DAU, MAU, and a 30-day chart from `user_activity_days`
-  - [ ] **Platform status:** per platform, the last successful sync, failed syncs in the last 24 hours, and accounts with errors
-  - [ ] **API usage:** Apify runs and spend against the budget (`ApifyBudget`) and YouTube quota used
-  - [ ] **Errors and alerts:** recent failed jobs and `CheckHealth` results, with a link to the log viewer
-  - [ ] **Performance:** queue size, and average sync job time
-- [ ] If Google Analytics is unreachable, show "unavailable" in that widget without breaking the page
-- [ ] Only admins with the right Shield permission can see the dashboard
+- [x] Install `google/analytics-data` (GA4 Data API) and store the service account credentials in `.env`, never in git
+- [x] Add the GA4 tracking tag to the public site layout
+- [x] Filament dashboard widgets:
+  - [x] **Google Analytics:** visitors, sessions and page views (last 7 and 30 days), top pages, and traffic sources. Cache for 1 hour.
+  - [x] **Sign-ups:** today, this week, this month, and a 30-day chart, including Google and Apple sign-ups
+  - [x] **Active users:** DAU, MAU, and a 30-day chart from `user_activity_days`
+  - [x] **Platform status:** per platform, the last successful sync, failed syncs in the last 24 hours, and accounts with errors
+  - [x] **API usage:** Apify runs and spend against the budget (`ApifyBudget`) and YouTube quota used
+  - [x] **Errors and alerts:** recent failed jobs and `CheckHealth` results, with a link to the log viewer
+  - [x] **Performance:** queue size, and average sync job time (Apify runs only; YouTube syncs are not timed)
+- [x] If Google Analytics is unreachable, show "unavailable" in that widget without breaking the page
+- [x] Only admins with the right Shield permission can see the dashboard
 
 ---
 
