@@ -120,7 +120,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Dashboard')] class extend
 
 @php
     $chip = fn (bool $on) => [
-        'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition',
+        'inline-flex items-center gap-1.5 rounded-full border px-3 py-2.5 text-sm font-medium transition',
         'border-accent bg-accent text-white shadow-sm' => $on,
         'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50' => ! $on,
     ];

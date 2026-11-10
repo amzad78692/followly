@@ -104,12 +104,12 @@ new #[Layout('components.layouts.dashboard'), Title('Collections')] class extend
                             <p class="text-xs text-zinc-500">{{ trans_choice(':count influencer|:count influencers', $collection->influencers_count) }}</p>
                         </a>
                         @if ($collection->share_token)
-                            <flux:button size="sm" wire:click="unshare({{ $collection->id }})">Unshare</flux:button>
+                            <flux:button wire:click="unshare({{ $collection->id }})">Unshare</flux:button>
                         @else
-                            <flux:button size="sm" icon="share" wire:click="share({{ $collection->id }})">Share</flux:button>
+                            <flux:button icon="share" wire:click="share({{ $collection->id }})">Share</flux:button>
                         @endif
-                        <flux:button size="sm" variant="ghost" icon="pencil" wire:click="edit({{ $collection->id }})" aria-label="Rename" />
-                        <flux:button size="sm" variant="ghost" icon="trash" wire:click="delete({{ $collection->id }})" wire:confirm="Delete this collection?" aria-label="Delete" />
+                        <flux:button variant="ghost" icon="pencil" wire:click="edit({{ $collection->id }})" aria-label="Rename" />
+                        <flux:button variant="ghost" icon="trash" wire:click="delete({{ $collection->id }})" wire:confirm="Delete this collection?" aria-label="Delete" />
                     </div>
                     @if ($collection->share_token)
                         <flux:input class="mt-3" size="sm" readonly copyable :value="route('collections.shared', $collection->share_token)" aria-label="Share link" />

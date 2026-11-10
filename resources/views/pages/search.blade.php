@@ -112,7 +112,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Search')] class extends C
         <nav class="mt-5 flex flex-wrap gap-2">
             @foreach ($this::TABS as $key => $label)
                 <button type="button" wire:click="$set('tab', '{{ $key }}')" @class([
-                    'rounded-full border px-4 py-1.5 text-sm font-medium transition',
+                    'rounded-full border px-4 py-2.5 text-sm font-medium transition',
                     'border-accent bg-accent text-white shadow-sm' => $tab === $key,
                     'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50' => $tab !== $key,
                 ])>{{ $label }}</button>

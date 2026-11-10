@@ -126,7 +126,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Notifications')] class ex
     <div class="mt-4 flex flex-wrap gap-2">
         @foreach (['all' => 'All', 'unread' => 'Unread', 'posts' => 'New posts', 'alerts' => 'Alerts', 'system' => 'System'] as $key => $label)
             <button type="button" wire:click="$set('filter', '{{ $key }}')" @class([
-                'rounded-full border px-3 py-1.5 text-sm font-medium transition',
+                'rounded-full border px-3 py-2.5 text-sm font-medium transition',
                 'border-accent bg-accent text-white shadow-sm' => $filter === $key,
                 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50' => $filter !== $key,
             ])>

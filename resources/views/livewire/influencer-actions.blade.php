@@ -67,12 +67,12 @@ new class extends Component {
 
 @php($starred = (bool) $this->follow?->watchlisted_at)
 <div class="flex flex-wrap items-center justify-center gap-1">
-    <flux:button size="sm" variant="ghost" icon="star" :icon:variant="$starred ? 'solid' : 'outline'"
+    <flux:button variant="ghost" icon="star" :icon:variant="$starred ? 'solid' : 'outline'"
         wire:click="toggleWatchlist" :aria-label="$starred ? 'Remove from Watchlist' : 'Add to Watchlist'"
         :class="$starred ? 'text-amber-500!' : ''" />
 
     <flux:dropdown>
-        <flux:button size="sm" variant="ghost" icon="folder-plus" aria-label="Add to collection" />
+        <flux:button variant="ghost" icon="folder-plus" aria-label="Add to collection" />
         <flux:menu>
             @forelse ($this->collections as $collection)
                 <flux:menu.checkbox :checked="$collection->has_influencer" wire:click="toggleCollection({{ $collection->id }})" wire:key="col-{{ $collection->id }}">{{ $collection->name }}</flux:menu.checkbox>
