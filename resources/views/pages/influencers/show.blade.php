@@ -183,7 +183,7 @@ new class extends Component {
         {{-- Tabs --}}
         <nav class="flex gap-6 overflow-x-auto whitespace-nowrap border-t border-zinc-200 px-5 sm:px-8">
             {{-- Tabs that open their own full page instead of switching here --}}
-            @php($tabPages = ['timeline' => route('timeline', ['influencer' => $influencer->id])])
+            @php($tabPages = ['timeline' => route('timeline', ['influencer' => $influencer->id]), 'analytics' => route('analytics', ['influencer' => $influencer->id])])
             @foreach (['posts' => 'Latest Posts', 'timeline' => 'Timeline', 'about' => 'About', 'related' => 'Related Influencers', 'analytics' => 'Analytics'] as $key => $label)
                 @if (isset($tabPages[$key]))
                     <a href="{{ $tabPages[$key] }}" wire:navigate class="-mb-px border-b-2 border-transparent py-3 text-sm font-medium text-zinc-500 transition hover:text-zinc-800">{{ $label }}</a>

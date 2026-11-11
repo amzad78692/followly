@@ -1,20 +1,31 @@
 <?php
 
+use App\Analytics\CreatorReport;
 use App\Models\Influencer;
-use Illuminate\Support\Carbon;
 use Livewire\Attributes\Computed;
 use Livewire\Volt\Component;
 
 /**
- * "Analytics" tab on the influencer page: follower growth per platform (account_snapshots)
- * and post stats over the last DAYS days.
+ * One creator's report on the Analytics page (My Creators tab): KPIs against the previous period,
+ * performance chart, posting heatmap, platforms, formats, best posts and follower growth.
  */
 new class extends Component {
-    public const DAYS = 90;
-
-    public const WEEKS = 12;
-
     public Influencer $influencer;
+
+    public int $days = 30;
+
+    public string $metric = 'views';
+
+    public function mount(): void
+    {
+        $this->days = in_array($this->days, CreatorReport::RANGES) ? $this->days : 30;
+    }
+
+    #[Computed]
+    public function report(): CreatorReport
+    {
+        return new CreatorReport([$this->influencer->id], $this->days);
+    }
 
     /**
      * Per account: platform, followers per day, and an SVG polyline of them.
@@ -23,7 +34,7 @@ new class extends Component {
     public function growth()
     {
         return $this->influencer->accounts()
-            ->with(['snapshots' => fn ($q) => $q->whereDate('captured_on', '>=', today()->subDays(self::DAYS))->orderBy('captured_on')])
+            ->with(['snapshots' => fn ($q) => $q->whereDate('captured_on', '>=', today()->subDays($this->days))->orderBy('captured_on')])
             ->get()
             ->filter(fn ($account) => $account->snapshots->isNotEmpty())
             ->map(function ($account) {
@@ -43,121 +54,182 @@ new class extends Component {
             })
             ->values();
     }
-
-    #[Computed]
-    public function posts()
-    {
-        return $this->influencer->posts()->visible()->where('published_at', '>=', now()->subDays(self::DAYS))->get();
-    }
-
-    /**
-     * Post count per week for the last WEEKS weeks, oldest first: [week start label => count].
-     */
-    #[Computed]
-    public function perWeek(): array
-    {
-        $counts = $this->posts->countBy(fn ($post) => $post->published_at->startOfWeek()->toDateString());
-
-        return collect(range(self::WEEKS - 1, 0))
-            ->mapWithKeys(fn ($ago) => [($week = now()->subWeeks($ago)->startOfWeek())->format('M j') => $counts[$week->toDateString()] ?? 0])
-            ->all();
-    }
-
-    /**
-     * Average of each metric over the posts that report it, or null when none do.
-     */
-    #[Computed]
-    public function averages(): array
-    {
-        return collect(['likes', 'comments', 'views'])
-            ->mapWithKeys(fn ($metric) => [$metric => $this->posts->pluck("metrics.{$metric}")->filter(fn ($v) => $v !== null)->avg()])
-            ->all();
-    }
-
-    #[Computed]
-    public function popular()
-    {
-        return $this->posts
-            ->filter(fn ($post) => $post->metrics)
-            ->sortByDesc(fn ($post) => [($post->metrics['likes'] ?? 0) + ($post->metrics['comments'] ?? 0), $post->metrics['views'] ?? 0])
-            ->take(5)
-            ->each->setRelation('influencer', $this->influencer)
-            ->values();
-    }
 }; ?>
 
+@use('Illuminate\Support\Number')
+
+@php
+    $influencer = $this->influencer;
+    $accounts = $influencer->accounts;
+    $report = $this->report;
+    $kpis = $report->kpis();
+    $breakdown = $report->breakdown();
+    $total = $report->posts->count();
+@endphp
+
 <div class="space-y-6">
-    <section class="card p-6">
-        <flux:heading size="lg" class="font-semibold!">Follower growth</flux:heading>
-        <flux:text class="mt-1">Last {{ $this::DAYS }} days, per platform.</flux:text>
-
-        @if ($this->growth->isEmpty())
-            <flux:text class="mt-4">No follower history yet. It builds up as {{ config('app.name') }} syncs this creator each day.</flux:text>
-        @else
-            <div class="mt-4 grid gap-4 sm:grid-cols-2">
-                @foreach ($this->growth as $row)
-                    <div class="rounded-xl bg-zinc-50 p-4" wire:key="growth-{{ $row['platform']->value }}">
-                        <div class="flex items-center gap-2 text-sm font-medium text-zinc-800">
-                            <x-platform-icon :platform="$row['platform']" size="size-4" /> {{ $row['platform']->label() }}
-                            <span @class(['ms-auto text-xs font-semibold', 'text-green-600' => $row['change'] >= 0, 'text-red-600' => $row['change'] < 0])>
-                                {{ $row['change'] >= 0 ? '+' : '' }}{{ number_format($row['change'], 1) }}%
-                            </span>
-                        </div>
-                        <svg viewBox="-1 -1 102 32" preserveAspectRatio="none" class="mt-3 h-16 w-full text-accent" role="img"
-                            aria-label="{{ $row['platform']->label() }} followers from {{ number_format($row['first']) }} to {{ number_format($row['last']) }}">
-                            <polyline points="{{ $row['points'] }}" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-                        </svg>
-                        <div class="mt-2 flex justify-between text-xs text-zinc-500">
-                            <span>{{ $row['from']->format('M j') }} · {{ number_format($row['first']) }}</span>
-                            <span>Today · {{ number_format($row['last']) }}</span>
-                        </div>
-                    </div>
+    {{-- Creator card --}}
+    <section class="card flex flex-wrap items-center gap-4 p-5">
+        <img src="{{ image_url($influencer->avatar, 160, 160) }}" alt="" class="size-16 rounded-full object-cover sm:size-20">
+        <div class="min-w-44 flex-1">
+            <h2 class="flex items-center gap-2 font-display text-xl font-bold text-zinc-900">
+                <span class="truncate">{{ $influencer->name }}</span>
+                @if ($influencer->is_verified) <x-verified class="size-5" /> @endif
+            </h2>
+            <p class="text-sm text-zinc-500">{{ collect([$accounts->first()?->handle, Number::abbreviate($accounts->sum('followers'), maxPrecision: 1).' total followers'])->filter()->join(' · ') }}</p>
+            <div class="mt-2 flex gap-2">
+                @foreach ($accounts as $account)
+                    <x-platform-icon :platform="$account->platform" size="size-4" />
                 @endforeach
             </div>
-        @endif
-    </section>
-
-    <div class="grid gap-6 lg:grid-cols-2">
-        <section class="card p-6">
-            <flux:heading size="lg" class="font-semibold!">Posts per week</flux:heading>
-            @php $peak = max(max($this->perWeek), 1); @endphp
-            <div class="mt-4 flex h-32 items-end gap-1.5">
-                @foreach ($this->perWeek as $week => $count)
-                    <div class="flex h-full flex-1 flex-col justify-end" title="Week of {{ $week }}: {{ $count }} posts">
-                        <div class="rounded-t bg-accent/80" style="height: {{ $count / $peak * 100 }}%"></div>
-                    </div>
-                @endforeach
-            </div>
-            <div class="mt-2 flex justify-between text-xs text-zinc-500">
-                <span>{{ array_key_first($this->perWeek) }}</span>
-                <span>{{ array_sum($this->perWeek) }} posts in {{ $this::WEEKS }} weeks</span>
-            </div>
-        </section>
-
-        <section class="card p-6">
-            <flux:heading size="lg" class="font-semibold!">Average per post</flux:heading>
-            <dl class="mt-4 grid grid-cols-3 gap-4">
-                @foreach ($this->averages as $metric => $average)
-                    <div class="rounded-xl bg-zinc-50 p-4">
-                        <dt class="text-xs capitalize text-zinc-500">{{ $metric }}</dt>
-                        <dd class="mt-1 font-display text-xl font-bold text-zinc-900">{{ $average === null ? '—' : \Illuminate\Support\Number::abbreviate($average, maxPrecision: 1) }}</dd>
-                    </div>
-                @endforeach
-            </dl>
-            <flux:text class="mt-3 text-xs">Posts from the last {{ $this::DAYS }} days.</flux:text>
-        </section>
-    </div>
-
-    <section>
-        <flux:heading size="lg" class="font-semibold!">Most popular posts</flux:heading>
-        <div class="mt-4 space-y-4">
-            @forelse ($this->popular as $post)
-                <x-post-card :post="$post" compact wire:key="popular-{{ $post->id }}" />
-            @empty
-                <div class="rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-12 text-center">
-                    <flux:text>No engagement data for recent posts yet.</flux:text>
-                </div>
-            @endforelse
         </div>
+        <flux:button variant="primary" icon="check" :href="route('influencers.show', $influencer)" wire:navigate>Following</flux:button>
     </section>
+
+    {{-- KPIs --}}
+    <section @class(['grid grid-cols-2 gap-3 sm:gap-4', 'lg:grid-cols-5' => count($kpis) === 5, 'lg:grid-cols-4' => count($kpis) === 4]) aria-label="Key figures">
+        @foreach ($kpis as $key => $kpi)
+            <div class="card p-4" wire:key="kpi-{{ $key }}">
+                <flux:icon :icon="$kpi['icon']" variant="outline" class="size-6 text-accent" />
+                <p class="mt-3 font-display text-2xl font-bold text-zinc-900">{{ Number::abbreviate($kpi['value'], maxPrecision: 1) }}</p>
+                <p class="text-sm text-zinc-500">{{ $kpi['label'] }}</p>
+                <x-analytics.change :value="$kpi['change']" class="mt-2" />
+            </div>
+        @endforeach
+    </section>
+
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+        <div class="min-w-0 space-y-6">
+            <section class="card p-5">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <flux:heading size="lg" class="font-semibold!">Performance Over Time</flux:heading>
+                    <x-analytics.metric-switch :metric="$metric" />
+                </div>
+                <x-analytics.chart :data="$report->daily($metric)" :label="ucfirst($metric)" class="mt-5" />
+            </section>
+
+            <section class="card p-5">
+                <flux:heading size="lg" class="font-semibold!">Posting Activity</flux:heading>
+                <x-analytics.heatmap :weeks="$report->heatmap()" class="mt-4" />
+            </section>
+
+            <section class="card p-5">
+                <flux:heading size="lg" class="font-semibold!">Platform Activity</flux:heading>
+                <div class="mt-4 space-y-3">
+                    @forelse ($report->platforms() as $row)
+                        <div class="flex items-center gap-3 text-sm" wire:key="platform-{{ $row['platform']->value }}">
+                            <x-platform-icon :platform="$row['platform']" size="size-5" />
+                            <span class="w-20 shrink-0 text-zinc-700">{{ $row['platform']->label() }}</span>
+                            <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-zinc-100">
+                                <div class="h-full rounded-full bg-accent" style="width: {{ $row['percent'] }}%"></div>
+                            </div>
+                            <span class="w-28 shrink-0 text-end text-zinc-500">{{ $row['count'] }} {{ Str::plural('post', $row['count']) }} ({{ $row['percent'] }}%)</span>
+                        </div>
+                    @empty
+                        <flux:text>No posts in the last {{ $days }} days.</flux:text>
+                    @endforelse
+                </div>
+            </section>
+
+            @if ($this->growth->isNotEmpty())
+                <section class="card p-5">
+                    <flux:heading size="lg" class="font-semibold!">Follower growth</flux:heading>
+                    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                        @foreach ($this->growth as $row)
+                            <div class="rounded-xl bg-zinc-50 p-4" wire:key="growth-{{ $row['platform']->value }}">
+                                <div class="flex items-center gap-2 text-sm font-medium text-zinc-800">
+                                    <x-platform-icon :platform="$row['platform']" size="size-4" /> {{ $row['platform']->label() }}
+                                    <span @class(['ms-auto text-xs font-semibold', 'text-green-600' => $row['change'] >= 0, 'text-red-600' => $row['change'] < 0])>
+                                        {{ $row['change'] >= 0 ? '+' : '' }}{{ number_format($row['change'], 1) }}%
+                                    </span>
+                                </div>
+                                <svg viewBox="-1 -1 102 32" preserveAspectRatio="none" class="mt-3 h-16 w-full text-accent" role="img"
+                                    aria-label="{{ $row['platform']->label() }} followers from {{ number_format($row['first']) }} to {{ number_format($row['last']) }}">
+                                    <polyline points="{{ $row['points'] }}" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+                                </svg>
+                                <div class="mt-2 flex justify-between text-xs text-zinc-500">
+                                    <span>{{ $row['from']->format('M j') }} · {{ number_format($row['first']) }}</span>
+                                    <span>Today · {{ number_format($row['last']) }}</span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
+        </div>
+
+        <div class="space-y-6">
+            <section class="card p-5">
+                <flux:heading size="lg" class="font-semibold!">Creator Overview</flux:heading>
+                <dl class="mt-4 space-y-3 text-sm">
+                    @foreach ([
+                        'Platforms' => $accounts->count().' ('.$accounts->map(fn ($a) => $a->platform->label())->join(', ').')',
+                        'Posting Frequency' => '~'.number_format($report->postsPerWeek(), 1).' posts/week',
+                        'Most Active Day' => $report->mostActiveDay() ?? '—',
+                        'Primary Format' => $report->primaryFormat() ?? '—',
+                    ] as $term => $value)
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-zinc-500">{{ $term }}</dt>
+                            <dd class="text-end font-medium text-zinc-900">{{ $value }}</dd>
+                        </div>
+                    @endforeach
+                </dl>
+            </section>
+
+            <section class="card p-5">
+                <flux:heading size="lg" class="font-semibold!">Content Breakdown</flux:heading>
+                <div class="mt-4 flex flex-wrap items-center gap-5">
+                    @php $offset = 25; @endphp
+                    <svg viewBox="0 0 42 42" class="size-32 shrink-0" role="img" aria-label="{{ $total }} posts by format">
+                        <circle cx="21" cy="21" r="15.915" fill="none" class="stroke-zinc-100" stroke-width="6" />
+                        @foreach ($breakdown as $format => $count)
+                            @if ($count)
+                                @php $share = $count / $total * 100; @endphp
+                                <circle cx="21" cy="21" r="15.915" fill="none" stroke-width="6" stroke-dasharray="{{ $share }} {{ 100 - $share }}" stroke-dashoffset="{{ $offset }}"
+                                    @class(['stroke-accent' => $loop->index === 0, 'stroke-gold' => $loop->index === 1, 'stroke-khaki' => $loop->index === 2, 'stroke-zinc-300' => $loop->index === 3]) />
+                                @php $offset -= $share; @endphp
+                            @endif
+                        @endforeach
+                        <text x="21" y="21" text-anchor="middle" class="fill-zinc-900 font-display text-[8px] font-bold">{{ $total }}</text>
+                        <text x="21" y="27" text-anchor="middle" class="fill-zinc-500 text-[3.5px]">posts</text>
+                    </svg>
+                    <ul class="min-w-36 flex-1 space-y-2 text-sm">
+                        @foreach ($breakdown as $format => $count)
+                            <li class="flex items-center gap-2">
+                                <span @class(['size-2.5 shrink-0 rounded-full', 'bg-accent' => $loop->index === 0, 'bg-gold' => $loop->index === 1, 'bg-khaki' => $loop->index === 2, 'bg-zinc-300' => $loop->index === 3])></span>
+                                <span class="flex-1 text-zinc-700">{{ $format }}</span>
+                                <span class="text-zinc-500">{{ $total ? round($count / $total * 100) : 0 }}%</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </section>
+
+            <section class="card p-5">
+                <flux:heading size="lg" class="font-semibold!">Best Performing Posts</flux:heading>
+                <div class="mt-4 space-y-4">
+                    @forelse ($report->best() as $post)
+                        <a href="{{ $post->permalink ?: route('influencers.show', $influencer) }}" @if ($post->permalink) target="_blank" rel="noopener" @endif class="flex gap-3 group" wire:key="best-{{ $post->id }}">
+                            <div class="relative w-28 shrink-0 self-start overflow-hidden rounded-lg bg-zinc-100">
+                                @if ($post->images)
+                                    <img src="{{ image_url($post->images[0], 224, 126) }}" alt="" loading="lazy" class="aspect-video w-full object-cover">
+                                @else
+                                    <div class="aspect-video"></div>
+                                @endif
+                                @if ($post->duration)
+                                    <span class="absolute bottom-1 end-1 rounded bg-black/75 px-1 text-[10px] font-medium text-white">{{ $post->duration }}</span>
+                                @endif
+                            </div>
+                            <div class="min-w-0">
+                                <p class="line-clamp-2 text-sm font-semibold text-zinc-900 group-hover:underline">{{ $post->title ?: Str::limit($post->body, 80) }}</p>
+                                <p class="mt-1 text-xs text-zinc-500">{{ Number::abbreviate($post->metrics['views'], maxPrecision: 1) }} views · {{ $post->published_at->diffForHumans() }}</p>
+                            </div>
+                        </a>
+                    @empty
+                        <flux:text>No view counts for posts in this period yet.</flux:text>
+                    @endforelse
+                </div>
+            </section>
+        </div>
+    </div>
 </div>

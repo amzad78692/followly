@@ -52,22 +52,20 @@ it('lists fast-growing creators under Rising This Week on Explore', function () 
 it('shows the analytics tab for an influencer with no snapshots or posts', function () {
     Volt::test('influencer-analytics', ['influencer' => $this->influencer])
         ->assertOk()
-        ->assertSee('No follower history yet')
-        ->assertSee('0 posts in 12 weeks')
-        ->assertSee('No engagement data for recent posts yet');
+        ->assertDontSee('Follower growth')
+        ->assertSee('No view counts for posts in this period yet');
 
     $this->get(route('influencers.show', ['influencer' => $this->influencer, 'tab' => 'analytics']))->assertOk()->assertSee('Analytics');
 });
 
-it('shows follower growth, averages and popular posts', function () {
+it('shows follower growth and best performing posts', function () {
     AccountSnapshot::create(['influencer_account_id' => $this->account->id, 'followers' => 1000, 'captured_on' => today()->subDays(10)]);
     AccountSnapshot::create(['influencer_account_id' => $this->account->id, 'followers' => 1100, 'captured_on' => today()]);
     Post::factory()->for($this->account, 'account')->create(['body' => 'Viral clip', 'metrics' => ['likes' => 300, 'comments' => 10, 'views' => 5000], 'published_at' => now()->subDay()]);
     Post::factory()->for($this->account, 'account')->create(['body' => 'Quiet clip', 'metrics' => ['likes' => 100, 'comments' => 30], 'published_at' => now()->subDays(2)]);
 
-    $component = Volt::test('influencer-analytics', ['influencer' => $this->influencer])
+    Volt::test('influencer-analytics', ['influencer' => $this->influencer])
+        ->assertSee('Follower growth')
         ->assertSee('+10.0%')
-        ->assertSeeInOrder(['Viral clip', 'Quiet clip']);
-
-    expect($component->instance()->averages)->toBe(['likes' => 200, 'comments' => 20, 'views' => 5000]);
+        ->assertSee('5K views');
 });

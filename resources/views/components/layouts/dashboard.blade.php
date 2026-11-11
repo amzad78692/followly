@@ -16,7 +16,7 @@
             'alerts' => route('alerts'),
             'timeline' => route('influencers.index'),
             'discover' => route('explore'),
-            'analytics' => route('influencers.index'),
+            'analytics' => route('analytics'),
             'settings' => route('settings'),
         ];
         $onFeed = request()->routeIs('dashboard');
@@ -38,7 +38,7 @@
             <livewire:notification-count variant="sidebar" :href="$links['alerts']" :current="request()->routeIs('alerts')" />
             <flux:sidebar.item icon="clock" :href="$links['timeline']" wire:navigate>Timeline</flux:sidebar.item>
             <flux:sidebar.item icon="globe-alt" :href="$links['discover']" :current="request()->routeIs('explore')" wire:navigate>Discover</flux:sidebar.item>
-            <flux:sidebar.item icon="chart-bar" :href="$links['analytics']" :current="request()->routeIs('influencers.*')" wire:navigate>Analytics</flux:sidebar.item>
+            <flux:sidebar.item icon="chart-bar" :href="$links['analytics']" :current="request()->routeIs('analytics')" wire:navigate>Analytics</flux:sidebar.item>
             <flux:sidebar.item icon="cog-6-tooth" :href="$links['settings']" :current="request()->routeIs('settings')" wire:navigate>Settings</flux:sidebar.item>
         </flux:sidebar.nav>
 

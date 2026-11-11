@@ -19,7 +19,7 @@ Legend: `[x]` done · `[ ]` to do
 - [ ] Phase C: Watchlist and Collections pages
 - [x] Phase D: Alerts page
 - [ ] Phase E: Timeline page
-- [ ] Phase F: Analytics report
+- [x] Phase F: Analytics report
 - [ ] Phase G: Search, Discover, Notifications and Settings restyle
 - [ ] Phase H: Mobile check, tests and push
 
@@ -79,18 +79,18 @@ Legend: `[x]` done · `[ ]` to do
 
 ## Phase F: Analytics report (`/analytics`)
 
-- [ ] Tabs: **My Creators** (one creator report) · **Top Performers** (followed creators ranked by views and engagement) · **Activity Trends** (posting activity across all followed creators). No Compare tab.
-- [ ] Date range dropdown: last 7 / 30 / 90 days
-- [ ] Creator header: avatar, verified tick, handle, total followers, platform icons, Following button
-- [ ] KPI cards: New Posts, Total Views, Total Likes, Comments, Shares (TikTok only; hidden if none). Each shows the % change against the previous period of the same length.
-- [ ] Performance Over Time: an SVG line chart with Views / Likes / Comments switches
-- [ ] Posting Activity heatmap: day of week × week
-- [ ] Platform Activity bars: posts and % per platform
-- [ ] Creator Overview: platforms, posting frequency, most active day, primary format
-- [ ] Content Breakdown donut: videos, shorts/reels, images, other (from `posts.type`)
-- [ ] Best Performing Posts: top posts by views, with thumbnail and duration
-- [ ] Reuse and extend the `influencer-analytics` component; the influencer page tab links here
-- [ ] Tests: the % change maths (including when the previous period is zero), a creator with no posts, shares hidden without TikTok
+- [x] Tabs: **My Creators** (one creator report) · **Top Performers** (followed creators ranked by views and engagement) · **Activity Trends** (posting activity across all followed creators). No Compare tab.
+- [x] Date range dropdown: last 7 / 30 / 90 days
+- [x] Creator header: avatar, verified tick, handle, total followers, platform icons, Following button
+- [x] KPI cards: New Posts, Total Views, Total Likes, Comments, Shares (TikTok only; hidden if none). Each shows the % change against the previous period of the same length.
+- [x] Performance Over Time: an SVG line chart with Views / Likes / Comments switches
+- [x] Posting Activity heatmap: day of week × week
+- [x] Platform Activity bars: posts and % per platform
+- [x] Creator Overview: platforms, posting frequency, most active day, primary format
+- [x] Content Breakdown donut: videos, shorts/reels, images, other (from `posts.type`)
+- [x] Best Performing Posts: top posts by views, with thumbnail and duration
+- [x] Reuse and extend the `influencer-analytics` component; the influencer page tab links here
+- [x] Tests: the % change maths (including when the previous period is zero), a creator with no posts, shares hidden without TikTok
 
 ## Phase G: Restyle the remaining pages
 
