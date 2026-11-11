@@ -2,10 +2,10 @@
 
 use App\Enums\Platform;
 use App\Feed\SmartFeed;
-use App\Models\Influencer;
 use App\Models\Post;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
@@ -22,6 +22,13 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Feed')] class extends 
     #[Url]
     public ?int $collection = null;
 
+    #[Url]
+    public bool $saved = false;
+
+    /** "smart" keeps the SmartFeed ranking; "latest" is newest first. */
+    #[Url]
+    public string $sort = 'smart';
+
     public int $limit = self::PER_PAGE;
 
     public function updated(): void
@@ -30,13 +37,23 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Feed')] class extends 
     }
 
     /**
-     * Watchlist and a collection are alternative scopes; the platform filter combines with either.
+     * Watchlist, a collection and Saved are alternative scopes; the platform filter combines with any.
      */
     public function scope(string $scope, ?int $collection = null): void
     {
         $this->watchlist = $scope === 'watchlist';
         $this->collection = $scope === 'collection' ? $collection : null;
+        $this->saved = $scope === 'saved';
         $this->limit = self::PER_PAGE;
+    }
+
+    /** A post card's bookmark changed: only the Saved list needs a fresh render. */
+    #[On('post-saved')]
+    public function savedChanged(): void
+    {
+        if (! $this->saved) {
+            $this->skipRender();
+        }
     }
 
     public function showEverything(): void
@@ -60,11 +77,19 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Feed')] class extends 
     #[Computed]
     public function batch()
     {
-        $posts = app(SmartFeed::class)
-            ->query(auth()->user(), Platform::tryFrom($this->platform), $this->watchlist, $this->activeCollection)
-            ->with('influencer.media')
-            ->limit($this->limit + 1)
-            ->get();
+        $platform = Platform::tryFrom($this->platform);
+
+        if ($this->saved) {
+            $query = auth()->user()->savedPosts()->visible()->platform($platform)
+                ->orderByPivot('created_at', 'desc')->orderByDesc('posts.id');
+        } else {
+            $query = app(SmartFeed::class)->query(auth()->user(), $platform, $this->watchlist, $this->activeCollection);
+            if ($this->sort === 'latest') {
+                $query->reorder()->orderByDesc('posts.published_at')->orderByDesc('posts.id');
+            }
+        }
+
+        $posts = $query->with('influencer.media')->limit($this->limit + 1)->get();
 
         // Every visible version of each SmartLink group, for the card's platform icons.
         $versions = Post::visible()->whereIn('group_id', $posts->pluck('group_id')->filter())->get()->groupBy('group_id');
@@ -105,10 +130,20 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Feed')] class extends 
         return auth()->user()->collections()->withCount('influencers')->orderBy('name')->get();
     }
 
+    /**
+     * The user's newest keyword alerts with their unread matches: count and the latest match's platform.
+     */
     #[Computed]
-    public function trending()
+    public function alerts()
     {
-        return Influencer::trending()->with('media')->limit(5)->get();
+        $user = auth()->user();
+        $unread = $user->unreadNotifications()->where('type', 'keyword-alert')->latest()->limit(200)->get();
+
+        return $user->keywordAlerts()->latest()->limit(4)->get()->map(function ($alert) use ($unread) {
+            $hits = $unread->filter(fn ($n) => in_array(mb_strtolower($alert->keyword), array_map('mb_strtolower', $n->data['keywords'] ?? [])));
+
+            return ['keyword' => $alert->keyword, 'count' => $hits->count(), 'platform' => $hits->first()?->data['platform'] ?? null];
+        });
     }
 
     #[Computed]
@@ -119,64 +154,69 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Feed')] class extends 
 }; ?>
 
 @php
-    $chip = fn (bool $on) => [
-        'inline-flex items-center gap-1.5 rounded-full border px-3 py-2.5 text-sm font-medium transition',
-        'border-accent bg-accent text-white shadow-sm' => $on,
-        'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50' => ! $on,
+    // shortcut: mirrors the layout's $links targets; Route::has switches to each real page once it exists.
+    $alertsUrl = Route::has('alerts') ? route('alerts') : route('settings').'#alerts';
+    $timelineUrl = Route::has('timeline') ? route('timeline') : route('influencers.index');
+    $watchlistUrl = Route::has('watchlist') ? route('watchlist') : route('dashboard', ['watchlist' => 1]);
+    $sharedUrl = route('collections.index', ['tab' => 'shared']);
+
+    $everything = ! $watchlist && ! $saved && ! $this->activeCollection;
+    $tab = fn (bool $on) => [
+        'inline-flex items-center gap-1.5 border-b-2 px-1 pb-3 text-sm font-medium whitespace-nowrap transition',
+        'border-accent text-zinc-900' => $on,
+        'border-transparent text-zinc-500 hover:text-zinc-800' => ! $on,
     ];
-    $everything = ! $watchlist && ! $this->activeCollection;
 @endphp
 
 <div class="mx-auto max-w-6xl">
-    <x-page-header icon="home" title="My Feed" subtitle="Latest posts from the creators you follow, across every platform." />
+    <x-page-header icon="calendar" title="My Feed" subtitle="The latest from all influencers you follow, across all platforms.">
+        @foreach ([['Alerts', 'bell-alert', $alertsUrl], ['Timeline', 'clock', $timelineUrl], ['Shared', 'share', $sharedUrl]] as [$label, $icon, $url])
+            <a href="{{ $url }}" wire:navigate class="card flex w-16 flex-col items-center gap-1 px-2 py-2 text-xs text-zinc-600 transition hover:text-accent">
+                <flux:icon :icon="$icon" class="size-5 text-accent" />
+                {{ $label }}
+            </a>
+        @endforeach
+    </x-page-header>
 
-    {{-- Watchlist strip --}}
-    <section class="mt-4 card p-4" aria-labelledby="watchlist-heading">
-        <div class="flex items-center gap-2">
-            <flux:icon.star variant="solid" class="size-4 text-amber-400" />
-            <flux:heading id="watchlist-heading" size="sm">Watchlist</flux:heading>
-        </div>
-        @if ($this->watchlistInfluencers->isEmpty())
-            <flux:text class="mt-2 text-sm">Star up to 10 creators you follow to keep them here and see their posts first.</flux:text>
-        @else
-            <div class="mt-3 flex gap-4 overflow-x-auto pb-1 [scrollbar-width:none]">
-                @foreach ($this->watchlistInfluencers as $influencer)
-                    <a href="{{ route('influencers.show', $influencer) }}" wire:navigate wire:key="watch-{{ $influencer->id }}" class="flex w-16 shrink-0 flex-col items-center gap-1 text-center">
-                        <flux:avatar circle size="lg" :src="image_url($influencer->avatar, 112, 112)" class="ring-2 ring-amber-300" />
-                        <span class="w-full truncate text-xs text-zinc-700">{{ $influencer->name }}</span>
-                    </a>
-                @endforeach
-            </div>
-        @endif
-    </section>
-
-    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        {{-- Smart Feed --}}
+    <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">
         <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-2">
-                <button type="button" wire:click="scope('all')" @class($chip($everything)) aria-pressed="{{ $everything ? 'true' : 'false' }}">All</button>
-                <button type="button" wire:click="scope('watchlist')" @class($chip($watchlist)) aria-pressed="{{ $watchlist ? 'true' : 'false' }}">
-                    <flux:icon.star class="size-4" /> Watchlist
-                </button>
-                @if ($this->activeCollection)
-                    <button type="button" wire:click="scope('all')" @class($chip(true)) aria-label="Stop filtering by {{ $this->activeCollection->name }}">
-                        <flux:icon.folder class="size-4" /> {{ $this->activeCollection->name }} <flux:icon.x-mark class="size-3.5" />
+            {{-- Tabs --}}
+            <nav class="flex gap-5 overflow-x-auto border-b border-zinc-200 [scrollbar-width:none]" aria-label="Feed">
+                <button type="button" wire:click="scope('all')" @class($tab($everything)) aria-pressed="{{ $everything ? 'true' : 'false' }}">My Feed</button>
+                <button type="button" wire:click="scope('watchlist')" @class($tab($watchlist)) aria-pressed="{{ $watchlist ? 'true' : 'false' }}">Watchlist</button>
+                <flux:dropdown>
+                    <button type="button" @class($tab((bool) $this->activeCollection))>
+                        {{ $this->activeCollection?->name ?? 'Collections' }} <flux:icon.chevron-down class="size-3.5" />
                     </button>
-                @endif
+                    <flux:menu>
+                        @forelse ($this->collections as $item)
+                            <flux:menu.item icon="folder" wire:click="scope('collection', {{ $item->id }})" wire:key="collection-{{ $item->id }}">
+                                {{ $item->name }} <span class="ms-auto ps-3 text-xs text-zinc-400">{{ $item->influencers_count }}</span>
+                            </flux:menu.item>
+                        @empty
+                            <flux:menu.item icon="plus" :href="route('collections.index')" wire:navigate>Create a collection</flux:menu.item>
+                        @endforelse
+                    </flux:menu>
+                </flux:dropdown>
+                <button type="button" wire:click="scope('saved')" @class($tab($saved)) aria-pressed="{{ $saved ? 'true' : 'false' }}">Saved</button>
+            </nav>
+
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+                @unless ($saved)
+                    <flux:select wire:model.live="sort" size="sm" class="w-36!" aria-label="Sort">
+                        <flux:select.option value="latest">Latest First</flux:select.option>
+                        <flux:select.option value="smart">Smart</flux:select.option>
+                    </flux:select>
+                @endunless
+                <flux:select wire:model.live="platform" size="sm" class="w-40!" aria-label="Platform">
+                    <flux:select.option value="all">All Platforms</flux:select.option>
+                    @foreach (Platform::cases() as $p)
+                        <flux:select.option :value="$p->value">{{ $p->label() }}</flux:select.option>
+                    @endforeach
+                </flux:select>
             </div>
 
-            <div class="mt-2 flex flex-wrap items-center gap-2">
-                @foreach (['all' => 'All platforms'] + collect(Platform::cases())->mapWithKeys(fn ($p) => [$p->value => $p->label()])->all() as $key => $label)
-                    <button type="button" wire:click="$set('platform', '{{ $key }}')" @class($chip($platform === $key)) aria-pressed="{{ $platform === $key ? 'true' : 'false' }}">
-                        @if ($key !== 'all')
-                            <x-platform-icon :platform="$key" size="size-4" />
-                        @endif
-                        {{ $label }}
-                    </button>
-                @endforeach
-            </div>
-
-            <div wire:loading.delay wire:target="platform, scope, showEverything" class="mt-4 w-full space-y-4">
+            <div wire:loading.delay wire:target="platform, sort, scope, showEverything" class="mt-4 w-full space-y-4">
                 @foreach (range(1, 3) as $i)
                     <flux:skeleton.group animate="shimmer" class="card p-5">
                         <div class="flex items-center gap-3">
@@ -191,21 +231,27 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Feed')] class extends 
                 @endforeach
             </div>
 
-            <div wire:loading.remove wire:target="platform, scope, showEverything" class="mt-4 space-y-4">
+            <div wire:loading.remove wire:target="platform, sort, scope, showEverything" class="mt-4 space-y-4">
                 @forelse ($this->posts as $post)
                     <x-smartlink-card :post="$post" wire:key="post-{{ $post->id }}" />
                 @empty
                     <div class="rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-16 text-center">
-                        <flux:icon.inbox class="mx-auto size-10 text-zinc-300" />
-                        @if (! $this->followsAnyone && ! $this->activeCollection)
+                        @if ($saved)
+                            <flux:icon.bookmark class="mx-auto size-10 text-zinc-300" />
+                            <flux:heading class="mt-3">No saved posts</flux:heading>
+                            <flux:text class="mt-1">Tap the bookmark on any post to keep it here.</flux:text>
+                        @elseif (! $this->followsAnyone && ! $this->activeCollection)
+                            <flux:icon.inbox class="mx-auto size-10 text-zinc-300" />
                             <flux:heading class="mt-3">You don't follow anyone yet</flux:heading>
                             <flux:text class="mt-1">Follow creators and their posts from every platform show up here.</flux:text>
                             <flux:button variant="primary" size="sm" class="mt-4" :href="route('explore')" wire:navigate>Explore creators</flux:button>
                         @elseif (! $everything || $platform !== 'all')
+                            <flux:icon.inbox class="mx-auto size-10 text-zinc-300" />
                             <flux:heading class="mt-3">Nothing here yet</flux:heading>
                             <flux:text class="mt-1">No posts match this filter. Try another one.</flux:text>
                             <flux:button size="sm" class="mt-4" wire:click="showEverything">Show everything</flux:button>
                         @else
+                            <flux:icon.inbox class="mx-auto size-10 text-zinc-300" />
                             <flux:heading class="mt-3">No posts yet</flux:heading>
                             <flux:text class="mt-1">New posts from the creators you follow appear here after the next sync.</flux:text>
                         @endif
@@ -223,33 +269,55 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Feed')] class extends 
             </div>
         </div>
 
-        {{-- Side panel: below the feed on small screens --}}
+        {{-- Right column: below the feed on small screens --}}
         <aside class="space-y-6">
-            <section class="card p-4" aria-labelledby="collections-heading">
-                <flux:heading id="collections-heading" size="sm">Collections</flux:heading>
-                @forelse ($this->collections as $item)
-                    <button type="button" wire:click="scope('collection', {{ $item->id }})" wire:key="collection-{{ $item->id }}" @class([
-                        'mt-2 flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-start text-sm hover:bg-zinc-50',
-                        'bg-zinc-100 font-medium' => $this->activeCollection?->is($item),
-                    ])>
-                        <flux:icon.folder class="size-4 text-zinc-400" />
-                        <span class="min-w-0 flex-1 truncate">{{ $item->name }}</span>
-                        <span class="text-xs text-zinc-400">{{ $item->influencers_count }}</span>
-                    </button>
+            <section class="card p-4" aria-labelledby="actions-heading">
+                <flux:heading id="actions-heading" size="sm">Quick Actions</flux:heading>
+                <div class="mt-3 grid grid-cols-2 gap-2 xl:grid-cols-1">
+                    <flux:button size="sm" icon="user-plus" :href="route('influencers.create')" wire:navigate>Follow Influencer</flux:button>
+                    <flux:button size="sm" icon="magnifying-glass" :href="route('search')" wire:navigate>Search Content</flux:button>
+                </div>
+            </section>
+
+            <section class="card p-4" aria-labelledby="alerts-heading">
+                <div class="flex items-center justify-between">
+                    <flux:heading id="alerts-heading" size="sm">My Alerts</flux:heading>
+                    <flux:link :href="$alertsUrl" wire:navigate class="text-xs">View All</flux:link>
+                </div>
+                @forelse ($this->alerts as $alert)
+                    <a href="{{ $alertsUrl }}" wire:navigate wire:key="alert-{{ $loop->index }}" class="mt-2 flex items-center gap-3 rounded-lg px-1 py-1.5 hover:bg-zinc-50">
+                        @if ($alert['platform'])
+                            <x-platform-icon :platform="$alert['platform']" size="size-7" />
+                        @else
+                            <span class="flex size-7 items-center justify-center rounded-lg bg-accent/10"><flux:icon.bell class="size-4 text-accent" /></span>
+                        @endif
+                        <span class="min-w-0 flex-1 truncate text-sm font-medium">{{ $alert['keyword'] }}</span>
+                        <span @class(['text-xs', 'font-semibold text-accent' => $alert['count'], 'text-zinc-400' => ! $alert['count']])>{{ $alert['count'] }} new {{ Str::plural('post', $alert['count']) }}</span>
+                    </a>
                 @empty
-                    <flux:text class="mt-2 text-sm">Group creators into collections to filter your feed by topic.</flux:text>
+                    <flux:text class="mt-2 text-sm">Add keywords to get alerted when a creator you follow mentions them.</flux:text>
                 @endforelse
             </section>
 
-            <section class="card p-4" aria-labelledby="trending-heading">
-                <flux:heading id="trending-heading" size="sm">Trending</flux:heading>
-                @foreach ($this->trending as $influencer)
-                    <a href="{{ route('influencers.show', $influencer) }}" wire:navigate wire:key="trending-{{ $influencer->id }}" class="mt-2 flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-zinc-50">
-                        <flux:avatar circle size="sm" :src="image_url($influencer->avatar, 80, 80)" />
-                        <span class="min-w-0 flex-1 truncate text-sm">{{ $influencer->name }}</span>
-                    </a>
-                @endforeach
-                <flux:link :href="route('explore')" wire:navigate class="mt-3 inline-block text-sm">See more</flux:link>
+            <section class="card p-4" aria-labelledby="watchlist-heading">
+                <div class="flex items-center justify-between">
+                    <flux:heading id="watchlist-heading" size="sm">My Watchlist</flux:heading>
+                    <flux:link :href="$watchlistUrl" wire:navigate class="text-xs">View All</flux:link>
+                </div>
+                @if ($this->watchlistInfluencers->isEmpty())
+                    <flux:text class="mt-2 text-sm">Star up to 10 creators you follow to keep them here and see their posts first.</flux:text>
+                @else
+                    <div class="mt-3 flex -space-x-2">
+                        @foreach ($this->watchlistInfluencers->take(5) as $influencer)
+                            <a href="{{ route('influencers.show', $influencer) }}" wire:navigate wire:key="watch-{{ $influencer->id }}" title="{{ $influencer->name }}" class="rounded-full ring-2 ring-ivory">
+                                <flux:avatar circle :src="image_url($influencer->avatar, 80, 80)" :alt="$influencer->name" />
+                            </a>
+                        @endforeach
+                        @if ($this->watchlistInfluencers->count() > 5)
+                            <a href="{{ $watchlistUrl }}" wire:navigate class="flex size-10 items-center justify-center rounded-full bg-accent/15 text-xs font-semibold text-accent ring-2 ring-ivory">+{{ $this->watchlistInfluencers->count() - 5 }}</a>
+                        @endif
+                    </div>
+                @endif
             </section>
         </aside>
     </div>

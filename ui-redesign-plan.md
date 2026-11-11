@@ -15,7 +15,7 @@ Legend: `[x]` done · `[ ]` to do
 ## Progress
 
 - [x] Phase A: Shared look (layout, sidebar, header, page headers, cards)
-- [ ] Phase B: My Feed page
+- [x] Phase B: My Feed page
 - [ ] Phase C: Watchlist and Collections pages
 - [x] Phase D: Alerts page
 - [ ] Phase E: Timeline page
@@ -40,12 +40,12 @@ Legend: `[x]` done · `[ ]` to do
 
 ## Phase B: My Feed page (`/dashboard`)
 
-- [ ] Header "My Feed", with header shortcut tiles for Alerts, Timeline and Shared only
-- [ ] Tabs: My Feed · Watchlist · Collections; sort dropdown (Latest First / Smart); platform dropdown
-- [ ] Feed posts use the new post card; SmartLink bar "Posted on N platforms" with icons and a link to the group
-- [ ] Right column: Quick Actions (Follow Influencer, Search Content), My Alerts (keyword, platform icon, "N new posts"), My Watchlist (avatars + "+N", View All)
-- [ ] **Save posts:** a `saved_posts` table (user_id, post_id, unique pair), a bookmark toggle on every post card, and a "Saved" filter tab
-- [ ] Tests: bookmarking on and off, the Saved tab shows only your own saved posts
+- [x] Header "My Feed", with header shortcut tiles for Alerts, Timeline and Shared only
+- [x] Tabs: My Feed · Watchlist · Collections; sort dropdown (Latest First / Smart); platform dropdown
+- [x] Feed posts use the new post card; SmartLink bar "Posted on N platforms" with icons and a link to the group
+- [x] Right column: Quick Actions (Follow Influencer, Search Content), My Alerts (keyword, platform icon, "N new posts"), My Watchlist (avatars + "+N", View All)
+- [x] **Save posts:** a `saved_posts` table (user_id, post_id, unique pair), a bookmark toggle on every post card, and a "Saved" filter tab
+- [x] Tests: bookmarking on and off, the Saved tab shows only your own saved posts
 
 ## Phase C: Watchlist and Collections pages
 

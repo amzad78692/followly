@@ -5,7 +5,7 @@
     @if ($icon)
         <flux:icon :icon="$icon" variant="outline" class="size-10 shrink-0 text-accent" />
     @endif
-    <div class="min-w-0 flex-1">
+    <div class="min-w-0 flex-1 basis-48">
         <h1 class="font-display text-2xl font-bold text-zinc-900 sm:text-3xl">{{ $title }}</h1>
         @if ($subtitle)
             <p class="mt-0.5 text-sm text-zinc-500">{{ $subtitle }}</p>

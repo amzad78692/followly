@@ -1,4 +1,4 @@
-@props(['post', 'compact' => false, 'bookmark' => false])
+@props(['post', 'compact' => false, 'bookmark' => true])
 
 @use('App\Enums\Platform')
 @use('Illuminate\Support\Js')
@@ -39,9 +39,8 @@
         </div>
 
         <div class="-me-2 -mt-1 flex shrink-0 items-center">
-            @if ($bookmark)
-                {{-- UI only for now; saving posts arrives with the My Feed page. --}}
-                <flux:button variant="ghost" size="sm" icon="bookmark" aria-label="Save post" />
+            @if ($bookmark && auth()->check())
+                <livewire:save-post :post="$post->id" :saved="auth()->user()->hasSaved($post)" :key="'save-post-'.$post->id" />
             @endif
 
             @if ($post->permalink || $embed)

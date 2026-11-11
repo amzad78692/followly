@@ -158,6 +158,22 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(KeywordAlert::class);
     }
 
+    /** Bookmarked posts, newest save first via orderByPivot('created_at', 'desc'). */
+    public function savedPosts(): BelongsToMany
+    {
+        return $this->belongsToMany(Post::class, 'saved_posts')->withTimestamps();
+    }
+
+    /** Saved post ids, loaded once per request so a page of post cards costs one query. */
+    protected ?array $savedPostIds = null;
+
+    public function hasSaved(Post $post): bool
+    {
+        $this->savedPostIds ??= $this->savedPosts()->pluck('posts.id')->all();
+
+        return in_array($post->id, $this->savedPostIds);
+    }
+
     public function isFollowing(Influencer $influencer): bool
     {
         return $this->follows()->where('influencer_id', $influencer->id)->exists();
