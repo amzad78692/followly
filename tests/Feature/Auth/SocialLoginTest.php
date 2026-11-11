@@ -26,7 +26,7 @@ it('rejects unknown providers', function () {
 it('creates a verified account for a new google user', function () {
     fakeSocial('google', ['id' => 'g-1', 'name' => 'Sara Ali', 'email' => 'Sara@Example.com']);
 
-    $this->get('/auth/google/callback')->assertRedirect(route('feed', absolute: false));
+    $this->get('/auth/google/callback')->assertRedirect(route('dashboard', absolute: false));
 
     $user = User::sole();
     expect($user->email)->toBe('sara@example.com')
@@ -40,7 +40,7 @@ it('creates a verified account for a new google user', function () {
 it('accepts the apple callback as a post', function () {
     fakeSocial('apple', ['id' => 'a-1', 'name' => null, 'email' => 'abc@privaterelay.appleid.com']);
 
-    $this->post('/auth/apple/callback')->assertRedirect(route('feed', absolute: false));
+    $this->post('/auth/apple/callback')->assertRedirect(route('dashboard', absolute: false));
 
     // Apple sent no name, so the email's local part is used.
     expect(User::sole())->name->toBe('abc')->apple_id->toBe('a-1');

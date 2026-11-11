@@ -39,7 +39,7 @@ new class extends Component {
 
     // The sections below are sample content that shows off the product, not database records.
     public const FEED_NAV = [
-        ['icon' => 'home', 'label' => 'My Feed'],
+        ['icon' => 'home', 'label' => 'Dashboard'],
         ['icon' => 'magnifying-glass', 'label' => 'Explore'],
         ['icon' => 'users', 'label' => 'My Influencers'],
         ['icon' => 'bell', 'label' => 'Notifications'],
@@ -215,7 +215,7 @@ new class extends Component {
     <section class="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
         <div class="grid gap-8 rounded-3xl border border-zinc-200 bg-sand p-6 sm:p-8 lg:grid-cols-[14rem_1fr]">
             <div>
-                <p class="text-[11px] font-semibold uppercase tracking-widest text-zinc-500">My Feed</p>
+                <p class="text-[11px] font-semibold uppercase tracking-widest text-zinc-500">Dashboard</p>
                 <ul class="mt-4 space-y-1 text-sm font-medium text-zinc-600">
                     @foreach ($this::FEED_NAV as $item)
                         <li @class(['flex items-center gap-2.5 rounded-xl px-3 py-2', 'bg-white font-semibold text-zinc-900 shadow-sm' => $loop->first])>

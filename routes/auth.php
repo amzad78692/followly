@@ -25,7 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::get('verify-email/{id}/{hash}', function (EmailVerificationRequest $request) {
         $request->fulfill();
 
-        return redirect()->intended(route('feed', absolute: false).'?verified=1');
+        return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
     })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
 
     Route::post('logout', Logout::class)->name('logout');

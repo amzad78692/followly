@@ -18,7 +18,7 @@
 
     <div class="flex shrink-0 items-center gap-2">
         @auth
-            <flux:button size="sm" variant="primary" :href="route('feed')" wire:navigate>Go to app</flux:button>
+            <flux:button size="sm" variant="primary" :href="route('dashboard')" wire:navigate>Go to app</flux:button>
         @else
             <flux:button size="sm" variant="ghost" :href="route('login')" wire:navigate>Sign in</flux:button>
             <flux:button size="sm" variant="primary" :href="route('register')" wire:navigate>Get Started</flux:button>

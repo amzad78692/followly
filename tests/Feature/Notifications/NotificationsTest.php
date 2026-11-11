@@ -148,7 +148,7 @@ it('shows the unread count in the sidebar and on the bell', function () {
     notifyUser($this->user, $this->youtube);
     notifyUser($this->user, $this->x);
 
-    $this->get('/feed')->assertOk()->assertSee('Notifications, 2 unread');
+    $this->get('/dashboard')->assertOk()->assertSee('Notifications, 2 unread');
 
     $badge = Volt::test('notification-count', ['variant' => 'sidebar'])->assertSee('2');
     $this->user->unreadNotifications()->first()->markAsRead();

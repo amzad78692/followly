@@ -62,7 +62,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Dashboard')] class extend
     {
         $posts = app(SmartFeed::class)
             ->query(auth()->user(), Platform::tryFrom($this->platform), $this->watchlist, $this->activeCollection)
-            ->with('influencer')
+            ->with('influencer.media')
             ->limit($this->limit + 1)
             ->get();
 
@@ -96,7 +96,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Dashboard')] class extend
     #[Computed]
     public function watchlistInfluencers()
     {
-        return auth()->user()->watchlist()->orderByPivot('watchlisted_at')->get();
+        return auth()->user()->watchlist()->with('media')->orderByPivot('watchlisted_at')->get();
     }
 
     #[Computed]
@@ -108,7 +108,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Dashboard')] class extend
     #[Computed]
     public function trending()
     {
-        return Influencer::trending()->limit(5)->get();
+        return Influencer::trending()->with('media')->limit(5)->get();
     }
 
     #[Computed]

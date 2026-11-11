@@ -16,17 +16,17 @@ it('renders the auth pages for guests', function (string $uri) {
 
 it('redirects guests from dashboard pages to login', function (string $uri) {
     $this->get($uri)->assertRedirect(route('login'));
-})->with(['/feed', '/explore', '/influencers', '/influencers/add']);
+})->with(['/dashboard', '/explore', '/influencers', '/influencers/add']);
 
-it('sends logged-in users from the landing page to the feed', function () {
+it('sends logged-in users from the landing page to the dashboard', function () {
     $this->actingAs(User::factory()->create())
         ->get('/')
-        ->assertRedirect(route('feed'));
+        ->assertRedirect(route('dashboard'));
 });
 
 it('shows the dashboard to logged-in users', function () {
     $this->actingAs(User::factory()->create())
-        ->get('/feed')
+        ->get('/dashboard')
         ->assertOk();
 });
 
@@ -39,7 +39,7 @@ it('registers a new user', function () {
         ->set('terms', true)
         ->call('register')
         ->assertHasNoErrors()
-        ->assertRedirect(route('feed', absolute: false));
+        ->assertRedirect(route('dashboard', absolute: false));
 
     $this->assertAuthenticated();
     expect(User::where('email', 'test@example.com')->exists())->toBeTrue();
@@ -77,7 +77,7 @@ it('logs in with valid credentials', function () {
         ->set('password', 'password')
         ->call('login')
         ->assertHasNoErrors()
-        ->assertRedirect(route('feed', absolute: false));
+        ->assertRedirect(route('dashboard', absolute: false));
 
     $this->assertAuthenticatedAs($user);
 });
@@ -178,7 +178,7 @@ it('verifies an email with a signed link', function () {
         'hash' => sha1($user->email),
     ]);
 
-    $this->actingAs($user)->get($url)->assertRedirect(route('feed', absolute: false).'?verified=1');
+    $this->actingAs($user)->get($url)->assertRedirect(route('dashboard', absolute: false).'?verified=1');
 
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
 });
@@ -193,4 +193,8 @@ it('resends the verification email', function () {
     Volt::test('auth.verify-email')->call('sendVerification');
 
     Notification::assertSentTo($user, VerifyEmail::class);
+});
+
+it('redirects the old feed address to the dashboard', function () {
+    $this->actingAs(User::factory()->create())->get('/feed')->assertRedirect('/dashboard');
 });

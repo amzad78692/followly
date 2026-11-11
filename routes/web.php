@@ -12,7 +12,7 @@ Volt::route('/', 'home')->middleware('guest')->name('home');
 
 Route::middleware('auth')->group(function () {
     Volt::route('dashboard', 'dashboard')->name('dashboard');
-    Volt::route('feed', 'feed')->name('feed');
+    Route::redirect('feed', 'dashboard', 301);
     Volt::route('explore', 'explore')->name('explore');
     Volt::route('search', 'search')->name('search');
     Volt::route('notifications', 'notifications.index')->name('notifications');

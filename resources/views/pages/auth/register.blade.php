@@ -35,7 +35,7 @@ new #[Layout('components.layouts.auth')] #[Title('Create account')] class extend
         Auth::login($user);
         Session::regenerate();
 
-        $this->redirectIntended(default: route('feed', absolute: false), navigate: true);
+        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
 }; ?>
 

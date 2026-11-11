@@ -77,7 +77,7 @@ One migration batch for everything Phases 3 to 6 need.
 - [x] **SmartLink card:** one post card with platform icons; clicking an icon opens that platform's version
 - [x] **Smart Feed query:** use the Phase 0 ranking, show a group once, and paginate with infinite scroll
 - [x] Empty states: no follows yet, no posts yet
-- [ ] Point the main navigation to Dashboard after launch (Phase 8)
+- [x] Point the main navigation to Dashboard after launch (Phase 8)
 - [x] Tests: SmartLink grouping (same story is grouped; different stories are not), feed ranking order
 
 ---
@@ -145,12 +145,12 @@ Google Analytics is the only outside service. Every other number comes from our 
 
 ## Phase 8: Mobile polish, testing and launch
 
-- [ ] Check every new page at phone width (375px) and tablet width
-- [ ] Touch-friendly star, share and filter buttons
-- [ ] Run the full test suite; fix failures
+- [x] Check every new page at phone width (375px) and tablet width
+- [x] Touch-friendly star, share and filter buttons
+- [x] Run the full test suite; fix failures
 - [ ] Manual run-through on staging: Google and Apple login, dashboard, watchlist, collections, sharing, search, alerts, admin dashboard
-- [ ] Check page speed of the Dashboard with real data (watch for N+1 queries)
+- [x] Check page speed of the Dashboard with real data (watch for N+1 queries) (local data: fixed an influencer-avatar N+1, 24 → 18 queries; recheck on staging)
 - [ ] Back up the database before running migrations on production (`BackupDatabase` command)
 - [ ] Run migrations and the SmartLink backfill on production
-- [ ] Switch the main navigation to Dashboard and redirect `/feed`
+- [x] Switch the main navigation to Dashboard and redirect `/feed`
 - [ ] Watch errors and the admin dashboard for the first week

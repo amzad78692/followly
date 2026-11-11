@@ -73,7 +73,7 @@ class SocialLoginController extends Controller
         Auth::login($user, remember: true);
         session()->regenerate();
 
-        return redirect()->intended(route('feed', absolute: false));
+        return redirect()->intended(route('dashboard', absolute: false));
     }
 
     private function driver(string $provider): Provider

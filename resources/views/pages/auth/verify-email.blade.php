@@ -10,7 +10,7 @@ new #[Layout('components.layouts.auth')] #[Title('Verify email')] class extends 
     public function sendVerification(): void
     {
         if (Auth::user()->hasVerifiedEmail()) {
-            $this->redirectIntended(default: route('feed', absolute: false), navigate: true);
+            $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
 
             return;
         }

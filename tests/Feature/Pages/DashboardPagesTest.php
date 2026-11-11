@@ -33,7 +33,7 @@ it('renders every dashboard page with the demo data', function (string $uri) {
     $this->seed(DemoSeeder::class);
 
     $this->get($uri)->assertOk();
-})->with(['/feed', '/explore', '/explore?tab=category', '/explore?tab=country', '/explore?tab=language', '/explore?tab=recommended', '/influencers', '/influencers/add', '/influencers/mrbeast', '/influencers/mrbeast?tab=about', '/influencers/mrbeast?tab=related']);
+})->with(['/dashboard', '/explore', '/explore?tab=category', '/explore?tab=country', '/explore?tab=language', '/explore?tab=recommended', '/influencers', '/influencers/add', '/influencers/mrbeast', '/influencers/mrbeast?tab=about', '/influencers/mrbeast?tab=related']);
 
 it('returns 404 for an unknown profile', function () {
     $this->get('/influencers/nobody-here')->assertNotFound();
@@ -49,7 +49,7 @@ it('shows only posts from tracked accounts in the feed and filters by platform',
     Post::factory()->text()->for($followed->accounts->firstWhere('platform', Platform::X), 'account')->create(['body' => 'Followed tweet']);
     Post::factory()->for($other->accounts->first(), 'account')->create(['title' => 'Other video']);
 
-    Volt::test('feed')
+    Volt::test('dashboard')
         ->assertSee('Followed video')
         ->assertSee('Followed tweet')
         ->assertDontSee('Other video')
@@ -64,7 +64,7 @@ it('loads more feed posts', function () {
 
     Post::factory()->count(20)->for($influencer->accounts->first(), 'account')->create();
 
-    $component = Volt::test('feed');
+    $component = Volt::test('dashboard');
     expect($component->get('posts'))->toHaveCount(15)
         ->and($component->get('hasMore'))->toBeTrue();
 

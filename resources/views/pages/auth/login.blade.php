@@ -37,7 +37,7 @@ new #[Layout('components.layouts.auth')] #[Title('Sign in')] class extends Compo
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-        $this->redirectIntended(default: route('feed', absolute: false), navigate: true);
+        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
 
     protected function ensureIsNotRateLimited(): void
