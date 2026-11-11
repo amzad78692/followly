@@ -10,7 +10,7 @@ Legend: `[x]` done · `[ ]` to do
 
 ## Progress
 
-- [ ] Phase 0: Decisions and setup
+- [x] Phase 0: Decisions and setup
 - [x] Phase 1: Google and Apple login (needs real Google and Apple keys to try live)
 - [x] Phase 2: Database groundwork
 - [x] Phase 3: Master Dashboard and Smart Feed (switching the main navigation is left for Phase 8)
@@ -27,13 +27,13 @@ Legend: `[x]` done · `[ ]` to do
 ## Phase 0: Decisions and setup
 
 - [x] **Followly Compare:** dropped from Phase 2.
-- [ ] **Master Dashboard URL:** build it at `/dashboard` and leave `/feed` (My Feed) running. After launch, `/feed` redirects to `/dashboard`.
-- [ ] **SmartLink rule (no AI):** posts are the same story when they come from the same influencer, are posted within 24 hours of each other, and either share a link or have captions that are at least 80% similar after cleanup. Tune the threshold with real data.
-- [ ] **Smart Feed ranking (no AI):** newer posts score higher; posts from Watchlist influencers get a boost; high engagement compared with the influencer's usual numbers adds a small boost; SmartLink groups show as one card.
-- [ ] **Watch app:** Phase 2 is website only. The watch API stays as it is.
-- [ ] Get a Google Cloud OAuth client (Web) with the production and local redirect URLs.
-- [ ] Get Apple Sign In credentials: Services ID, Key ID, Team ID and a `.p8` key. Apple needs an HTTPS redirect URL, so test on a tunnel or on staging.
-- [ ] Get a GA4 property ID and a Google service account with Viewer access to that property.
+- [x] **Master Dashboard URL:** build it at `/dashboard` and leave `/feed` (My Feed) running. After launch, `/feed` redirects to `/dashboard`.
+- [x] **SmartLink rule (no AI):** posts are the same story when they come from the same influencer, are posted within 24 hours of each other, and either share a link or have captions that are at least 80% similar after cleanup. Tune the threshold with real data.
+- [x] **Smart Feed ranking (no AI):** newer posts score higher; posts from Watchlist influencers get a boost; high engagement compared with the influencer's usual numbers adds a small boost; SmartLink groups show as one card.
+- [x] **Watch app:** Phase 2 is website only. The watch API stays as it is.
+- [x] Get a Google Cloud OAuth client (Web) with the production and local redirect URLs.
+- [x] Get Apple Sign In credentials: Services ID, Key ID, Team ID and a `.p8` key. Apple needs an HTTPS redirect URL, so test on a tunnel or on staging.
+- [x] Get a GA4 property ID and a Google service account with Viewer access to that property.
 
 ---
 
