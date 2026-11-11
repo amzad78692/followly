@@ -14,7 +14,7 @@ Legend: `[x]` done · `[ ]` to do
 
 ## Progress
 
-- [ ] Phase A: Shared look (layout, sidebar, header, page headers, cards)
+- [x] Phase A: Shared look (layout, sidebar, header, page headers, cards)
 - [ ] Phase B: My Feed page
 - [ ] Phase C: Watchlist and Collections pages
 - [ ] Phase D: Alerts page
@@ -29,14 +29,14 @@ Legend: `[x]` done · `[ ]` to do
 
 ## Phase A: Shared look
 
-- [ ] Sidebar like the mockups, in this order: My Feed, Watchlist, Collections, Search, Alerts, Timeline, Discover, Analytics, Settings. It has icons, an active pill, and count badges (watchlist count, unread alerts).
-- [ ] Sidebar "My Collections" list with counts and a + button (see the Analytics mockup)
-- [ ] Top header: logo, wide rounded search bar (uses the existing search dropdown), notification bell with a badge, avatar menu
-- [ ] Page header component: large gold outline icon, title and subtitle (used on every page)
-- [ ] Card style: cream background, soft border, rounded corners, light shadow
-- [ ] Platform icon component in brand colours (YouTube, Instagram, TikTok, X)
-- [ ] Post card component: avatar, verified tick, time, platform icons, thumbnail with duration, title, text, bookmark and ⋯ menu
-- [ ] Remove any AI, Catch-Up, Compare or Facebook items if they exist
+- [x] Sidebar like the mockups, in this order: My Feed, Watchlist, Collections, Search, Alerts, Timeline, Discover, Analytics, Settings. It has icons, an active pill, and count badges (watchlist count, unread alerts).
+- [x] Sidebar "My Collections" list with counts and a + button (see the Analytics mockup)
+- [x] Top header: logo, wide rounded search bar (uses the existing search dropdown), notification bell with a badge, avatar menu
+- [x] Page header component: large gold outline icon, title and subtitle (used on every page)
+- [x] Card style: cream background, soft border, rounded corners, light shadow
+- [x] Platform icon component in brand colours (YouTube, Instagram, TikTok, X)
+- [x] Post card component: avatar, verified tick, time, platform icons, thumbnail with duration, title, text, bookmark and ⋯ menu
+- [x] Remove any AI, Catch-Up, Compare or Facebook items if they exist
 
 ## Phase B: My Feed page (`/dashboard`)
 

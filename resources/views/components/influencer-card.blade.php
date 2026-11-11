@@ -1,6 +1,6 @@
 @props(['influencer', 'followed' => false])
 
-<div {{ $attributes->class('flex flex-col rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:shadow-lg hover:shadow-zinc-900/5') }}>
+<div {{ $attributes->class('flex flex-col card p-4 shadow-sm transition hover:shadow-lg hover:shadow-zinc-900/5') }}>
     <a href="{{ route('influencers.show', $influencer) }}" wire:navigate class="block text-center">
         <img src="{{ image_url($influencer->avatar, 128, 128) }}" alt="" class="mx-auto size-16 rounded-full object-cover ring-4 ring-sand">
         <p class="mt-3 flex items-center justify-center gap-1 font-display text-sm font-semibold text-zinc-900">

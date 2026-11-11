@@ -10,7 +10,7 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
 
-new #[Layout('components.layouts.dashboard')] #[Title('Dashboard')] class extends Component {
+new #[Layout('components.layouts.dashboard')] #[Title('My Feed')] class extends Component {
     public const PER_PAGE = 15;
 
     #[Url]
@@ -128,10 +128,10 @@ new #[Layout('components.layouts.dashboard')] #[Title('Dashboard')] class extend
 @endphp
 
 <div class="mx-auto max-w-6xl">
-    <flux:heading size="xl" level="1" class="font-bold!">Dashboard</flux:heading>
+    <x-page-header icon="home" title="My Feed" subtitle="Latest posts from the creators you follow, across every platform." />
 
     {{-- Watchlist strip --}}
-    <section class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4" aria-labelledby="watchlist-heading">
+    <section class="mt-4 card p-4" aria-labelledby="watchlist-heading">
         <div class="flex items-center gap-2">
             <flux:icon.star variant="solid" class="size-4 text-amber-400" />
             <flux:heading id="watchlist-heading" size="sm">Watchlist</flux:heading>
@@ -150,7 +150,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Dashboard')] class extend
         @endif
     </section>
 
-    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
+    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
         {{-- Smart Feed --}}
         <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
@@ -178,7 +178,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Dashboard')] class extend
 
             <div wire:loading.delay wire:target="platform, scope, showEverything" class="mt-4 w-full space-y-4">
                 @foreach (range(1, 3) as $i)
-                    <flux:skeleton.group animate="shimmer" class="rounded-2xl border border-zinc-200 bg-white p-5">
+                    <flux:skeleton.group animate="shimmer" class="card p-5">
                         <div class="flex items-center gap-3">
                             <flux:skeleton class="size-10 rounded-full" />
                             <div class="flex-1 space-y-2">
@@ -225,7 +225,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Dashboard')] class extend
 
         {{-- Side panel: below the feed on small screens --}}
         <aside class="space-y-6">
-            <section class="rounded-2xl border border-zinc-200 bg-white p-4" aria-labelledby="collections-heading">
+            <section class="card p-4" aria-labelledby="collections-heading">
                 <flux:heading id="collections-heading" size="sm">Collections</flux:heading>
                 @forelse ($this->collections as $item)
                     <button type="button" wire:click="scope('collection', {{ $item->id }})" wire:key="collection-{{ $item->id }}" @class([
@@ -241,7 +241,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Dashboard')] class extend
                 @endforelse
             </section>
 
-            <section class="rounded-2xl border border-zinc-200 bg-white p-4" aria-labelledby="trending-heading">
+            <section class="card p-4" aria-labelledby="trending-heading">
                 <flux:heading id="trending-heading" size="sm">Trending</flux:heading>
                 @foreach ($this->trending as $influencer)
                     <a href="{{ route('influencers.show', $influencer) }}" wire:navigate wire:key="trending-{{ $influencer->id }}" class="mt-2 flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-zinc-50">

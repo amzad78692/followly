@@ -122,7 +122,7 @@ new class extends Component {
 
 <div class="mx-auto max-w-5xl">
     {{-- Cover + identity --}}
-    <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
+    <div class="overflow-hidden card">
         <div class="relative h-40 bg-linear-to-r from-gold via-khaki to-terracotta sm:h-52">
             @if ($influencer->cover)
                 <img src="{{ image_url($influencer->cover, 1600) }}" alt="" class="size-full object-cover opacity-60 mix-blend-overlay">
@@ -195,7 +195,7 @@ new class extends Component {
     {{-- Tab content --}}
     <div class="mt-6">
         @if ($tab === 'about')
-            <div class="rounded-2xl border border-zinc-200 bg-white p-6">
+            <div class="card p-6">
                 <flux:heading size="lg" class="font-semibold!">About {{ $influencer->name }}</flux:heading>
                 <flux:text class="mt-2 whitespace-pre-line">{{ $influencer->bio ?: 'No bio yet.' }}</flux:text>
 
@@ -253,7 +253,7 @@ new class extends Component {
                     @endif
                 </div>
 
-                <aside class="h-fit rounded-2xl border border-zinc-200 bg-white p-4 lg:sticky lg:top-24">
+                <aside class="h-fit card p-4 lg:sticky lg:top-24">
                     <flux:heading size="sm" class="font-semibold!">Across Platforms</flux:heading>
                     <ul class="mt-3 space-y-3">
                         @foreach ($accounts as $account)

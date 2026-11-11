@@ -89,7 +89,7 @@ new #[Layout('components.layouts.dashboard'), Title('Collections')] class extend
 
     <ul class="mt-6 space-y-3">
         @forelse ($this->collections as $collection)
-            <li class="rounded-2xl border border-zinc-200 bg-white p-4" wire:key="collection-{{ $collection->id }}">
+            <li class="card p-4" wire:key="collection-{{ $collection->id }}">
                 @if ($editingId === $collection->id)
                     <form wire:submit="rename" class="flex gap-2">
                         <flux:input wire:model="editingName" class="flex-1" aria-label="Collection name" />

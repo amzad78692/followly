@@ -77,7 +77,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('My Influencers')] class e
         <flux:button variant="primary" icon="plus" :href="route('influencers.create')" wire:navigate>Add Influencer</flux:button>
     </div>
 
-    <div class="mt-6 rounded-2xl border border-zinc-200 bg-white">
+    <div class="mt-6 card">
         <div class="grid grid-cols-2 gap-3 border-b border-zinc-200 p-4 sm:flex sm:flex-wrap sm:items-center">
             <div class="col-span-2 sm:min-w-48 sm:flex-1">
                 <flux:input wire:model.live.debounce.250ms="search" icon="magnifying-glass" placeholder="Search my influencers..." size="sm" class="sm:max-w-xs" />

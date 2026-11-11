@@ -21,7 +21,7 @@ it('shows profiles to guests with share tags and structured data', function () {
     $this->get('/influencers/public-creator')
         ->assertOk()
         ->assertSee('Get Started')
-        ->assertDontSee('My Influencers')
+        ->assertDontSee('My Collections')
         ->assertSee('<meta name="description" content="Makes videos about bikes.">', false)
         ->assertSee('<link rel="canonical" href="'.route('influencers.show', $this->influencer).'">', false)
         ->assertSee('<meta property="og:type" content="profile">', false)
@@ -34,7 +34,7 @@ it('keeps the dashboard layout for signed-in users', function () {
     $this->actingAs(User::factory()->create())
         ->get('/influencers/public-creator')
         ->assertOk()
-        ->assertSee('My Influencers');
+        ->assertSee('My Collections');
 });
 
 it('describes a profile without a bio from its platforms', function () {

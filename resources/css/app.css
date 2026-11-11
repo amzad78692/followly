@@ -85,9 +85,14 @@ h3,
     @apply rounded-full;
 }
 
-/* Sidebar: white pill for the current item */
+/* Sidebar: soft gold pill for the current item */
 [data-flux-sidebar-item][data-current] {
-    @apply border-transparent bg-white font-semibold shadow-sm;
+    @apply border-transparent bg-accent/15 font-semibold text-zinc-900 shadow-none;
+}
+
+/* Shared card look: cream surface, soft border, very light shadow. */
+@utility card {
+    @apply rounded-2xl border border-zinc-200/80 bg-ivory shadow-[0_1px_3px_rgb(46_33_20/0.05)];
 }
 
 [x-cloak] {

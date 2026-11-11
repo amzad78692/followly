@@ -36,10 +36,10 @@ new class extends Component {
     }
 }; ?>
 
-<form wire:submit="submit" method="GET" action="{{ route('search') }}" role="search" class="relative w-full max-w-md"
+<form wire:submit="submit" method="GET" action="{{ route('search') }}" role="search" class="relative w-full max-w-xl"
     x-data="{ open: false }" x-on:click.outside="open = false" x-on:keydown.escape="open = false; $refs.input.blur()">
     <flux:input name="q" x-ref="input" wire:model.live.debounce.300ms="q" x-on:focus="open = true" x-on:input="open = true"
-        icon="magnifying-glass" placeholder="Search influencers, posts or topics..." size="sm" class:input="rounded-full!" autocomplete="off" aria-label="Search" />
+        icon="magnifying-glass" placeholder="Search influencers, topics, or posts…" class:input="rounded-full! bg-ivory! border-zinc-200!" autocomplete="off" aria-label="Search" />
 
     @if ($results = $this->results)
         <div x-show="open" x-cloak class="absolute inset-x-0 top-full z-20 mt-2 max-h-[70vh] overflow-y-auto rounded-xl border border-zinc-200 bg-white py-2 shadow-lg shadow-zinc-900/10">

@@ -283,7 +283,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
     </div>
 
     {{-- Account --}}
-    <section id="account" class="scroll-mt-24 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+    <section id="account" class="scroll-mt-24 card p-5 sm:p-6">
         <flux:heading size="lg">Account</flux:heading>
         <flux:text class="mt-1">Your banner, photo, name and email address.</flux:text>
 
@@ -346,7 +346,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
     </section>
 
     {{-- Login methods --}}
-    <section id="login" class="scroll-mt-24 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+    <section id="login" class="scroll-mt-24 card p-5 sm:p-6">
         <flux:heading size="lg">Login methods</flux:heading>
         <flux:text class="mt-1">The ways you can sign in to {{ config('app.name') }}.</flux:text>
 
@@ -379,7 +379,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
     </section>
 
     {{-- Notifications --}}
-    <section id="notifications" class="scroll-mt-24 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+    <section id="notifications" class="scroll-mt-24 card p-5 sm:p-6">
         <flux:heading size="lg">Notifications</flux:heading>
         <flux:text class="mt-1">How we tell you about new posts from the creators you track.</flux:text>
 
@@ -407,7 +407,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
     </section>
 
     {{-- Alerts --}}
-    <section id="alerts" class="scroll-mt-24 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+    <section id="alerts" class="scroll-mt-24 card p-5 sm:p-6">
         <flux:heading size="lg">Alerts</flux:heading>
         <flux:text class="mt-1">Get notified when any creator's new post mentions one of your keywords (whole words, any capitalisation). Up to {{ $this::MAX_KEYWORDS }} keywords; alerts follow your notification preferences above.</flux:text>
 
@@ -434,7 +434,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
     </section>
 
     {{-- Devices --}}
-    <section id="devices" class="scroll-mt-24 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+    <section id="devices" class="scroll-mt-24 card p-5 sm:p-6">
         <flux:heading size="lg">Devices</flux:heading>
         <flux:text class="mt-1">Enter the code shown on your watch to connect it to your account.</flux:text>
 

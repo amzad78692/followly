@@ -149,7 +149,7 @@ new #[Layout('components.layouts.dashboard')] #[Title('Add Influencer')] class e
         <div wire:loading.remove wire:target="search">
             <flux:heading class="mt-8 font-semibold!">We found these accounts</flux:heading>
 
-            <div class="mt-3 rounded-2xl border border-zinc-200 bg-white p-5">
+            <div class="mt-3 card p-5">
                 <div class="flex items-center gap-4">
                     <img src="{{ $result?->avatar ?? $primary->avatarUrl ?? 'https://ui-avatars.com/api/?background=f9f3e5&color=91754e&name='.urlencode($primary->name) }}" alt="" class="size-20 rounded-full object-cover ring-4 ring-sand">
                     <div class="min-w-0">

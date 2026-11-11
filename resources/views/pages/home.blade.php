@@ -200,7 +200,7 @@ new class extends Component {
 
         <ol class="mt-10 grid gap-4 text-start sm:grid-cols-2 lg:grid-cols-4">
             @foreach ($this::STEPS as $step)
-                <li class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+                <li class="card p-5 shadow-sm">
                     <span class="flex size-10 items-center justify-center rounded-xl bg-sand text-accent">
                         <flux:icon :icon="$step['icon']" class="size-5" />
                     </span>
@@ -243,7 +243,7 @@ new class extends Component {
 
                 <div class="mt-5 space-y-3">
                     @foreach ($this::FEED_POSTS as $post)
-                        <article class="flex gap-4 rounded-2xl border border-zinc-200 bg-white p-4">
+                        <article class="flex gap-4 card p-4">
                             <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-sand font-display text-xs font-bold text-accent">{{ str($post['name'])->explode(' ')->map(fn ($word) => $word[0])->join('') }}</span>
                             <div class="min-w-0 flex-1">
                                 <p class="flex flex-wrap items-center gap-1.5 text-xs text-zinc-500">
@@ -325,7 +325,7 @@ new class extends Component {
                 </form>
             </div>
 
-            <div class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <div class="card p-5 shadow-sm">
                 <p class="text-xs font-semibold text-zinc-700">We found these accounts:</p>
                 <div class="mt-3 flex items-center gap-3">
                     <span class="flex size-10 items-center justify-center rounded-full bg-sand font-display text-xs font-bold text-accent">MB</span>
@@ -420,7 +420,7 @@ new class extends Component {
             </div>
             <ul class="mt-4 space-y-3">
                 @foreach ($this::MY_INFLUENCERS as $item)
-                    <li class="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3">
+                    <li class="flex items-center gap-3 card p-3">
                         <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-sand font-display text-[11px] font-bold text-accent">{{ $item['initials'] }}</span>
                         <div class="min-w-0 flex-1">
                             <p class="truncate font-display text-sm font-semibold text-zinc-900">{{ $item['name'] }}</p>
@@ -449,7 +449,7 @@ new class extends Component {
         <h2 class="text-center text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">Frequently asked questions</h2>
         <div class="mt-8 space-y-3">
             @foreach ($this::FAQS as $faq)
-                <details class="group rounded-2xl border border-zinc-200 bg-white p-4">
+                <details class="group card p-4">
                     <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-base font-semibold text-zinc-900">
                         {{ $faq['q'] }}
                         <flux:icon.chevron-down variant="micro" class="size-4 shrink-0 transition group-open:rotate-180" />

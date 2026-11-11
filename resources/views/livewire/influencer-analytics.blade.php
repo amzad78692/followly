@@ -87,7 +87,7 @@ new class extends Component {
 }; ?>
 
 <div class="space-y-6">
-    <section class="rounded-2xl border border-zinc-200 bg-white p-6">
+    <section class="card p-6">
         <flux:heading size="lg" class="font-semibold!">Follower growth</flux:heading>
         <flux:text class="mt-1">Last {{ $this::DAYS }} days, per platform.</flux:text>
 
@@ -118,7 +118,7 @@ new class extends Component {
     </section>
 
     <div class="grid gap-6 lg:grid-cols-2">
-        <section class="rounded-2xl border border-zinc-200 bg-white p-6">
+        <section class="card p-6">
             <flux:heading size="lg" class="font-semibold!">Posts per week</flux:heading>
             @php $peak = max(max($this->perWeek), 1); @endphp
             <div class="mt-4 flex h-32 items-end gap-1.5">
@@ -134,7 +134,7 @@ new class extends Component {
             </div>
         </section>
 
-        <section class="rounded-2xl border border-zinc-200 bg-white p-6">
+        <section class="card p-6">
             <flux:heading size="lg" class="font-semibold!">Average per post</flux:heading>
             <dl class="mt-4 grid grid-cols-3 gap-4">
                 @foreach ($this->averages as $metric => $average)

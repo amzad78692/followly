@@ -5,7 +5,7 @@ use Livewire\Attributes\On;
 use Livewire\Volt\Component;
 
 /**
- * Unread notification count for the sidebar item ("sidebar") or the top bar bell ("bell").
+ * Unread notification count for the sidebar "Alerts" item ("sidebar") or the top bar bell ("bell").
  * Polls every minute and refreshes when the notifications page marks something read.
  * Shows nothing when the user turned off in-app notifications in Settings.
  */
@@ -14,6 +14,9 @@ new class extends Component {
 
     /** Whether the notifications page is open (sidebar highlight). Passed in, since polls run on another route. */
     public bool $current = false;
+
+    /** Sidebar link target; the layout decides where "Alerts" points. */
+    public string $href = '';
 
     #[Computed]
     public function unread(): int
@@ -37,7 +40,7 @@ new class extends Component {
 
 <div wire:poll.60s.visible>
     @if ($variant === 'sidebar')
-        <flux:sidebar.item icon="bell" :href="route('notifications')" :current="$current" :badge="$this->label()" badge:color="red" wire:navigate>Notifications</flux:sidebar.item>
+        <flux:sidebar.item icon="bell-alert" :href="$href ?: route('notifications')" :current="$current" :badge="$this->label()" badge:variant="solid" badge:color="red" badge:class="rounded-full!" wire:navigate>Alerts</flux:sidebar.item>
     @else
         <a href="{{ route('notifications') }}" wire:navigate aria-label="Notifications{{ $this->unread ? ', '.$this->unread.' unread' : '' }}"
             class="relative flex size-8 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-800">
