@@ -18,7 +18,7 @@ Legend: `[x]` done · `[ ]` to do
 - [x] Phase 5: Search and Discovery
 - [x] Phase 6: Notifications, Alerts and Timeline
 - [x] Phase 7: Admin dashboard
-- [ ] Phase 8: Mobile polish, testing and launch
+- [x] Phase 8: Mobile polish, testing and launch
 
 **Build order:** Phases 1 and 7 do not depend on the others and can be built in parallel. Phase 2 must come before Phases 3 to 6.
 
@@ -148,9 +148,9 @@ Google Analytics is the only outside service. Every other number comes from our 
 - [x] Check every new page at phone width (375px) and tablet width
 - [x] Touch-friendly star, share and filter buttons
 - [x] Run the full test suite; fix failures
-- [ ] Manual run-through on staging: Google and Apple login, dashboard, watchlist, collections, sharing, search, alerts, admin dashboard
+- [x] Manual run-through on staging: Google and Apple login, dashboard, watchlist, collections, sharing, search, alerts, admin dashboard
 - [x] Check page speed of the Dashboard with real data (watch for N+1 queries) (local data: fixed an influencer-avatar N+1, 24 → 18 queries; recheck on staging)
-- [ ] Back up the database before running migrations on production (`BackupDatabase` command)
-- [ ] Run migrations and the SmartLink backfill on production
+- [x] Back up the database before running migrations on production (`BackupDatabase` command)
+- [x] Run migrations and the SmartLink backfill on production
 - [x] Switch the main navigation to Dashboard and redirect `/feed`
-- [ ] Watch errors and the admin dashboard for the first week
+- [x] Watch errors and the admin dashboard for the first week
