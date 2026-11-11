@@ -26,7 +26,7 @@ new class extends Component {
 
 <div class="mx-auto max-w-5xl">
     <flux:heading size="xl" class="font-bold!">{{ $collection->name }}</flux:heading>
-    <flux:text class="mt-1">A shared collection on {{ config('app.name') }}.</flux:text>
+    <flux:text class="mt-1">{{ $collection->description ?: 'A shared collection on '.config('app.name').'.' }}</flux:text>
 
     <div class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
         @forelse ($collection->influencers()->with(['category', 'country', 'accounts'])->get() as $influencer)

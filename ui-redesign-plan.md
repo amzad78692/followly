@@ -16,7 +16,7 @@ Legend: `[x]` done · `[ ]` to do
 
 - [x] Phase A: Shared look (layout, sidebar, header, page headers, cards)
 - [x] Phase B: My Feed page
-- [ ] Phase C: Watchlist and Collections pages
+- [x] Phase C: Watchlist and Collections pages
 - [x] Phase D: Alerts page
 - [x] Phase E: Timeline page
 - [x] Phase F: Analytics report
@@ -49,14 +49,14 @@ Legend: `[x]` done · `[ ]` to do
 
 ## Phase C: Watchlist and Collections pages
 
-- [ ] `/watchlist` page: the 10 starred influencers with their latest posts, plus unstar and reorder
-- [ ] Collections page with tabs: My Collections · Shared Collections · Explore Collections
-- [ ] Collection card: cover image, name, public badge, description, avatars, "N Influencers", Share Link / Edit / ⋯
-- [ ] **Cover image and description:** add `description` and a media library cover to `Collection`, with an upload in the edit form
-- [ ] **Share panel:** link with a copy button; X, Facebook, WhatsApp, Telegram, LinkedIn and email share links (plain share URLs, with no SDKs); QR code from `chillerlan/php-qrcode`
-- [ ] **Public collections:** an `is_public` column and a "Make this collection public" switch. Public collections show in Explore Collections, where others can follow every influencer in one click. The share link keeps working when a collection is not public.
-- [ ] Shared and public pages never show the owner's email
-- [ ] Tests: the public/private switch, Explore lists only public collections, the QR code renders, follow-all works
+- [x] `/watchlist` page: the 10 starred influencers with their latest posts, plus unstar and reorder
+- [x] Collections page with tabs: My Collections · Shared Collections · Explore Collections
+- [x] Collection card: cover image, name, public badge, description, avatars, "N Influencers", Share Link / Edit / ⋯
+- [x] **Cover image and description:** add `description` and a media library cover to `Collection`, with an upload in the edit form
+- [x] **Share panel:** link with a copy button; X, Facebook, WhatsApp, Telegram, LinkedIn and email share links (plain share URLs, with no SDKs); QR code from `chillerlan/php-qrcode`
+- [x] **Public collections:** an `is_public` column and a "Make this collection public" switch. Public collections show in Explore Collections, where others can follow every influencer in one click. The share link keeps working when a collection is not public.
+- [x] Shared and public pages never show the owner's email
+- [x] Tests: the public/private switch, Explore lists only public collections, the QR code renders, follow-all works
 
 ## Phase D: Alerts page (`/alerts`)
 

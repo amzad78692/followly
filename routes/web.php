@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
     Volt::route('influencers', 'influencers.index')->name('influencers.index');
     Volt::route('influencers/add', 'influencers.create')->name('influencers.create');
     Volt::route('collections', 'collections.index')->name('collections.index');
+    Volt::route('watchlist', 'watchlist')->name('watchlist');
 
     // Users whose verified email is also an admin's can open the panel without logging in again.
     // Verification is required: anyone can register with any email address.

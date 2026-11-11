@@ -10,7 +10,7 @@
         // existing page until their own pages exist; switch the link here when they do.
         $links = [
             'feed' => route('dashboard'),
-            'watchlist' => route('dashboard', ['watchlist' => 1]),
+            'watchlist' => route('watchlist'),
             'collections' => route('collections.index'),
             'search' => route('search'),
             'alerts' => route('alerts'),
@@ -32,7 +32,7 @@
 
         <flux:sidebar.nav>
             <flux:sidebar.item icon="home" :href="$links['feed']" :current="$onFeed && ! request('watchlist') && ! request('collection')" wire:navigate>My Feed</flux:sidebar.item>
-            <flux:sidebar.item icon="star" :href="$links['watchlist']" :current="$onFeed && request('watchlist')" :badge="$watchCount ?: null" badge:variant="solid" badge:class="rounded-full! bg-accent! px-2!" wire:navigate>Watchlist</flux:sidebar.item>
+            <flux:sidebar.item icon="star" :href="$links['watchlist']" :current="request()->routeIs('watchlist')" :badge="$watchCount ?: null" badge:variant="solid" badge:class="rounded-full! bg-accent! px-2!" wire:navigate>Watchlist</flux:sidebar.item>
             <flux:sidebar.item icon="folder" :href="$links['collections']" :current="request()->routeIs('collections.*')" wire:navigate>Collections</flux:sidebar.item>
             <flux:sidebar.item icon="magnifying-glass" :href="$links['search']" :current="request()->routeIs('search')" wire:navigate>Search</flux:sidebar.item>
             <livewire:notification-count variant="sidebar" :href="$links['alerts']" :current="request()->routeIs('alerts')" />
