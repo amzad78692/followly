@@ -15,6 +15,7 @@ Route::middleware('auth')->group(function () {
     Route::redirect('feed', 'dashboard', 301);
     Volt::route('explore', 'explore')->name('explore');
     Volt::route('search', 'search')->name('search');
+    Volt::route('timeline', 'timeline')->name('timeline');
     Volt::route('notifications', 'notifications.index')->name('notifications');
     Volt::route('alerts', 'alerts')->name('alerts');
     Volt::route('analytics', 'analytics')->name('analytics');

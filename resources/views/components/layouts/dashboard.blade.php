@@ -14,7 +14,7 @@
             'collections' => route('collections.index'),
             'search' => route('search'),
             'alerts' => route('alerts'),
-            'timeline' => route('influencers.index'),
+            'timeline' => route('timeline'),
             'discover' => route('explore'),
             'analytics' => route('analytics'),
             'settings' => route('settings'),
@@ -36,7 +36,7 @@
             <flux:sidebar.item icon="folder" :href="$links['collections']" :current="request()->routeIs('collections.*')" wire:navigate>Collections</flux:sidebar.item>
             <flux:sidebar.item icon="magnifying-glass" :href="$links['search']" :current="request()->routeIs('search')" wire:navigate>Search</flux:sidebar.item>
             <livewire:notification-count variant="sidebar" :href="$links['alerts']" :current="request()->routeIs('alerts')" />
-            <flux:sidebar.item icon="clock" :href="$links['timeline']" wire:navigate>Timeline</flux:sidebar.item>
+            <flux:sidebar.item icon="clock" :href="$links['timeline']" :current="request()->routeIs('timeline')" wire:navigate>Timeline</flux:sidebar.item>
             <flux:sidebar.item icon="globe-alt" :href="$links['discover']" :current="request()->routeIs('explore')" wire:navigate>Discover</flux:sidebar.item>
             <flux:sidebar.item icon="chart-bar" :href="$links['analytics']" :current="request()->routeIs('analytics')" wire:navigate>Analytics</flux:sidebar.item>
             <flux:sidebar.item icon="cog-6-tooth" :href="$links['settings']" :current="request()->routeIs('settings')" wire:navigate>Settings</flux:sidebar.item>
