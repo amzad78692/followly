@@ -18,7 +18,7 @@ Legend: `[x]` done · `[ ]` to do
 - [x] Phase B: My Feed page
 - [ ] Phase C: Watchlist and Collections pages
 - [x] Phase D: Alerts page
-- [ ] Phase E: Timeline page
+- [x] Phase E: Timeline page
 - [x] Phase F: Analytics report
 - [ ] Phase G: Search, Discover, Notifications and Settings restyle
 - [ ] Phase H: Mobile check, tests and push
@@ -70,12 +70,12 @@ Legend: `[x]` done · `[ ]` to do
 
 ## Phase E: Timeline page (`/timeline`)
 
-- [ ] Influencer picker (followed influencers), defaulting to the last one viewed
-- [ ] Profile card: avatar, verified tick, handle, total followers, Following button, alert bell, ⋯
-- [ ] Platform chips with follower counts (YouTube 15.2M, X 3.9M, …) and All Posts, used as a filter
-- [ ] Day groups ("Today, Nov 9", "Yesterday, Nov 8") on a vertical line; each row has a thumbnail, platform, time, text, platform-specific stats (likes, comments, views, reposts) and an open-link button
-- [ ] Reuse the `influencer-timeline` component; the influencer page tab links here
-- [ ] Tests: the platform filter, day grouping
+- [x] Influencer picker (followed influencers), defaulting to the last one viewed
+- [x] Profile card: avatar, verified tick, handle, total followers, Following button, alert bell, ⋯
+- [x] Platform chips with follower counts (YouTube 15.2M, X 3.9M, …) and All Posts, used as a filter
+- [x] Day groups ("Today, Nov 9", "Yesterday, Nov 8") on a vertical line; each row has a thumbnail, platform, time, text, platform-specific stats (likes, comments, views, reposts) and an open-link button
+- [x] Reuse the `influencer-timeline` component; the influencer page tab links here
+- [x] Tests: the platform filter, day grouping
 
 ## Phase F: Analytics report (`/analytics`)
 
