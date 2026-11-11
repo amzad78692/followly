@@ -16,6 +16,7 @@ Route::middleware('auth')->group(function () {
     Volt::route('explore', 'explore')->name('explore');
     Volt::route('search', 'search')->name('search');
     Volt::route('notifications', 'notifications.index')->name('notifications');
+    Volt::route('alerts', 'alerts')->name('alerts');
     Volt::route('settings', 'settings')->name('settings');
     // The short address shown on a watch while it waits for its pairing code.
     Route::get('connect', fn () => redirect(route('settings').'#devices'))->name('connect');

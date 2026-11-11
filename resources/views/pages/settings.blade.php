@@ -44,11 +44,6 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
     /** Platform values the user gets new post notifications for. */
     public array $platforms = [];
 
-    // Alerts
-    public const MAX_KEYWORDS = 20;
-
-    public string $keyword = '';
-
     // Connected devices
     public string $pairingCode = '';
 
@@ -168,39 +163,6 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
         // The badge hides when in-app alerts are off, so let it recount.
         $this->dispatch('notifications-read');
         $this->dispatch('notifications-saved');
-    }
-
-    #[Computed]
-    public function keywords()
-    {
-        return auth()->user()->keywordAlerts()->oldest()->get();
-    }
-
-    public function addKeyword(): void
-    {
-        $this->keyword = Str::squish($this->keyword);
-
-        $this->validate(['keyword' => ['required', 'string', 'min:2', 'max:50',
-            Rule::unique('keyword_alerts')->where('user_id', auth()->id()),
-        ]], ['keyword.unique' => 'You already have this keyword.']);
-
-        if ($this->keywords->count() >= self::MAX_KEYWORDS) {
-            $this->addError('keyword', 'You can have up to '.self::MAX_KEYWORDS.' keywords. Remove one first.');
-
-            return;
-        }
-
-        auth()->user()->keywordAlerts()->create(['keyword' => $this->keyword]);
-
-        $this->reset('keyword');
-        unset($this->keywords);
-    }
-
-    public function removeKeyword(int $id): void
-    {
-        auth()->user()->keywordAlerts()->whereKey($id)->delete();
-
-        unset($this->keywords);
     }
 
     #[Computed]
@@ -409,28 +371,8 @@ new #[Layout('components.layouts.dashboard')] #[Title('Settings')] class extends
     {{-- Alerts --}}
     <section id="alerts" class="scroll-mt-24 card p-5 sm:p-6">
         <flux:heading size="lg">Alerts</flux:heading>
-        <flux:text class="mt-1">Get notified when any creator's new post mentions one of your keywords (whole words, any capitalisation). Up to {{ $this::MAX_KEYWORDS }} keywords; alerts follow your notification preferences above.</flux:text>
-
-        <form wire:submit="addKeyword" class="mt-5 flex items-start gap-3">
-            <div class="min-w-0 flex-1 sm:max-w-xs">
-                <flux:input wire:model="keyword" aria-label="Keyword" placeholder="e.g. giveaway" maxlength="50" autocomplete="off" />
-                <flux:error name="keyword" />
-            </div>
-            <flux:button type="submit" variant="primary" icon="plus">Add</flux:button>
-        </form>
-
-        <div class="mt-4 flex flex-wrap gap-2">
-            @forelse ($this->keywords as $alert)
-                <span wire:key="keyword-{{ $alert->id }}" class="inline-flex items-center gap-1 rounded-full bg-zinc-100 py-1 ps-3 pe-1 text-sm text-zinc-800">
-                    {{ $alert->keyword }}
-                    <button type="button" wire:click="removeKeyword({{ $alert->id }})" class="rounded-full p-1 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-800" aria-label="Remove {{ $alert->keyword }}">
-                        <flux:icon.x-mark class="size-3.5" />
-                    </button>
-                </span>
-            @empty
-                <flux:text>No keywords yet.</flux:text>
-            @endforelse
-        </div>
+        <flux:text class="mt-1">Keyword alerts and their on/off switches now have their own page.</flux:text>
+        <flux:button :href="route('alerts')" wire:navigate icon="bell-alert" class="mt-4">Manage alerts</flux:button>
     </section>
 
     {{-- Devices --}}

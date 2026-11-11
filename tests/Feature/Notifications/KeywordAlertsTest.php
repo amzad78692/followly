@@ -110,23 +110,78 @@ it('pushes the alert only when push is on', function (bool $push) {
     $push ? Queue::assertPushed(SendPush::class, fn ($job) => $job->data['type'] === 'keyword-alert') : Queue::assertNotPushed(SendPush::class);
 })->with([true, false]);
 
-it('lets users add and remove keywords, up to 20', function () {
+it('lets users add, rename and delete keywords, up to 20', function () {
     $this->actingAs($this->user);
-    $page = Volt::test('settings');
+    $page = Volt::test('alerts');
 
-    $page->set('keyword', '  black   friday ')->call('addKeyword')->assertHasNoErrors();
+    $page->call('startAdd')->set('keyword', '  black   friday ')->call('saveKeyword')->assertHasNoErrors();
     expect($this->user->keywordAlerts()->pluck('keyword')->all())->toBe(['Giveaway', 'black friday']);
 
-    $page->set('keyword', 'black friday')->call('addKeyword')->assertHasErrors('keyword');
+    $page->call('startAdd')->set('keyword', 'black friday')->call('saveKeyword')->assertHasErrors('keyword');
+
+    $giveaway = $this->user->keywordAlerts()->where('keyword', 'Giveaway')->first();
+    $page->call('startRename', $giveaway->id)->assertSet('keyword', 'Giveaway')
+        ->set('keyword', 'black friday')->call('saveKeyword')->assertHasErrors('keyword')
+        ->set('keyword', 'Bitcoin')->call('saveKeyword')->assertHasNoErrors();
+    expect($giveaway->fresh()->keyword)->toBe('Bitcoin');
 
     foreach (range(3, 20) as $i) {
         $this->user->keywordAlerts()->create(['keyword' => "word {$i}"]);
     }
-    $page->set('keyword', 'one too many')->call('addKeyword')->assertHasErrors('keyword');
+    $page->call('startAdd')->set('keyword', 'one too many')->call('saveKeyword')->assertHasErrors('keyword');
     expect($this->user->keywordAlerts()->count())->toBe(20);
 
-    $page->call('removeKeyword', $this->user->keywordAlerts()->first()->id);
+    // Renaming still works at the limit.
+    $page->call('startRename', $giveaway->id)->set('keyword', 'Ethereum')->call('saveKeyword')->assertHasNoErrors();
+
+    $page->call('removeKeyword', $giveaway->id);
     expect($this->user->keywordAlerts()->count())->toBe(19);
+
+    $other = User::factory()->create()->keywordAlerts()->create(['keyword' => 'not mine']);
+    $page->call('removeKeyword', $other->id);
+    expect($other->fresh())->not->toBeNull();
+});
+
+it('stops all alerts when the master switch is off', function () {
+    $this->actingAs($this->user);
+    Volt::test('alerts')->assertSet('alertsEnabled', true)->set('alertsEnabled', false);
+    expect($this->user->fresh()->alerts_enabled)->toBeFalse();
+
+    syncCaption($this->account, 'giveaway');
+    expect(alerts($this->user))->toHaveCount(0);
+
+    $this->user->update(['alerts_enabled' => true]);
+    syncCaption($this->account, 'another giveaway');
+    expect(alerts($this->user))->toHaveCount(1);
+});
+
+it('stops a keyword that is switched off and keeps the others', function () {
+    $this->actingAs($this->user);
+    $this->user->keywordAlerts()->create(['keyword' => 'iphone']);
+
+    Volt::test('alerts')->call('toggleKeyword', $this->user->keywordAlerts()->where('keyword', 'Giveaway')->value('id'));
+
+    syncCaption($this->account, 'giveaway only');
+    $post = syncCaption($this->account, 'iphone giveaway');
+
+    expect(alerts($this->user))->toHaveCount(1)
+        ->and(alerts($this->user)->first()->data)->toMatchArray(['post_id' => $post->id, 'keywords' => ['iphone']]);
+});
+
+it('lists only your own matched posts on Alert Posts', function () {
+    $other = User::factory()->create();
+    $other->keywordAlerts()->create(['keyword' => 'bitcoin']);
+
+    syncCaption($this->account, 'Giveaway for followers');
+    syncCaption($this->account, 'Bitcoin is up');
+
+    $this->actingAs($this->user)->get(route('alerts'))->assertOk()
+        ->assertSee('Followly Alerts')
+        ->assertSee('Matched: Giveaway')
+        ->assertSee('Giveaway for followers')
+        ->assertDontSee('Bitcoin is up');
+
+    Volt::test('alerts')->set('tab', 'settings')->assertSee('Change notification preferences')->assertDontSee('Giveaway for followers');
 });
 
 it('filters the notifications center by type', function () {

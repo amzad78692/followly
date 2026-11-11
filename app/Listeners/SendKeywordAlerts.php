@@ -31,7 +31,10 @@ class SendKeywordAlerts implements ShouldQueue
 
         $posts->load('influencer');
 
-        KeywordAlert::query()->orderBy('user_id')->get(['user_id', 'keyword'])->groupBy('user_id')
+        // Switched-off keywords and users with Alerts off on the Alerts page are skipped.
+        KeywordAlert::query()->where('enabled', true)
+            ->whereHas('user', fn ($query) => $query->where('alerts_enabled', true))
+            ->orderBy('user_id')->get(['user_id', 'keyword'])->groupBy('user_id')
             ->chunk(200)
             ->each(function ($chunk) use ($posts, $event) {
                 $users = User::whereKey($chunk->keys())->withExists('deviceTokens')->get();

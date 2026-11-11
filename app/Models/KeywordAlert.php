@@ -10,7 +10,17 @@ class KeywordAlert extends Model
     protected $fillable = [
         'user_id',
         'keyword',
+        'enabled',
     ];
+
+    protected $attributes = [
+        'enabled' => true,
+    ];
+
+    protected function casts(): array
+    {
+        return ['enabled' => 'boolean'];
+    }
 
     public function user(): BelongsTo
     {

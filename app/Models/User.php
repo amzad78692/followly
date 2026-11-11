@@ -38,6 +38,7 @@ class User extends Authenticatable implements HasMedia
         'notify_push',
         'push_daily_summary',
         'muted_platforms',
+        'alerts_enabled',
     ];
 
     /**
@@ -49,6 +50,7 @@ class User extends Authenticatable implements HasMedia
         'notify_in_app' => true,
         'notify_push' => true,
         'push_daily_summary' => false,
+        'alerts_enabled' => true,
     ];
 
     /**
@@ -76,6 +78,7 @@ class User extends Authenticatable implements HasMedia
             'notify_in_app' => 'boolean',
             'notify_push' => 'boolean',
             'push_daily_summary' => 'boolean',
+            'alerts_enabled' => 'boolean',
             'muted_platforms' => AsEnumCollection::of(Platform::class),
         ];
     }

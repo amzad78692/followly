@@ -17,7 +17,7 @@ Legend: `[x]` done · `[ ]` to do
 - [x] Phase A: Shared look (layout, sidebar, header, page headers, cards)
 - [ ] Phase B: My Feed page
 - [ ] Phase C: Watchlist and Collections pages
-- [ ] Phase D: Alerts page
+- [x] Phase D: Alerts page
 - [ ] Phase E: Timeline page
 - [ ] Phase F: Analytics report
 - [ ] Phase G: Search, Discover, Notifications and Settings restyle
@@ -60,13 +60,13 @@ Legend: `[x]` done · `[ ]` to do
 
 ## Phase D: Alerts page (`/alerts`)
 
-- [ ] Header with a master **Alerts On** switch (`users.alerts_enabled`, default on)
-- [ ] My Keyword Alerts: list with an icon, "Across my followed influencers", an on/off switch per keyword (`keyword_alerts.enabled`), and a ⋯ menu (rename, delete), plus an Add Keyword button
-- [ ] "How Alerts Work" side card
-- [ ] Tabs: **Alert Posts** (posts that matched, with a "Matched: keyword" badge and a "Watch on YouTube"-style button) · Alert Settings
-- [ ] Alert matching skips keywords that are switched off, and skips users who switched Alerts off
-- [ ] Move the alerts section out of Settings (leave a link there)
-- [ ] Tests: switching off stops notifications; the matched posts list
+- [x] Header with a master **Alerts On** switch (`users.alerts_enabled`, default on)
+- [x] My Keyword Alerts: list with an icon, "Across my followed influencers", an on/off switch per keyword (`keyword_alerts.enabled`), and a ⋯ menu (rename, delete), plus an Add Keyword button
+- [x] "How Alerts Work" side card
+- [x] Tabs: **Alert Posts** (posts that matched, with a "Matched: keyword" badge and a "Watch on YouTube"-style button) · Alert Settings
+- [x] Alert matching skips keywords that are switched off, and skips users who switched Alerts off
+- [x] Move the alerts section out of Settings (leave a link there)
+- [x] Tests: switching off stops notifications; the matched posts list
 
 ## Phase E: Timeline page (`/timeline`)
 

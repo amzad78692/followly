@@ -13,7 +13,7 @@
             'watchlist' => route('dashboard', ['watchlist' => 1]),
             'collections' => route('collections.index'),
             'search' => route('search'),
-            'alerts' => route('settings').'#alerts',
+            'alerts' => route('alerts'),
             'timeline' => route('influencers.index'),
             'discover' => route('explore'),
             'analytics' => route('influencers.index'),
@@ -35,7 +35,7 @@
             <flux:sidebar.item icon="star" :href="$links['watchlist']" :current="$onFeed && request('watchlist')" :badge="$watchCount ?: null" badge:variant="solid" badge:class="rounded-full! bg-accent! px-2!" wire:navigate>Watchlist</flux:sidebar.item>
             <flux:sidebar.item icon="folder" :href="$links['collections']" :current="request()->routeIs('collections.*')" wire:navigate>Collections</flux:sidebar.item>
             <flux:sidebar.item icon="magnifying-glass" :href="$links['search']" :current="request()->routeIs('search')" wire:navigate>Search</flux:sidebar.item>
-            <livewire:notification-count variant="sidebar" :href="$links['alerts']" :current="request()->routeIs('notifications')" />
+            <livewire:notification-count variant="sidebar" :href="$links['alerts']" :current="request()->routeIs('alerts')" />
             <flux:sidebar.item icon="clock" :href="$links['timeline']" wire:navigate>Timeline</flux:sidebar.item>
             <flux:sidebar.item icon="globe-alt" :href="$links['discover']" :current="request()->routeIs('explore')" wire:navigate>Discover</flux:sidebar.item>
             <flux:sidebar.item icon="chart-bar" :href="$links['analytics']" :current="request()->routeIs('influencers.*')" wire:navigate>Analytics</flux:sidebar.item>
